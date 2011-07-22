@@ -1,0 +1,91 @@
+(use srfi-1)
+
+;(load "../salmonella/salmonella.scm")
+
+(define (get-by-egg/action egg action log)
+  (find (lambda (entry)
+          (and (eq? (report-egg entry) egg)
+               (eq? (report-action entry) action)))
+        log))
+
+(define (read-log-file log-file)
+  (map (lambda (entry)
+         (apply make-report entry))
+       (with-input-from-file log-file read-file)))
+
+(define (log-get egg action getter log)
+  (and-let* ((log-line (get-by-egg/action egg action log)))
+    (getter log-line)))
+
+;; fetch
+(define (fetch-status egg log) (log-get egg 'fetch report-status log))
+(define (fetch-message egg log) (log-get egg 'fetch report-message log))
+(define (fetch-duration egg log) (log-get egg 'fetch report-duration log))
+
+
+;; install
+(define (install-status egg log) (log-get egg 'install report-status log))
+(define (install-message egg log) (log-get egg 'install report-message log))
+(define (install-duration egg log) (log-get egg 'install report-duration log))
+
+
+;; check-version
+(define (version-check-status egg log) (log-get egg 'version-check report-status log))
+(define (version-check-message egg log) (log-get egg 'version-check report-message log))
+(define (version-check-duration egg log) (log-get egg 'version-check report-duration log))
+
+
+;; test
+(define (test-status egg log) (log-get egg 'test report-status log))
+(define (test-message egg log) (log-get egg 'test report-message log))
+(define (test-duration egg log) (log-get egg 'test report-duration log))
+(define (has-test? egg log) (not (= (test-status egg log) -1)))
+
+
+;; start & end
+(define (start-time log)
+  (report-duration (car log)))
+
+(define (salmonella-info log)
+  (report-message (car log)))
+
+(define (end-time log)
+  (report-duration (last log)))
+
+(define (total-time log)
+  (- (end-time log) (start-time log)))
+
+;; statistics
+(define (count-install-ok log)
+  (count (lambda (entry)
+           (and (eq? 'install (report-action entry))
+                (zero? (report-status entry))))
+         log))
+
+(define (count-install-fail log)
+  (count (lambda (entry)
+           (and (eq? 'install (report-action entry))
+                (not (zero? (report-status entry)))))
+         log))
+
+(define (count-test-ok log)
+  (count (lambda (entry)
+           (and (eq? 'test (report-action entry))
+                (zero? (report-status entry))))
+         log))
+
+(define (count-test-fail log)
+  (count (lambda (entry)
+           (and (eq? 'test (report-action entry))
+                (> (report-status entry) 0)))
+         log))
+
+(define (count-no-test log)
+  (count (lambda (entry)
+           (and (eq? 'test (report-action entry))
+                (< (report-status entry) 0)))
+         log))
+
+(define (count-total-eggs log)
+  (let ((eggs (filter symbol? (map report-egg log))))
+    (length (delete-duplicates eggs eq?))))
