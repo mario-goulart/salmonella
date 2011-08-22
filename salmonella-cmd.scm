@@ -54,6 +54,24 @@ No tests: #(count-no-test log)
 EOF
 )))
 
+
+(define (usage #!optional exit-code)
+  (let ((this (pathname-strip-directory (program-name))))
+    (display #<#EOF
+#this [ -h | --help ]
+#this <options> eggs
+
+<options>:
+--log-file=<logfile>  (default=salmonella.log)
+--chicken-installation-prefix=<prefix dir>
+--chicken-install-args=<install args>
+--eggs-source-dir=<eggs dir>
+--keep-repo
+EOF
+)
+    (newline)
+    (when exit-code (exit exit-code))))
+
 (let* ((args (command-line-arguments))
        (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
        (chicken-installation-prefix
@@ -77,6 +95,10 @@ EOF
                   (remove (lambda (arg)
                             (string-prefix? "--" arg))
                           args))))
+
+  (when (or (member "-h" args)
+            (member "--help" args))
+    (usage 0))
 
   ;; Remove the temporary directory if interrupted
   (set-signal-handler! signal/int
