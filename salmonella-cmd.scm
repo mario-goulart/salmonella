@@ -107,6 +107,10 @@ EOF
             (member "--help" args))
     (usage 0))
 
+  (when (null? eggs)
+    (print "Nothing to do.")
+    (exit))
+
   ;; Remove the temporary directory if interrupted
   (set-signal-handler! signal/int
                        (lambda ()
