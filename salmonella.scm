@@ -63,7 +63,7 @@
                 (string-append " -prefix " repo-dir
                                (if eggs-source-dir
                                    (string-append " -t local -l " eggs-source-dir)
-                                   "")))))
+                                   " -test")))))
          (chicken-install
           (make-pathname (list chicken-installation-prefix "bin")
                          "chicken-install"))
