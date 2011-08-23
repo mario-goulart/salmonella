@@ -67,6 +67,7 @@ EOF
 --chicken-install-args=<install args>
 --eggs-source-dir=<eggs dir>
 --keep-repo
+--skip-eggs=<comma-separated list of eggs to skip>
 EOF
 )
     (newline)
@@ -80,6 +81,10 @@ EOF
         (cmd-line-arg '--chicken-install-args args))
        (eggs-source-dir
         (cmd-line-arg '--eggs-source-dir args))
+       (skip-eggs (let ((skip (cmd-line-arg '--skip-eggs args)))
+                    (if skip
+                        (map string->symbol (string-split skip ","))
+                        '())))
        (keep-repo? (and (member "--keep-repo" args) #t))
        (tmp-dir (create-temporary-directory))
        (salmonella (make-salmonella
@@ -91,10 +96,12 @@ EOF
                                                  (string-substitute*
                                                   chicken-install-args
                                                   `(("<repo>" . ,repo)))))))
-       (eggs (map string->symbol
-                  (remove (lambda (arg)
-                            (string-prefix? "--" arg))
-                          args))))
+       (eggs (remove (lambda (egg)
+                       (memq egg skip-eggs))
+                     (map string->symbol
+                          (remove (lambda (arg)
+                                    (string-prefix? "--" arg))
+                                  args)))))
 
   (when (or (member "-h" args)
             (member "--help" args))
