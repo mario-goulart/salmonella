@@ -56,6 +56,9 @@
 (define (test-duration egg log) (log-get egg 'test report-duration log))
 (define (has-test? egg log) (not (= (test-status egg log) -1)))
 
+;; meta-data
+(define (meta-data egg log) (log-get egg 'meta-data report-message log))
+
 
 ;; start & end
 (define (start-time log)

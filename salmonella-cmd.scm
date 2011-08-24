@@ -146,8 +146,12 @@ EOF
        (log! fetch-log log-file)
        (status-reporter fetch-log)
 
-       ;; Install egg
        (when (zero? (report-status fetch-log))
+
+         ;; Meta data
+         (log! (salmonella 'meta-data egg) log-file)
+
+         ;; Install egg
          (progress-indicator 'install egg)
          (let ((install-log (salmonella 'install egg)))
            (log! install-log log-file)

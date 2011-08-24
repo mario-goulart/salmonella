@@ -170,6 +170,9 @@
                        "Version check requires a local repository of eggs sources."
                        installed-version))))
 
+    (define (meta-data egg)
+      (make-report egg 'meta-data -1 (read-meta-file egg tmp-dir) 0))
+
 
     (define (env-info)
       #<#EOF
@@ -205,5 +208,7 @@ EOF
         ((check-version) (check-version egg))
 
         ((env-info) (env-info))
+
+        ((meta-data) (meta-data egg))
 
         (else (error 'salmonella "Invalid action" action))))))
