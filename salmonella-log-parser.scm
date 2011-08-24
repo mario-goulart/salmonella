@@ -45,6 +45,10 @@
 (define (version-check-message egg log) (log-get egg 'version-check report-message log))
 (define (version-check-duration egg log) (log-get egg 'version-check report-duration log))
 
+(define (version-check-ok? egg log)
+  (let ((status (version-check-status egg log)))
+    (or (zero? status) (= status -1))))
+
 
 ;; test
 (define (test-status egg log) (log-get egg 'test report-status log))
