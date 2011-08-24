@@ -1,7 +1,5 @@
 (use srfi-1)
 
-;(load "../salmonella/salmonella.scm")
-
 (define (get-by-egg/action egg action log)
   (find (lambda (entry)
           (and (eq? (report-egg entry) egg)
@@ -16,6 +14,19 @@
 (define (log-get egg action getter log)
   (and-let* ((log-line (get-by-egg/action egg action log)))
     (getter log-line)))
+
+(define (log-eggs log)
+  ;; Return a list of eggs from `log'
+  (let loop ((log log)
+             (eggs '()))
+    (if (null? log)
+        eggs
+        (let ((egg (report-egg (car log))))
+          (loop (cdr log)
+                (if (or (not (symbol? egg))
+                        (memq egg eggs))
+                    eggs
+                    (cons egg eggs)))))))
 
 ;; fetch
 (define (fetch-status egg log) (log-get egg 'fetch report-status log))

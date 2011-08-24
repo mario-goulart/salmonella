@@ -5,6 +5,7 @@
 
 (define log (read-log-file "salmonella.log"))
 
+(test '(ansi-escape-sequences slice) (log-eggs log))
 (test 0 (fetch-status 'slice log))
 (test 0 (install-status 'slice log))
 (test 0 (test-status 'slice log))
