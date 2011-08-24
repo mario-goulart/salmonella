@@ -25,14 +25,20 @@
 
 
 (define (status-reporter report)
-  (let ((status (report-status report)))
+  (let ((status (report-status report))
+        (action (report-action report)))
     (print
      (case status
        ((0) "[ ok ]")
        ((-1) "[ -- ]")
        (else "[fail]"))
      " "
-     (report-duration report) "s")))
+     (if (or (eq? action 'check-version)
+             (and (eq? action 'test)
+                  (= status -1)))
+         ""
+         (conc (report-duration report) "s")))))
+
 
 (define (show-statistics log-file)
   (let ((log (read-log-file log-file)))
