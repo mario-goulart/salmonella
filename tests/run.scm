@@ -26,9 +26,16 @@
 (test 1 (count-test-ok log))
 (test 0 (count-test-fail log))
 
-(test 1310859122.0 (start-time log))
-(test 1310859131.0 (end-time log))
-(test 9.0 (total-time log))
+(test 1314226508.0 (start-time log))
+(test 1314226540.0 (end-time log))
+(test 30.0 (total-time log))
 (test #t (string-prefix? "salmonella" (salmonella-info log)))
+
+(test #t (check-version-ok? 'slice log))
+(test #t (check-version-ok? 'ansi-escape-sequences log))
+
+(test "slice.egg" (car (alist-ref 'egg (meta-data 'slice log))))
+(test "ansi-escape-sequences.egg"
+      (car (alist-ref 'egg (meta-data 'ansi-escape-sequences log))))
 
 (test-exit)
