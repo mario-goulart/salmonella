@@ -41,12 +41,12 @@
 
 
 ;; check-version
-(define (version-check-status egg log) (log-get egg 'version-check report-status log))
-(define (version-check-message egg log) (log-get egg 'version-check report-message log))
-(define (version-check-duration egg log) (log-get egg 'version-check report-duration log))
+(define (check-version-status egg log) (log-get egg 'check-version report-status log))
+(define (check-version-message egg log) (log-get egg 'check-version report-message log))
+(define (check-version-duration egg log) (log-get egg 'check-version report-duration log))
 
-(define (version-check-ok? egg log)
-  (let ((status (version-check-status egg log)))
+(define (check-version-ok? egg log)
+  (let ((status (check-version-status egg log)))
     (or (zero? status) (= status -1))))
 
 
