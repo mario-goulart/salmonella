@@ -137,35 +137,39 @@
                     report)))
               (make-report egg 'test -1 "" 0)))))
 
+
     (define (check-version egg)
       ;; Check egg version and return a report object
-      (if eggs-source-dir
+      (let ((installed-version
+             (and-let* ((version
+                         (with-input-from-pipe
+                          (sprintf "~a ~a -e \"(print (extension-information '~a))\""
+                                   chicken-env-vars csi egg)
+                          read))
+                        (version (alist-ref 'version version)))
+               (->string (car version)))))
+        (if eggs-source-dir
           (let* ((setup-version
-                  (and-let* ((version
-                              (with-input-from-pipe
-                               (sprintf "~a ~a -e \"(print (extension-information '~a))\""
-                                        chicken-env-vars csi egg)
-                               read))
-                             (version (alist-ref 'version version)))
-                    (->string (car version))))
-                 (tag-version
                   (and-let* ((egg-info (alist-ref egg egg-information))
                              (ver (alist-ref 'version egg-info)))
                     (->string (car ver))))
-                 (version-ok? (equal? setup-version tag-version)))
+                 (version-ok? (equal? installed-version setup-version)))
             (make-report egg
                          'check-version
                          (if version-ok? 0 1)
                          (if version-ok?
                              ""
                              (conc "Mismatch between installed egg version "
-                                   setup-version
+                                   installed-version
                                    " and declared egg version "
-                                   tag-version))
-                         0))
-          (error 'check-version
-                 "Version check requires a local repository of eggs sources."
-                 "See the `eggs-source-dir' keyword parameter for `make-salmonella.")))
+                                   setup-version))
+                         installed-version))
+          (make-report egg
+                       'check-version
+                       -1
+                       "Version check requires a local repository of eggs sources."
+                       installed-version))))
+
 
     (define (env-info)
       #<#EOF
