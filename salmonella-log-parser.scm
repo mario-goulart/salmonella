@@ -59,6 +59,9 @@
 ;; meta-data
 (define (meta-data egg log) (log-get egg 'meta-data report-message log))
 
+;; doc
+(define (doc-exists? egg log) (zero? (log-get egg 'doc report-status log)))
+
 
 ;; start & end
 (define (start-time log)
@@ -107,3 +110,15 @@
 (define (count-total-eggs log)
   (let ((eggs (filter symbol? (map report-egg log))))
     (length (delete-duplicates eggs eq?))))
+
+(define (count-documented log)
+  (count (lambda (entry)
+           (and (eq? 'doc (report-action entry))
+                (zero? (report-status entry))))
+         log))
+
+(define (count-undocumented log)
+  (count (lambda (entry)
+           (and (eq? 'doc (report-action entry))
+                (not (zero? (report-status entry)))))
+         log))

@@ -5,6 +5,8 @@
 
 (define log (read-log-file "salmonella.log"))
 
+(test-begin "Salmonella")
+
 (test '(ansi-escape-sequences slice) (log-eggs log))
 (test 0 (fetch-status 'slice log))
 (test 0 (install-status 'slice log))
@@ -25,10 +27,12 @@
 (test 1 (count-no-test log))
 (test 1 (count-test-ok log))
 (test 0 (count-test-fail log))
+(test 2 (count-documented log))
+(test 0 (count-undocumented log))
 
 (test 1314226508.0 (start-time log))
 (test 1314226540.0 (end-time log))
-(test 30.0 (total-time log))
+(test 31.0 (total-time log))
 (test #t (string-prefix? "salmonella" (salmonella-info log)))
 
 (test #t (check-version-ok? 'slice log))
@@ -37,5 +41,10 @@
 (test "slice.egg" (car (alist-ref 'egg (meta-data 'slice log))))
 (test "ansi-escape-sequences.egg"
       (car (alist-ref 'egg (meta-data 'ansi-escape-sequences log))))
+
+(test #t (doc-exists? 'slice log))
+(test #t (doc-exists? 'ansi-escape-sequences log))
+
+(test-end "Salmonella")
 
 (test-exit)

@@ -1,4 +1,4 @@
-(use srfi-13 posix setup-download)
+(use srfi-13 posix setup-download tcp irregex)
 
 (define-record report egg action status message duration)
 
@@ -51,10 +51,53 @@
       read)))
 
 
+;;; HTTP (for docs)
+
+(define egg-doc-host "wiki.call-cc.org")
+(define egg-doc-port 80)
+
+(define (HEAD-request location)
+  (conc "HEAD "
+        location
+        " HTTP/1.1" "\r\n"
+        "Connection: close\r\n"
+        "User-Agent: salmonella\r\n"
+        "Accept: */*\r\n"
+        "Host: " egg-doc-host #\: egg-doc-port "\r\n"
+        "Content-length: 0\r\n"
+        "\r\n"))
+
+;; Stolen from setup-download.scm
+(define (match-http-response rsp)
+  (and (string? rsp)
+       (irregex-match "HTTP/[0-9.]+\\s+([0-9]+)\\s+.*" rsp)) )
+
+(define (response-match-code? mrsp code)
+  (and mrsp (string=? (number->string code) (irregex-match-substring mrsp 1))) )
+
+(define (egg-doc-exists? egg #!key eggs-doc-dir major-version)
+  (cond (eggs-doc-dir
+         (file-exists? (make-pathname eggs-doc-dir (->string egg))))
+        (major-version
+         (let-values (((in out) (tcp-connect egg-doc-host egg-doc-port)))
+           (let ((req (HEAD-request
+                       (make-absolute-pathname
+                        `("eggref" ,(number->string major-version))
+                        (->string egg)))))
+             (display req out)
+             (flush-output out)
+             (response-match-code? (match-http-response (read-line in)) 200))))
+        (else (error 'egg-doc-exists?
+                     "Missing one of `major-version' or `eggs-doc-dir'"))))
+
+
+;;; Salmonella
+
 (define (make-salmonella tmp-dir
          #!key chicken-installation-prefix
                chicken-install-args
-               eggs-source-dir)
+               eggs-source-dir
+               eggs-doc-dir)
 
   (let* ((chicken-installation-prefix (or chicken-installation-prefix "/usr"))
          (chicken-install-args
@@ -72,6 +115,11 @@
         (binary-version
          (call-with-input-pipe (string-append csi " -p '(##sys#fudge 42)'")
                                read-line))
+        (major-version
+         (string->number
+          (call-with-input-pipe
+           (string-append csi " -p '(car (string-split (chicken-version) \".\"))'")
+           read-line)))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (chicken-env-vars
@@ -173,6 +221,14 @@
     (define (meta-data egg)
       (make-report egg 'meta-data -1 (read-meta-file egg tmp-dir) 0))
 
+    (define (check-egg-doc egg)
+      (let ((start (current-seconds))
+            (doc-exists?
+             (egg-doc-exists? egg
+                              eggs-doc-dir: eggs-doc-dir
+                              major-version: (if eggs-doc-dir #f major-version)))
+            (end (current-seconds)))
+        (make-report egg 'doc (if doc-exists? 0 1) "" (- end start))))
 
     (define (env-info)
       #<#EOF
@@ -210,5 +266,7 @@ EOF
         ((env-info) (env-info))
 
         ((meta-data) (meta-data egg))
+
+        ((doc) (check-egg-doc egg))
 
         (else (error 'salmonella "Invalid action" action))))))

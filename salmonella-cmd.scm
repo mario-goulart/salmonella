@@ -17,6 +17,7 @@
                    ((check-version) "  Checking version")
                    ((test) "  Testing")
                    ((meta-check) "  Checking .meta")
+                   ((doc) "  Checking documentation")
                    (else (error 'salmonella-progress-indicator
                                 "Invalid action"
                                 action)))))
@@ -57,6 +58,10 @@ Failed: #(count-install-fail log)
 Ok: #(count-test-ok log)
 Failed: #(count-test-fail log)
 No tests: #(count-no-test log)
+
+==== Documentation
+Documented: #(count-documented log)
+Undocumented: #(count-undocumented log)
 EOF
 )))
 
@@ -168,7 +173,14 @@ EOF
              (progress-indicator 'test egg)
              (let ((test-log (salmonella 'test egg)))
                (log! test-log log-file)
-               (status-reporter test-log)))))))
+               (status-reporter test-log))))))
+
+     ;; Check doc
+     (progress-indicator 'doc egg)
+     (let ((doc-log (salmonella 'doc egg)))
+       (log! doc-log log-file)
+       (status-reporter doc-log)))
+
    eggs)
 
   (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
