@@ -221,4 +221,4 @@ EOF
 
   (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
   (show-statistics log-file)
-  (delete-path tmp-dir))
+  (unless keep-repo? (delete-path tmp-dir)))
