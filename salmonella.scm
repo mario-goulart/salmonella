@@ -45,8 +45,11 @@
 
 ;;; meta data
 (define (read-meta-file egg tmp-repo-dir)
+  ;; If `tmp-repo-dir' is `#f', assume this-egg
   (let* ((egg (symbol->string egg))
-         (meta-file (make-pathname (list tmp-repo-dir egg) egg "meta")))
+         (meta-file (make-pathname (and tmp-repo-dir (list tmp-repo-dir egg))
+                                   egg
+                                   "meta")))
     (and (file-exists? meta-file)
          (with-input-from-file meta-file read))))
 
@@ -97,7 +100,8 @@
          #!key chicken-installation-prefix
                chicken-install-args
                eggs-source-dir
-               eggs-doc-dir)
+               eggs-doc-dir
+               this-egg?)
 
   (let* ((chicken-installation-prefix (or chicken-installation-prefix "/usr"))
          (chicken-install-args
@@ -141,36 +145,47 @@
       ;; Fetches egg and returns a report object
       (save-excursion tmp-dir
         (lambda ()
-          (log-shell-command egg
-                             'fetch
-                             (sprintf "~a -r ~a ~a"
-                                      chicken-install
-                                      (chicken-install-args tmp-repo-dir)
-                                      egg)))))
+          (if this-egg?
+              (make-report egg 'fetch 0 "" 0)
+              (log-shell-command egg
+                                 'fetch
+                                 (sprintf "~a -r ~a ~a"
+                                          chicken-install
+                                          (chicken-install-args tmp-repo-dir)
+                                          egg))))))
 
     (define (install-egg egg #!optional (action 'install))
       ;; Installs egg and returns a report object
-      (save-excursion (make-pathname tmp-dir (->string egg))
-        (lambda ()
-          (log-shell-command egg
-                             'install
-                             (sprintf "~a ~a ~a ~a"
-                                      chicken-env-vars
-                                      chicken-install
-                                      (chicken-install-args tmp-repo-dir)
-                                      egg)))))
+      (let ((install
+             (lambda ()
+               (log-shell-command egg
+                                  'install
+                                  (sprintf "~a ~a ~a ~a"
+                                           chicken-env-vars
+                                           chicken-install
+                                           (chicken-install-args tmp-repo-dir)
+                                           (if this-egg?
+                                               ""
+                                               egg))))))
+        (if this-egg?
+            (install)
+            (save-excursion (make-pathname tmp-dir (->string egg)) install))))
+
 
     (define (test-egg egg)
       ;; Runs egg tests and returns a report object
       (let ((start (current-seconds)))
         ;; Installing test dependencies
-        (let* ((meta-data (read-meta-file egg tmp-dir))
+        (let* ((meta-data (read-meta-file egg (if this-egg? #f tmp-dir)))
                (test-deps (alist-ref 'test-depends meta-data)))
           (for-each (lambda (dep)
                       (fetch-egg dep 'fetch-test-dep)
                       (install-egg dep 'install-test-dep))
                     (or test-deps '())))
-        (let ((test-dir (make-pathname (list tmp-dir (->string egg)) "tests")))
+        (let ((test-dir (make-pathname (if this-egg?
+                                           #f
+                                           (list tmp-dir (->string egg)))
+                                       "tests")))
           (if (and (directory? test-dir)
                    (file-exists? (make-pathname test-dir "run.scm")))
               (save-excursion test-dir
@@ -219,7 +234,7 @@
                        installed-version))))
 
     (define (meta-data egg)
-      (let ((data (read-meta-file egg tmp-dir)))
+      (let ((data (read-meta-file egg (if this-egg? #f tmp-dir))))
         (make-report egg 'meta-data (and data #t) data 0)))
 
     (define (check-egg-doc egg)

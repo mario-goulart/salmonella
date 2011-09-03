@@ -1,6 +1,6 @@
 (use srfi-1 regex)
-(load "salmonella")
-(load "salmonella-log-parser")
+(load-relative "salmonella")
+(load-relative "salmonella-log-parser")
 
 (define (cmd-line-arg option args)
   ;; Returns the argument associated to the command line option OPTION
@@ -84,6 +84,7 @@ EOF
 --eggs-source-dir=<eggs dir>
 --keep-repo
 --skip-eggs=<comma-separated list of eggs to skip>
+--this-egg
 EOF
 )
     (newline)
@@ -102,6 +103,7 @@ EOF
                         (map string->symbol (string-split skip ","))
                         '())))
        (keep-repo? (and (member "--keep-repo" args) #t))
+       (this-egg? (and (member "--this-egg" args) #t))
        (tmp-dir (create-temporary-directory))
        (salmonella (make-salmonella
                     tmp-dir
@@ -111,13 +113,24 @@ EOF
                                                (lambda (repo)
                                                  (string-substitute*
                                                   chicken-install-args
-                                                  `(("<repo>" . ,repo)))))))
-       (eggs (remove (lambda (egg)
-                       (memq egg skip-eggs))
-                     (map string->symbol
-                          (remove (lambda (arg)
-                                    (string-prefix? "--" arg))
-                                  args)))))
+                                                  `(("<repo>" . ,repo)))))
+                    this-egg?: this-egg?))
+       (eggs (if this-egg?
+                 (let ((setup (glob "*.setup")))
+                   (cond ((null? setup)
+                          (print "Could not find a .setup file. Aborting.")
+                          (exit 1))
+                         ((null? (cdr setup))
+                          (map (compose string->symbol pathname-file) setup))
+                         (else
+                          (print "Found more than one .setup file.  Aborting.")
+                          (exit 1))))
+                 (remove (lambda (egg)
+                           (memq egg skip-eggs))
+                         (map string->symbol
+                              (remove (lambda (arg)
+                                        (string-prefix? "--" arg))
+                                      args))))))
 
   (when (or (member "-h" args)
             (member "--help" args))
