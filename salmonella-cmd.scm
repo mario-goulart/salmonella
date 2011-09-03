@@ -43,19 +43,6 @@
          (conc (report-duration report) "s")))))
 
 
-(define (prettify-time seconds)
-  (cond ((zero? seconds)
-         "")
-        ((< seconds 60)
-         (conc seconds "s"))
-        ((< seconds 3600)
-         (let ((mins (quotient seconds 60)))
-           (conc mins "m" (prettify-time (- seconds (* 60 mins))))))
-        (else
-         (let ((hours (quotient seconds 3600)))
-           (conc hours "h" (prettify-time (- seconds (* 3600 hours))))))))
-
-
 (define (show-statistics log-file)
   (let ((log (read-log-file log-file)))
     (print #<#EOF
