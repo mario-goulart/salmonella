@@ -85,6 +85,7 @@ EOF
 --keep-repo
 --skip-eggs=<comma-separated list of eggs to skip>
 --this-egg
+--repo-dir=<path to repo dir to be used>
 EOF
 )
     (newline)
@@ -104,7 +105,12 @@ EOF
                         '())))
        (keep-repo? (and (member "--keep-repo" args) #t))
        (this-egg? (and (member "--this-egg" args) #t))
-       (tmp-dir (create-temporary-directory))
+       (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
+                   (if (absolute-pathname? path)
+                       path
+                       (normalize-pathname
+                        (make-pathname (current-directory) path)))))
+       (tmp-dir (or repo-dir (create-temporary-directory)))
        (salmonella (make-salmonella
                     tmp-dir
                     eggs-source-dir: eggs-source-dir
