@@ -262,6 +262,27 @@
                          "")
                      0)))
 
+    (define (check-category egg meta-data)
+      (let* ((valid-categories
+              '(lang-exts graphics debugging logic net io db os ffi web xml
+                doc-tools egg-tools math oop data parsing tools sound testing
+                crypt ui code-generation macros misc hell uncategorized obsolete))
+             (egg-category (and-let* ((categ (alist-ref 'category meta-data)))
+                             (car categ)))
+             (valid-category? (and (symbol? egg-category)
+                                   (memq egg-category valid-categories)
+                                   #t)))
+        (make-report egg 'check-category valid-category?
+                     (if valid-category?
+                         ""
+                         (cond ((not (symbol? egg-category))
+                                "The specified category is not a symbol")
+                               ((not (memq egg-category valid-categories))
+                                (conc "The specified category is invalid: "
+                                      egg-category))))
+                     0)))
+
+
     (define (env-info)
       #<#EOF
 salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
@@ -300,6 +321,8 @@ EOF
         ((meta-data) (meta-data egg))
 
         ((check-dependencies) (check-dependencies egg (car more-args)))
+
+        ((check-category) (check-category egg (car more-args)))
 
         ((doc) (check-egg-doc egg))
 

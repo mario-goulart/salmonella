@@ -18,6 +18,7 @@
                    ((test) "  Testing")
                    ((meta-data) "  Reading .meta")
                    ((check-dependencies) "  Checking dependencies")
+                   ((check-category) "  Checking category")
                    ((doc) "  Checking documentation")
                    (else (error 'salmonella-progress-indicator
                                 "Invalid action"
@@ -168,6 +169,12 @@ EOF
                (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
                  (log! deps-log log-file)
                  (status-reporter deps-log))
+
+               ;; Check category
+               (progress-indicator 'check-category egg)
+               (let ((categ-log (salmonella 'check-category egg meta-data)))
+                 (log! categ-log log-file)
+                 (status-reporter categ-log))
 
                ;; Install egg
                (progress-indicator 'install egg)
