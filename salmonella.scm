@@ -5,7 +5,8 @@
 (define (run-shell-command command #!optional (omit-command #f))
   ;; Returns (values <status> <output> <duration>)
   (let* ((start (current-seconds))
-         (p (open-input-pipe (string-append command " 2>&1")))
+         (p (open-input-pipe
+             (string-append "SALMONELLA_RUNNING=1 " command " 2>&1")))
          (output (read-all p)))
     (values (arithmetic-shift (close-input-pipe p) -8)
             (conc (if omit-command "" (conc command "\n")) output)
