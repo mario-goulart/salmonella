@@ -17,6 +17,7 @@
                    ((check-version) "  Checking version")
                    ((test) "  Testing")
                    ((meta-data) "  Reading .meta")
+                   ((check-dependencies) "  Checking dependencies")
                    ((doc) "  Checking documentation")
                    (else (error 'salmonella-progress-indicator
                                 "Invalid action"
@@ -160,25 +161,32 @@ EOF
            (status-reporter meta-log)
 
            (when (report-status meta-log)
+             (let ((meta-data (report-message meta-log)))
 
-             ;; Install egg
-             (progress-indicator 'install egg)
-             (let ((install-log (salmonella 'install egg)))
-               (log! install-log log-file)
-               (status-reporter install-log)
+               ;; Check dependencies
+               (progress-indicator 'check-dependencies egg)
+               (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
+                 (log! deps-log log-file)
+                 (status-reporter deps-log))
 
-               (when (zero? (report-status install-log))
-                 ;; Check version
-                 (progress-indicator 'check-version egg)
-                 (let ((check-version-log (salmonella 'check-version egg)))
-                   (log! check-version-log log-file)
-                   (status-reporter check-version-log))
+               ;; Install egg
+               (progress-indicator 'install egg)
+               (let ((install-log (salmonella 'install egg)))
+                 (log! install-log log-file)
+                 (status-reporter install-log)
 
-                 ;; Test egg
-                 (progress-indicator 'test egg)
-                 (let ((test-log (salmonella 'test egg)))
-                   (log! test-log log-file)
-                   (status-reporter test-log))))))))
+                 (when (zero? (report-status install-log))
+                   ;; Check version
+                   (progress-indicator 'check-version egg)
+                   (let ((check-version-log (salmonella 'check-version egg)))
+                     (log! check-version-log log-file)
+                     (status-reporter check-version-log))
+
+                   ;; Test egg
+                   (progress-indicator 'test egg)
+                   (let ((test-log (salmonella 'test egg)))
+                     (log! test-log log-file)
+                     (status-reporter test-log)))))))))
 
      ;; Check doc
      (progress-indicator 'doc egg)

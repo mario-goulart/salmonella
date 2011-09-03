@@ -231,6 +231,37 @@
             (end (current-seconds)))
         (make-report egg 'doc (if doc-exists? 0 1) "" (- end start))))
 
+    (define (check-dependencies egg meta-data)
+      (define (deps key)
+        (or (and-let* ((d (assq key meta-data)))
+              (cdr d))
+            '()))
+      (let* ((chicken-units '(library eval expand data-strucutures ports files
+                              extras irregex srfi-1 srfi-4 srfi-13 srfi-14
+                              srfi-18 srfi-69 posix utils tcp lolevel foreign))
+             (egg-deps (map (lambda (dep)
+                              (if (pair? dep)
+                                  (car dep)
+                                  dep))
+                            (append (deps 'depends)
+                                    (deps 'needs)
+                                    (deps 'test-depends))))
+             (invalid-deps
+              (filter (lambda (dep)
+                        (memq dep chicken-units))
+                      egg-deps))
+             (invalid-deps? (null? invalid-deps)))
+        (make-report egg 'check-dependencies invalid-deps?
+                     (if invalid-deps?
+                         (string-append
+                          "The following chicken units are in one of the "
+                          "dependencies list of this egg: "
+                          (string-intersperse
+                           (map ->string invalid-deps)
+                           ", "))
+                         "")
+                     0)))
+
     (define (env-info)
       #<#EOF
 salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
@@ -244,7 +275,7 @@ Options:
 EOF
 )
 
-    (lambda (action #!optional egg)
+    (lambda (action #!optional egg #!rest more-args)
 
       (case action
         ((clear-repo!) (begin
@@ -267,6 +298,8 @@ EOF
         ((env-info) (env-info))
 
         ((meta-data) (meta-data egg))
+
+        ((check-dependencies) (check-dependencies egg (car more-args)))
 
         ((doc) (check-egg-doc egg))
 
