@@ -45,10 +45,10 @@
 
 ;;; meta data
 (define (read-meta-file egg tmp-repo-dir)
-  (let ((egg (->string egg)))
-    (with-input-from-file
-        (make-pathname (list tmp-repo-dir egg) egg "meta")
-      read)))
+  (let* ((egg (symbol->string egg))
+         (meta-file (make-pathname (list tmp-repo-dir egg) egg "meta")))
+    (and (file-exists? meta-file)
+         (with-input-from-file meta-file read))))
 
 
 ;;; HTTP (for docs)
@@ -219,7 +219,8 @@
                        installed-version))))
 
     (define (meta-data egg)
-      (make-report egg 'meta-data -1 (read-meta-file egg tmp-dir) 0))
+      (let ((data (read-meta-file egg tmp-dir)))
+        (make-report egg 'meta-data (and data #t) data 0)))
 
     (define (check-egg-doc egg)
       (let ((start (current-seconds))
