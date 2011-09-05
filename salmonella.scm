@@ -1,4 +1,4 @@
-(use srfi-13 posix setup-download tcp irregex)
+(use srfi-13 posix setup-download setup-api tcp irregex)
 
 (define-record report egg action status message duration)
 
@@ -104,7 +104,7 @@
                eggs-doc-dir
                this-egg?)
 
-  (let* ((chicken-installation-prefix (or chicken-installation-prefix "/usr"))
+  (let* ((chicken-installation-prefix (or chicken-installation-prefix (installation-prefix)))
          (chicken-install-args
           (or chicken-install-args
               (lambda (repo-dir)
