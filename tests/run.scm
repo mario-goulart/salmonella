@@ -37,6 +37,8 @@
 
 (test #t (check-version-ok? 'slice log))
 (test #t (check-version-ok? 'ansi-escape-sequences log))
+(test "1.0" (egg-version 'slice log))
+(test "0.1" (egg-version 'ansi-escape-sequences log))
 
 (test "slice.egg" (car (alist-ref 'egg (meta-data 'slice log))))
 (test "ansi-escape-sequences.egg"
