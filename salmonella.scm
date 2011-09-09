@@ -164,14 +164,11 @@
                (log-shell-command
                 egg
                 'install
-                (sprintf "~a ~a ~a ~a"
+                (sprintf "~a ~a ~a"
                          chicken-env-vars
                          chicken-install
                          (irregex-replace ;; ugly hack to remote -test
-                          "-test" (chicken-install-args tmp-repo-dir) "")
-                         (if this-egg?
-                             ""
-                             egg))))))
+                          "-test" (chicken-install-args tmp-repo-dir) ""))))))
         (if this-egg?
             (install)
             (save-excursion (make-pathname tmp-dir (->string egg)) install))))
