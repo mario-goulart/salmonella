@@ -1,5 +1,7 @@
 (use srfi-13 posix setup-download setup-api tcp irregex)
 
+(load-relative "salmonella-common.scm") ;; FIXME: use include
+
 (define-record report egg action status message duration)
 
 (define (run-shell-command command #!optional (omit-command #f))
@@ -248,20 +250,10 @@
         (make-report egg 'doc (if doc-exists? 0 1) "" (- end start))))
 
     (define (check-dependencies egg meta-data)
-      (define (deps key)
-        (or (and-let* ((d (assq key meta-data)))
-              (cdr d))
-            '()))
       (let* ((chicken-units '(library eval expand data-strucutures ports files
                               extras irregex srfi-1 srfi-4 srfi-13 srfi-14
                               srfi-18 srfi-69 posix utils tcp lolevel foreign))
-             (egg-deps (map (lambda (dep)
-                              (if (pair? dep)
-                                  (car dep)
-                                  dep))
-                            (append (deps 'depends)
-                                    (deps 'needs)
-                                    (deps 'test-depends))))
+             (egg-deps (get-egg-dependencies meta-data 'with-test-deps))
              (invalid-deps
               (filter (lambda (dep)
                         (memq dep chicken-units))

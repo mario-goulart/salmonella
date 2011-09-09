@@ -47,6 +47,9 @@
 (test #t (doc-exists? 'slice log))
 (test #t (doc-exists? 'ansi-escape-sequences log))
 
+(test '() (egg-dependencies 'slice log))
+(test '() (egg-dependencies 'ansi-escape-sequences log))
+
 (test-end "Salmonella")
 
 (test-exit)

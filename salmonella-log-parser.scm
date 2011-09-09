@@ -1,5 +1,7 @@
 (use srfi-1)
 
+(load-relative "salmonella-common.scm") ;; FIXME: use include
+
 (define (get-by-egg/action egg action log)
   (find (lambda (entry)
           (and (eq? (report-egg entry) egg)
@@ -58,6 +60,10 @@
 
 ;; meta-data
 (define (meta-data egg log) (log-get egg 'meta-data report-message log))
+
+(define (egg-dependencies egg log #!key with-test-dependencies?)
+  (let ((data (meta-data egg log)))
+    (get-egg-dependencies data with-test-dependencies?: with-test-dependencies?)))
 
 ;; doc
 (define (doc-exists? egg log) (zero? (log-get egg 'doc report-status log)))
