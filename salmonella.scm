@@ -161,15 +161,17 @@
       ;; Installs egg and returns a report object
       (let ((install
              (lambda ()
-               (log-shell-command egg
-                                  'install
-                                  (sprintf "~a ~a ~a ~a"
-                                           chicken-env-vars
-                                           chicken-install
-                                           (chicken-install-args tmp-repo-dir)
-                                           (if this-egg?
-                                               ""
-                                               egg))))))
+               (log-shell-command
+                egg
+                'install
+                (sprintf "~a ~a ~a ~a"
+                         chicken-env-vars
+                         chicken-install
+                         (irregex-replace ;; ugly hack to remote -test
+                          "-test" (chicken-install-args tmp-repo-dir) "")
+                         (if this-egg?
+                             ""
+                             egg))))))
         (if this-egg?
             (install)
             (save-excursion (make-pathname tmp-dir (->string egg)) install))))
