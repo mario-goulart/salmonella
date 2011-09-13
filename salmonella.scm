@@ -148,7 +148,7 @@
       ;; Fetches egg and returns a report object
       (save-excursion tmp-dir
         (lambda ()
-          (if this-egg?
+          (if (and this-egg? (eq? action 'fetch)) ;; don't fetch this egg
               (make-report egg 'fetch 0 "" 0)
               (log-shell-command egg
                                  'fetch
@@ -169,7 +169,7 @@
                          chicken-install
                          (irregex-replace ;; ugly hack to remote -test
                           "-test" (chicken-install-args tmp-repo-dir) ""))))))
-        (if this-egg?
+        (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
             (install)
             (save-excursion (make-pathname tmp-dir (->string egg)) install))))
 
