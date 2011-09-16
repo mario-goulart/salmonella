@@ -67,6 +67,11 @@
                           with-test-dependencies?: with-test-dependencies?
                           with-versions?: with-versions?)))
 
+(define (egg-license egg log)
+  (let ((data (meta-data egg log)))
+    (and-let* ((license (alist-ref 'license data)))
+      (car license))))
+
 ;; doc
 (define (doc-exists? egg log) (zero? (log-get egg 'doc report-status log)))
 
