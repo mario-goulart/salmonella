@@ -1,0 +1,26 @@
+;;; salmonella.setup -*- scheme -*-
+
+;; Compile the extensions
+(compile -S -s -O3 -d1 -J salmonella.scm)
+(compile -S -s -O3 -d1 salmonella.import.scm)
+
+(compile -S -s -O3 -d1 -J salmonella-log-parser.scm)
+(compile -S -s -O3 -d1 salmonella-log-parser.import.scm)
+
+;; Compile the application
+(compile -S -O3 -d1 salmonella-cmd.scm -o salmonella)
+
+(define salmonella-version "2.0")
+
+(install-extension 'salmonella
+                   '("salmonella.so" "salmonella.import.so")
+                   `((version ,salmonella-version)))
+
+(install-extension 'salmonella-log-parser
+                   '("salmonella-log-parser.so"
+                     "salmonella-log-parser.import.so")
+                   `((version ,salmonella-version)))
+
+(install-program 'salmonella-cmd
+                 '("salmonella")
+                 `((version ,salmonella-version)))

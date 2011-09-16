@@ -1,6 +1,41 @@
-(use srfi-1)
+(module salmonella-log-parser
 
-(load-relative "salmonella-common.scm") ;; FIXME: use include
+(;; Exported API
+ read-log-file log-eggs
+
+ ;; fetch
+ fetch-status fetch-message fetch-duration
+
+ ;; install
+ install-status install-message install-duration
+
+ ;; check-version
+ check-version-status check-version-message egg-version check-version-ok?
+
+ ;; test
+ test-status test-message test-duration has-test?
+
+ ;; meta-data
+ meta-data egg-dependencies egg-license
+
+ ;; doc
+ doc-exists?
+
+ ;; start & end
+ start-time salmonella-info end-time total-time
+
+ ;; statistics
+ count-install-ok count-install-fail count-test-ok count-test-fail
+ count-no-test count-total-eggs count-documented count-undocumented
+
+ ;; misc
+ prettify-time
+ )
+
+(import scheme chicken)
+(use srfi-1 data-structures extras salmonella)
+
+(include "salmonella-common.scm")
 
 (define (get-by-egg/action egg action log)
   (find (lambda (entry)
@@ -148,3 +183,5 @@
         (else
          (let ((hours (quotient seconds 3600)))
            (conc hours "h" (prettify-time (- seconds (* 3600 hours))))))))
+
+) ;; end module

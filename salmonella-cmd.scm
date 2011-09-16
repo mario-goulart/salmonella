@@ -1,6 +1,4 @@
-(use srfi-1 regex)
-(load-relative "salmonella")
-(load-relative "salmonella-log-parser")
+(use srfi-1 regex salmonella salmonella-log-parser)
 
 (define (cmd-line-arg option args)
   ;; Returns the argument associated to the command line option OPTION
@@ -148,7 +146,7 @@ EOF
 
   ;; Remove the temporary directory if interrupted
   (set-signal-handler! signal/int
-                       (lambda ()
+                       (lambda (signal)
                          (delete-path tmp-dir)
                          (exit)))
 

@@ -1,6 +1,22 @@
-(use srfi-13 posix setup-download setup-api tcp irregex)
+(module salmonella
 
-(load-relative "salmonella-common.scm") ;; FIXME: use include
+(;; Exported API
+ make-salmonella log!
+
+ ;; report record
+ make-report report?
+ report-egg report-egg-set!
+ report-action report-action-set!
+ report-status report-status-set!
+ report-message report-message-set!
+ report-duration report-duration-set!
+ )
+
+(import scheme chicken)
+(use srfi-1 srfi-13 posix setup-download setup-api tcp irregex data-structures
+     extras files utils)
+
+(include "salmonella-common.scm")
 
 (define-record report egg action status message duration)
 
@@ -334,3 +350,5 @@ EOF
         ((doc) (check-egg-doc egg))
 
         (else (error 'salmonella "Invalid action" action))))))
+
+) ; end module
