@@ -61,9 +61,11 @@
 ;; meta-data
 (define (meta-data egg log) (log-get egg 'meta-data report-message log))
 
-(define (egg-dependencies egg log #!key with-test-dependencies?)
+(define (egg-dependencies egg log #!key with-test-dependencies? with-versions?)
   (let ((data (meta-data egg log)))
-    (get-egg-dependencies data with-test-dependencies?: with-test-dependencies?)))
+    (get-egg-dependencies data
+                          with-test-dependencies?: with-test-dependencies?
+                          with-versions?: with-versions?)))
 
 ;; doc
 (define (doc-exists? egg log) (zero? (log-get egg 'doc report-status log)))
