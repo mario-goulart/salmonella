@@ -61,6 +61,11 @@
                 (report-duration report))))
     append:))
 
+(define (chicken-unit? lib)
+  (and (memq lib '(library eval expand data-strucutures ports files
+                   extras irregex srfi-1 srfi-4 srfi-13 srfi-14
+                   srfi-18 srfi-69 posix utils tcp lolevel foreign))
+       #t))
 
 ;;; meta data
 (define (read-meta-file egg tmp-repo-dir)
@@ -199,7 +204,7 @@
           (for-each (lambda (dep)
                       (fetch-egg dep 'fetch-test-dep)
                       (install-egg dep 'install-test-dep))
-                    (or test-deps '())))
+                    (remove chicken-unit? (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
                                            (list tmp-dir (->string egg)))
@@ -265,14 +270,9 @@
         (make-report egg 'doc (if doc-exists? 0 1) "" (- end start))))
 
     (define (check-dependencies egg meta-data)
-      (let* ((chicken-units '(library eval expand data-strucutures ports files
-                              extras irregex srfi-1 srfi-4 srfi-13 srfi-14
-                              srfi-18 srfi-69 posix utils tcp lolevel foreign))
-             (egg-deps (get-egg-dependencies meta-data 'with-test-deps))
+      (let* ((egg-deps (get-egg-dependencies meta-data 'with-test-deps))
              (invalid-deps
-              (filter (lambda (dep)
-                        (memq dep chicken-units))
-                      egg-deps))
+              (filter chicken-unit? egg-deps))
              (invalid-deps? (null? invalid-deps)))
         (make-report egg 'check-dependencies invalid-deps?
                      (if invalid-deps?
