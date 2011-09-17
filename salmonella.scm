@@ -1,7 +1,7 @@
 (module salmonella
 
 (;; Exported API
- make-salmonella log!
+ make-salmonella log! delete-path
 
  ;; report record
  make-report report?
