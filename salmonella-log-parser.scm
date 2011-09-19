@@ -126,16 +126,13 @@
 
 ;; statistics
 (define (count-install-ok log)
-  (count (lambda (entry)
-           (and (eq? 'install (report-action entry))
-                (zero? (report-status entry))))
-         log))
+  (count (lambda (egg)
+           (let ((status (install-status egg log)))
+             (and status (zero? status))))
+         (log-eggs log)))
 
 (define (count-install-fail log)
-  (count (lambda (entry)
-           (and (eq? 'install (report-action entry))
-                (not (zero? (report-status entry)))))
-         log))
+  (- (count-total-eggs log) (count-install-ok log)))
 
 (define (count-test-ok log)
   (count (lambda (entry)
