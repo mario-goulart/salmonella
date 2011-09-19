@@ -8,9 +8,10 @@
     (and val (cadr val))))
 
 
-(define (progress-indicator action egg)
+(define (progress-indicator action egg #!optional egg-count total)
   (let ((running (case action
-                   ((fetch) (print "==== " egg " ====") "  Fetching")
+                   ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
+                    "  Fetching")
                    ((install) "  Installing")
                    ((check-version) "  Checking version")
                    ((test) "  Testing")
@@ -134,7 +135,8 @@ EOF
                          (map string->symbol
                               (remove (lambda (arg)
                                         (string-prefix? "--" arg))
-                                      args))))))
+                                      args)))))
+       (total-eggs (length eggs)))
 
   (when (or (member "-h" args)
             (member "--help" args))
@@ -161,14 +163,14 @@ EOF
         log-file)
 
   (for-each
-   (lambda (egg)
+   (lambda (egg egg-count)
 
      (unless keep-repo? (salmonella 'clear-repo!))
 
      (salmonella 'init-repo!)
 
      ;; Fetch egg
-     (progress-indicator 'fetch egg)
+     (progress-indicator 'fetch egg egg-count total-eggs)
      (let ((fetch-log (salmonella 'fetch egg)))
        (log! fetch-log log-file)
        (status-reporter fetch-log)
@@ -221,7 +223,8 @@ EOF
        (log! doc-log log-file)
        (status-reporter doc-log)))
 
-   eggs)
+   eggs
+   (iota total-eggs 1))
 
   (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
   (show-statistics log-file)
