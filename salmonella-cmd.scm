@@ -186,17 +186,22 @@ EOF
            (when (report-status meta-log)
              (let ((meta-data (report-message meta-log)))
 
+               ;; Warnings (only logged when indicate problems)
+
                ;; Check dependencies
                (progress-indicator 'check-dependencies egg)
                (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
-                 (log! deps-log log-file)
+                 (unless (report-status deps-log)
+                   (log! deps-log log-file))
                  (status-reporter deps-log))
 
                ;; Check category
                (progress-indicator 'check-category egg)
                (let ((categ-log (salmonella 'check-category egg meta-data)))
-                 (log! categ-log log-file)
+                 (unless (report-status categ-log)
+                   (log! categ-log log-file))
                  (status-reporter categ-log))
+
 
                ;; Install egg
                (progress-indicator 'install egg)
