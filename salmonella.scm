@@ -14,7 +14,7 @@
 
 (import scheme chicken)
 (use srfi-1 srfi-13 posix setup-download setup-api tcp irregex data-structures
-     extras files utils)
+     ports extras files utils)
 
 (include "salmonella-common.scm")
 
@@ -273,16 +273,25 @@
       (let* ((egg-deps (get-egg-dependencies meta-data 'with-test-deps))
              (invalid-deps
               (filter chicken-unit? egg-deps))
-             (invalid-deps? (null? invalid-deps)))
-        (make-report egg 'check-dependencies invalid-deps?
-                     (if invalid-deps?
-                         (string-append
-                          "The following chicken units are in one of the "
-                          "dependencies list of this egg: "
-                          (string-intersperse
-                           (map ->string invalid-deps)
-                           ", "))
-                         "")
+             (invalid-deps? (not (null? invalid-deps)))
+             (non-symbol-deps (remove (lambda (egg) (symbol? egg)) egg-deps)))
+        (make-report egg 'check-dependencies (not (or invalid-deps? (not (null? non-symbol-deps))))
+                     (cond (invalid-deps?
+                            (string-append
+                             "The following chicken units are in one of the "
+                             "dependencies list of this egg: "
+                             (string-intersperse
+                              (map ->string invalid-deps)
+                              ", ")))
+                           ((not (null? non-symbol-deps))
+                            (string-append
+                             "The following dependencies are not symbols: "
+                             (string-intersperse
+                              (map (lambda (dep)
+                                     (with-output-to-string (cut pp dep)))
+                                   non-symbol-deps)
+                              ", ")))
+                           (else ""))
                      0)))
 
     (define (check-category egg meta-data)
