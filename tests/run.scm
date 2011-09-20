@@ -1,7 +1,4 @@
-(use test)
-
-(load "../salmonella-log-parser.scm")
-(load "../salmonella.scm")
+(use test salmonella salmonella-log-parser)
 
 (define log (read-log-file "salmonella.log"))
 
