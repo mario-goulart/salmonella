@@ -29,7 +29,7 @@
  count-no-test count-total-eggs count-documented count-undocumented
 
  ;; misc
- prettify-time
+ prettify-time sort-eggs
  )
 
 (import scheme chicken)
@@ -180,5 +180,10 @@
         (else
          (let ((hours (quotient seconds 3600)))
            (conc hours "h" (prettify-time (- seconds (* 3600 hours))))))))
+
+(define (sort-eggs eggs)
+  (sort eggs (lambda (e1 e2)
+               (string<? (symbol->string e1)
+                         (symbol->string e2)))))
 
 ) ;; end module
