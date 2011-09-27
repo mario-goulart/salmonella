@@ -8,6 +8,21 @@
     (and val (cadr val))))
 
 
+(define (mktempdir)
+  ;; For compatibility with older chickens.
+  ;; `create-temporary-directory' has been introduced by 4.6.0
+  (let loop ()
+    (let ((dir (make-pathname
+                (current-directory)
+                (string-append "salmonella-tmp-"
+                               (number->string (random 1000000) 16)))))
+        (if (file-exists? dir)
+            (loop)
+            (begin
+              (create-directory dir)
+              dir)))))
+
+
 (define (progress-indicator action egg #!optional egg-count total)
   (let ((running (case action
                    ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
@@ -109,7 +124,7 @@ EOF
                        path
                        (normalize-pathname
                         (make-pathname (current-directory) path)))))
-       (tmp-dir (or repo-dir (create-temporary-directory)))
+       (tmp-dir (or repo-dir (mktempdir)))
        (salmonella (make-salmonella
                     tmp-dir
                     eggs-source-dir: eggs-source-dir
