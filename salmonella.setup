@@ -7,8 +7,9 @@
 (compile -S -s -O3 -d1 -J salmonella-log-parser.scm)
 (compile -S -s -O3 -d1 salmonella-log-parser.import.scm)
 
-;; Compile the application
+;; Compile the applications
 (compile -S -O3 -d1 salmonella-cmd.scm -o salmonella)
+(compile -S -O3 -d1 salmonella-log-viewer.scm -o salmonella-log-viewer)
 
 (define salmonella-version "2.0")
 
@@ -23,4 +24,8 @@
 
 (install-program 'salmonella-cmd
                  '("salmonella")
+                 `((version ,salmonella-version)))
+
+(install-program 'salmonella-log-viewer
+                 '("salmonella-log-viewer")
                  `((version ,salmonella-version)))
