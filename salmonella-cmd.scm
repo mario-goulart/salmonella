@@ -1,12 +1,16 @@
-(use srfi-1 regex salmonella salmonella-log-parser)
+(import irregex)
+(use srfi-1 salmonella salmonella-log-parser)
 
 (define (cmd-line-arg option args)
   ;; Returns the argument associated to the command line option OPTION
   ;; in ARGS or #f if OPTION is not found in ARGS or doesn't have any
   ;; argument.
-  (let ((val (any (cut string-match (conc option "=(.*)") <>) args)))
-    (and val (cadr val))))
-
+  (let ((val (any (lambda (arg)
+                    (irregex-match
+                     `(seq ,(->string option) "=" (submatch (* any)))
+                     arg))
+                  args)))
+    (and val (irregex-match-substring val 1))))
 
 (define (mktempdir)
   ;; For compatibility with older chickens.
@@ -129,11 +133,11 @@ EOF
                     tmp-dir
                     eggs-source-dir: eggs-source-dir
                     chicken-installation-prefix: chicken-installation-prefix
-                    chicken-install-args: (and chicken-install-args
-                                               (lambda (repo)
-                                                 (string-substitute*
-                                                  chicken-install-args
-                                                  `(("<repo>" . ,repo)))))
+                    chicken-install-args:
+                      (and chicken-install-args
+                           (lambda (repo)
+                             (or (irregex-replace "<repo>" chicken-install-args repo)
+                                 chicken-install-args)))
                     this-egg?: this-egg?))
        (eggs (if this-egg?
                  (let ((setup (glob "*.setup")))

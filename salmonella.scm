@@ -12,8 +12,8 @@
  report-duration report-duration-set!
  )
 
-(import scheme chicken)
-(use srfi-1 srfi-13 posix setup-download setup-api tcp irregex data-structures
+(import scheme chicken irregex)
+(use srfi-1 srfi-13 posix setup-download setup-api tcp data-structures
      ports extras files utils)
 
 (include "salmonella-common.scm")
