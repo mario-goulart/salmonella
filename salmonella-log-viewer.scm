@@ -34,7 +34,12 @@
                 (else "[FAIL]"))
               "\n")
        (print (test-message egg log)))
-     eggs)))
+     eggs)
+
+    ;; env info
+    (print (h1 "Environment information"))
+    (print (salmonella-info log))
+    ))
 
 (define (usage #!optional exit-code)
   (let ((this (pathname-strip-directory (program-name))))
