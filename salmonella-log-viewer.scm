@@ -1,15 +1,25 @@
 (use salmonella-log-parser)
 
+(define (concat l)
+  (string-intersperse (map ->string l) ""))
+
+(define (h1 . text)
+  (conc "###\n### " (concat text) "\n###\n"))
+
+(define (h2 . text)
+  (conc "=== " (concat text)))
+
+
 (define (view-log log-file)
   (let* ((log (read-log-file log-file))
          (eggs (sort-eggs (log-eggs log))))
     (for-each
      (lambda (egg)
        ;; Heading
-       (print "###\n### " egg "\n###\n")
+       (print (h1 egg))
 
        ;; Installation
-       (print "=== " egg " installation: "
+       (print (h2 egg " installation: ")
               (if (zero? (install-status egg log))
                   "[OK]"
                   "[FAIL]")
@@ -17,7 +27,7 @@
        (print (install-message egg log))
 
        ;; Tests
-       (print "=== " egg " test: "
+       (print (h2 egg " test: ")
               (case (test-status egg log)
                 ((0 #t) "[OK]")
                 ((-1) "[ -- ]")
