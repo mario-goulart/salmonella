@@ -1,0 +1,75 @@
+== Some quick tips by example
+
+Simplest case: testing eggs using the remote egg server and the
+chicken tools (chicken-install and csi) in the system PATH
+
+  $ salmonella big-chicken slice
+
+
+You can test all the available eggs using one of the following
+approaches:
+
+1. If you have CHICKEN >= 4.7.2:
+
+  $ salmonella `chicken-install -list`
+
+
+2. If you don't have CHICKEN >= 4.7.2:
+
+  $ salmonella `wget http://code.call-cc.org/cgi-bin/henrietta.cgi?list=1 -q -O -`
+
+
+You can tell salmonella to use a specific CHICKEN version:
+
+  $ salmonella --chicken-installation-prefix=/usr/local/chicken-4.7.3 big-chicken slice
+
+
+Not cleaning the egg installation repository after installing each egg
+may significantly speed up the salmonella execution time (the default
+behavior is to set the egg installation repository empty after testing
+each egg):
+
+  $ salmonella --keep-repo big-chicken slice
+
+warning: if you use --keep-repo, salmonella will not be able to catch
+dependencies problems.
+
+
+If you want to reuse the same egg installation repository for multiple
+salmonella runs, you can provide a specific directory:
+
+  $ salmonella --repo-dir=my-repo --keep-repo big-chicken slice
+
+
+By default, salmonella generates a log file named `salmonella.log' in
+the current directory.  You can change that by using the `--log-file'
+command line option:
+
+  $ salmonella --log-file=my-log-file.log big-chicken slice
+
+
+
+== Using salmonella as an egg lint tool
+
+Suppose you are working on a new egg and you want to check if it is
+working ok before releasing it (or a new version).  You can use
+salmonella to check it:
+
+  $ cd my-egg    # where your egg code is stored
+  $ salmonella --this-egg
+
+
+
+== Viewing the results
+
+Salmonella provides a very simple text-only log viewer:
+
+  $ salmonella-log-viewer salmonella.log
+
+Alternatively, you can use salmonella-html-report
+(https://github.com/mario-goulart/salmonella-html-report) to generate
+an HTML output (with [reverse] dependencies graphs and a lot more
+information):
+
+  $ salmonella-html-report --log-file=salmonella.log --out-dir=salmonella-report
+  $ your-favorite-browser salmonella-report/index.html
