@@ -19,6 +19,11 @@ approaches:
   $ salmonella `wget http://code.call-cc.org/cgi-bin/henrietta.cgi?list=1 -q -O -`
 
 
+If you don't want to test some specific eggs, you can skip them:
+
+  $ salmonella --skip-eggs=macosx,hfs+ `chicken-install -list`
+
+
 You can tell salmonella to use a specific CHICKEN version:
 
   $ salmonella --chicken-installation-prefix=/usr/local/chicken-4.7.3 big-chicken slice
