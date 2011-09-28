@@ -329,6 +329,9 @@ Options:
   tmp-repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
   eggs-source-dir: #eggs-source-dir
+
+Chicken banner:
+#(call-with-input-pipe (string-append csi " -version") read-all)
 EOF
 )
 
