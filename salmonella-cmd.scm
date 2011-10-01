@@ -1,16 +1,5 @@
-(import irregex)
-(use srfi-1 salmonella salmonella-log-parser)
-
-(define (cmd-line-arg option args)
-  ;; Returns the argument associated to the command line option OPTION
-  ;; in ARGS or #f if OPTION is not found in ARGS or doesn't have any
-  ;; argument.
-  (let ((val (any (lambda (arg)
-                    (irregex-match
-                     `(seq ,(->string option) "=" (submatch (* any)))
-                     arg))
-                  args)))
-    (and val (irregex-match-substring val 1))))
+(use salmonella salmonella-log-parser)
+(include "salmonella-common.scm")
 
 (define (mktempdir)
   ;; For compatibility with older chickens.
@@ -142,13 +131,11 @@ EOF
        (eggs (if this-egg?
                  (let ((setup (glob "*.setup")))
                    (cond ((null? setup)
-                          (print "Could not find a .setup file. Aborting.")
-                          (exit 1))
+                          (die "Could not find a .setup file. Aborting."))
                          ((null? (cdr setup))
                           (map (compose string->symbol pathname-file) setup))
                          (else
-                          (print "Found more than one .setup file.  Aborting.")
-                          (exit 1))))
+                          (die "Found more than one .setup file.  Aborting."))))
                  (remove (lambda (egg)
                            (memq egg skip-eggs))
                          (map string->symbol
