@@ -4,7 +4,7 @@
  make-salmonella log! delete-path
 
  ;; report record
- make-report report?
+ make-report report->list report?
  report-egg report-egg-set!
  report-action report-action-set!
  report-status report-status-set!
@@ -19,6 +19,13 @@
 (include "salmonella-common.scm")
 
 (define-record report egg action status message duration)
+
+(define (report->list report)
+  (list (report-egg report)
+        (report-action report)
+        (report-status report)
+        (report-message report)
+        (report-duration report)))
 
 (define (run-shell-command command #!optional (omit-command #f))
   ;; Returns (values <status> <output> <duration>)
@@ -54,11 +61,7 @@
 (define (log! report log-file)
   (with-output-to-file log-file
     (lambda ()
-      (pp (list (report-egg report)
-                (report-action report)
-                (report-status report)
-                (report-message report)
-                (report-duration report))))
+      (pp (report->list report)))
     append:))
 
 (define (chicken-unit? lib)
