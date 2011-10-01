@@ -214,10 +214,11 @@
                (test-deps (alist-ref 'test-depends meta-data)))
           (for-each
            (lambda (dep)
-             (when (and (zero? (report-status (fetch-egg dep 'fetch-test-dep)))
-                        (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
-                         (make-pathname tmp-repo-dir (symbol->string dep))))
-               (install-egg dep 'install-test-dep)))
+             (let ((fetch-log (fetch-egg dep 'fetch-test-dep)))
+               (when (and (zero? (report-status fetch-log))
+                          (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
+                           (make-pathname tmp-dir (symbol->string dep))))
+                 (install-egg dep 'install-test-dep))))
            (remove chicken-unit? (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
