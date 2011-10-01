@@ -128,9 +128,12 @@
                this-egg?)
 
   (let* ((chicken-installation-prefix (or chicken-installation-prefix (installation-prefix)))
-         (eggs-source-dir (and eggs-source-dir
-                               (normalize-pathname
-                                (make-pathname (current-directory) eggs-source-dir))))
+         (eggs-source-dir
+          (and eggs-source-dir
+               (if (absolute-pathname? eggs-source-dir)
+                   eggs-source-dir
+                   (normalize-pathname
+                    (make-pathname (current-directory) eggs-source-dir)))))
          (chicken-install-args
           (or chicken-install-args
               (lambda (repo-dir)
