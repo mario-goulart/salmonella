@@ -10,6 +10,7 @@
 ;; Compile the applications
 (compile -S -O3 -d1 salmonella-cmd.scm -o salmonella)
 (compile -S -O3 -d1 salmonella-log-viewer.scm -o salmonella-log-viewer)
+(compile -S -O3 -d1 salmonella-log-merger.scm -o salmonella-log-merger)
 
 (define salmonella-version "2.0")
 
@@ -28,4 +29,8 @@
 
 (install-program 'salmonella-log-viewer
                  '("salmonella-log-viewer")
+                 `((version ,salmonella-version)))
+
+(install-program 'salmonella-log-merger
+                 '("salmonella-log-merger")
                  `((version ,salmonella-version)))
