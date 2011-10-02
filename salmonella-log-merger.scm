@@ -39,7 +39,7 @@
 
 (define (usage #!optional exit-code)
   (let ((this (pathname-strip-directory (program-name))))
-    (print this "--out-log=<log file> log1 log2 ... logn")
+    (print this " --log-file=<log file> log1 log2 ... logn")
     (when exit-code (exit exit-code))))
 
 
@@ -51,7 +51,7 @@
          (remove (lambda (arg)
                    (string-prefix? "--" arg))
                  args))
-        (out-file (cmd-line-arg '--out-log args)))
+        (out-file (cmd-line-arg '--log-file args)))
     (when (file-exists? out-file)
       (die out-file " already exists. Aborting."))
     (unless out-file
