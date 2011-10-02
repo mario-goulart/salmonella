@@ -1,53 +1,47 @@
 (use salmonella salmonella-log-parser)
 (include "salmonella-common.scm")
 
-(define (mktempdir)
-  ;; For compatibility with older chickens.
-  ;; `create-temporary-directory' has been introduced by 4.6.0
-  (let loop ()
-    (let ((dir (make-pathname
-                (current-directory)
-                (string-append "salmonella-tmp-"
-                               (number->string (random 1000000) 16)))))
-        (if (file-exists? dir)
-            (loop)
-            (begin
-              (create-directory dir)
-              dir)))))
+(define default-verbosity 2)
+
+(define (progress-indicator action egg verbosity #!optional egg-count total)
+  (case verbosity
+    ((0) "")
+    ((1) (when (eq? action 'fetch) (print "=== " egg)))
+    (else
+     (let ((running (case action
+                      ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
+                       "  Fetching")
+                      ((install) "  Installing")
+                      ((check-version) "  Checking version")
+                      ((test) "  Testing")
+                      ((meta-data) "  Reading .meta")
+                      ((check-dependencies) "  Checking dependencies")
+                      ((check-category) "  Checking category")
+                      ((doc) "  Checking documentation")
+                      (else (error 'salmonella-progress-indicator
+                                   "Invalid action"
+                                   action)))))
+       (display (string-pad-right running 50 #\.))
+       (flush-output)))))
 
 
-(define (progress-indicator action egg #!optional egg-count total)
-  (let ((running (case action
-                   ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
-                    "  Fetching")
-                   ((install) "  Installing")
-                   ((check-version) "  Checking version")
-                   ((test) "  Testing")
-                   ((meta-data) "  Reading .meta")
-                   ((check-dependencies) "  Checking dependencies")
-                   ((check-category) "  Checking category")
-                   ((doc) "  Checking documentation")
-                   (else (error 'salmonella-progress-indicator
-                                "Invalid action"
-                                action)))))
-    (display (string-pad-right running 50 #\.))
-    (flush-output)))
-
-
-(define (status-reporter report)
-  (let ((status (report-status report))
-        (action (report-action report)))
-    (print
-     (case status
-       ((0 #t) "[ ok ]")
-       ((-1) "[ -- ]")
-       (else "[fail]"))
-     " "
-     (if (or (eq? action 'check-version)
-             (and (eq? action 'test)
-                  (= status -1)))
-         ""
-         (conc (report-duration report) "s")))))
+(define (status-reporter report verbosity)
+  (case verbosity
+    ((0 1) "")
+    (else
+     (let ((status (report-status report))
+           (action (report-action report)))
+       (print
+        (case status
+          ((0 #t) "[ ok ]")
+          ((-1) "[ -- ]")
+          (else "[fail]"))
+        " "
+        (if (or (eq? action 'check-version)
+                (and (eq? action 'test)
+                     (= status -1)))
+            ""
+            (conc (report-duration report) "s")))))))
 
 
 (define (show-statistics log-file)
@@ -93,6 +87,7 @@ EOF
 --skip-eggs=<comma-separated list of eggs to skip>
 --this-egg
 --repo-dir=<path to repo dir to be used>
+--verbosity=<number>
 EOF
 )
     (newline)
@@ -118,6 +113,9 @@ EOF
                        (normalize-pathname
                         (make-pathname (current-directory) path)))))
        (tmp-dir (or repo-dir (mktempdir)))
+       (verbosity (or (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
+                        (or (string->number verbosity) default-verbosity))
+                      default-verbosity))
        (salmonella (make-salmonella
                     tmp-dir
                     eggs-source-dir: eggs-source-dir
@@ -158,8 +156,8 @@ EOF
                          (delete-path tmp-dir)
                          (exit)))
 
-
-  (print "Using " tmp-dir " as temporary directory")
+  (when (> verbosity 1)
+    (print "Using " tmp-dir " as temporary directory"))
 
   ;; Remove old log
   (delete-file* log-file)
@@ -176,18 +174,18 @@ EOF
      (salmonella 'init-repo!)
 
      ;; Fetch egg
-     (progress-indicator 'fetch egg egg-count total-eggs)
+     (progress-indicator 'fetch egg verbosity egg-count total-eggs)
      (let ((fetch-log (salmonella 'fetch egg)))
        (log! fetch-log log-file)
-       (status-reporter fetch-log)
+       (status-reporter fetch-log verbosity)
 
        (when (zero? (report-status fetch-log))
 
          ;; Meta data
-         (progress-indicator 'meta-data egg)
+         (progress-indicator 'meta-data egg verbosity)
          (let ((meta-log (salmonella 'meta-data egg)))
            (log! meta-log log-file)
-           (status-reporter meta-log)
+           (status-reporter meta-log verbosity)
 
            (when (report-status meta-log)
              (let ((meta-data (report-message meta-log)))
@@ -195,45 +193,45 @@ EOF
                ;; Warnings (only logged when indicate problems)
 
                ;; Check dependencies
-               (progress-indicator 'check-dependencies egg)
+               (progress-indicator 'check-dependencies egg verbosity)
                (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
                  (unless (report-status deps-log)
                    (log! deps-log log-file))
-                 (status-reporter deps-log))
+                 (status-reporter deps-log verbosity))
 
                ;; Check category
-               (progress-indicator 'check-category egg)
+               (progress-indicator 'check-category egg verbosity)
                (let ((categ-log (salmonella 'check-category egg meta-data)))
                  (unless (report-status categ-log)
                    (log! categ-log log-file))
-                 (status-reporter categ-log))
+                 (status-reporter categ-log verbosity))
 
 
                ;; Install egg
-               (progress-indicator 'install egg)
+               (progress-indicator 'install egg verbosity)
                (let ((install-log (salmonella 'install egg)))
                  (log! install-log log-file)
-                 (status-reporter install-log)
+                 (status-reporter install-log verbosity)
 
                  (when (zero? (report-status install-log))
                    ;; Check version
                    (let ((check-version-log (salmonella 'check-version egg)))
                      (unless (= -1 (report-status check-version-log))
-                       (progress-indicator 'check-version egg)
+                       (progress-indicator 'check-version egg verbosity)
                        (log! check-version-log log-file)
-                       (status-reporter check-version-log)))
+                       (status-reporter check-version-log verbosity)))
 
                    ;; Test egg
-                   (progress-indicator 'test egg)
+                   (progress-indicator 'test egg verbosity)
                    (let ((test-log (salmonella 'test egg)))
                      (log! test-log log-file)
-                     (status-reporter test-log)))))))))
+                     (status-reporter test-log verbosity)))))))))
 
      ;; Check doc
-     (progress-indicator 'doc egg)
+     (progress-indicator 'doc egg verbosity)
      (let ((doc-log (salmonella 'doc egg)))
        (log! doc-log log-file)
-       (status-reporter doc-log)))
+       (status-reporter doc-log verbosity)))
 
    eggs
    (iota total-eggs 1))

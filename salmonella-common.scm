@@ -1,5 +1,5 @@
 (import irregex)
-(use srfi-1 ports)
+(use srfi-1 ports files posix)
 
 (define (get-egg-dependencies meta-data #!key with-test-dependencies?
                                               with-versions?)
@@ -39,3 +39,18 @@
       (newline)
       (flush-output)))
   (exit 1))
+
+
+(define (mktempdir)
+  ;; For compatibility with older chickens.
+  ;; `create-temporary-directory' has been introduced by 4.6.0
+  (let loop ()
+    (let ((dir (make-pathname
+                (current-directory)
+                (string-append "salmonella-tmp-"
+                               (number->string (random 1000000) 16)))))
+        (if (file-exists? dir)
+            (loop)
+            (begin
+              (create-directory dir)
+              dir)))))
