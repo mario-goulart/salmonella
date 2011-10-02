@@ -44,9 +44,10 @@
             (conc (report-duration report) "s")))))))
 
 
-(define (show-statistics log-file)
-  (let ((log (read-log-file log-file)))
-    (print #<#EOF
+(define (show-statistics log-file verbosity)
+  (when (> verbosity 1)
+    (let ((log (read-log-file log-file)))
+      (print #<#EOF
 
 ***************************************************************************
 
@@ -69,7 +70,7 @@ Undocumented: #(count-undocumented log)
 ==== Total run time
 #(prettify-time (inexact->exact (total-time log)))
 EOF
-)))
+))))
 
 
 (define (usage #!optional exit-code)
@@ -241,5 +242,5 @@ EOF
    (iota total-eggs 1))
 
   (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
-  (show-statistics log-file)
+  (show-statistics log-file verbosity)
   (unless keep-repo? (delete-path tmp-dir)))
