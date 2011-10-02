@@ -83,6 +83,7 @@ EOF
 --chicken-installation-prefix=<prefix dir>
 --chicken-install-args=<install args>
 --eggs-source-dir=<eggs dir>
+--eggs-doc-dir=<doc dir>
 --keep-repo
 --skip-eggs=<comma-separated list of eggs to skip>
 --this-egg
@@ -101,6 +102,8 @@ EOF
         (cmd-line-arg '--chicken-install-args args))
        (eggs-source-dir
         (cmd-line-arg '--eggs-source-dir args))
+       (eggs-doc-dir
+        (cmd-line-arg '--eggs-doc-dir args))
        (skip-eggs (let ((skip (cmd-line-arg '--skip-eggs args)))
                     (if skip
                         (map string->symbol (string-split skip ","))
@@ -119,6 +122,7 @@ EOF
        (salmonella (make-salmonella
                     tmp-dir
                     eggs-source-dir: eggs-source-dir
+                    eggs-doc-dir: eggs-doc-dir
                     chicken-installation-prefix: chicken-installation-prefix
                     chicken-install-args:
                       (and chicken-install-args
