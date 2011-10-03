@@ -111,6 +111,9 @@
     (print "Nothing to do.")
     (exit 0))
 
+  (when (file-exists? log-file)
+    (die log-file " already exists. Aborting."))
+
   ;; Run salmonellas
   (let ((egg-slices (split-eggs eggs instances)))
     (pp egg-slices)
