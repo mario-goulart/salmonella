@@ -17,7 +17,7 @@
                       ((meta-data) "  Reading .meta")
                       ((check-dependencies) "  Checking dependencies")
                       ((check-category) "  Checking category")
-                      ((doc) "  Checking documentation")
+                      ((check-doc) "  Checking documentation")
                       (else (error 'salmonella-progress-indicator
                                    "Invalid action"
                                    action)))))
@@ -275,8 +275,8 @@ EOF
                      (status-reporter test-log verbosity)))))))))
 
      ;; Check doc
-     (progress-indicator 'doc egg verbosity)
-     (let ((doc-log (salmonella 'doc egg)))
+     (progress-indicator 'check-doc egg verbosity)
+     (let ((doc-log (salmonella 'check-doc egg)))
        (log! doc-log log-file)
        (status-reporter doc-log verbosity)))
 

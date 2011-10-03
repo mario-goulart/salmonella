@@ -376,7 +376,7 @@ EOF
 
         ((check-category) (check-category egg (car more-args)))
 
-        ((doc) (check-egg-doc egg))
+        ((check-doc) (check-egg-doc egg))
 
         (else (error 'salmonella "Invalid action" action))))))
 

@@ -108,7 +108,8 @@
       (car license))))
 
 ;; doc
-(define (doc-exists? egg log) (zero? (log-get egg 'doc report-status log)))
+(define (doc-exists? egg log)
+  (zero? (log-get egg 'check-doc report-status log)))
 
 
 ;; start & end
@@ -158,13 +159,13 @@
 
 (define (count-documented log)
   (count (lambda (entry)
-           (and (eq? 'doc (report-action entry))
+           (and (eq? 'check-doc (report-action entry))
                 (zero? (report-status entry))))
          log))
 
 (define (count-undocumented log)
   (count (lambda (entry)
-           (and (eq? 'doc (report-action entry))
+           (and (eq? 'check-doc (report-action entry))
                 (not (zero? (report-status entry)))))
          log))
 
