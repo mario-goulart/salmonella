@@ -219,7 +219,7 @@
              (let ((fetch-log (fetch-egg dep 'fetch-test-dep)))
                (when (and (zero? (report-status fetch-log))
                           (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
-                           (make-pathname tmp-dir (symbol->string dep))))
+                           (make-pathname tmp-dir (->string dep))))
                  (install-egg dep 'install-test-dep))))
            (remove chicken-unit? (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
