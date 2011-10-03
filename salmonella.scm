@@ -109,14 +109,16 @@
   (cond (eggs-doc-dir
          (file-exists? (make-pathname eggs-doc-dir (->string egg))))
         (major-version
-         (let-values (((in out) (tcp-connect egg-doc-host egg-doc-port)))
-           (let ((req (HEAD-request
-                       (make-absolute-pathname
-                        `("eggref" ,(number->string major-version))
-                        (->string egg)))))
-             (display req out)
-             (flush-output out)
-             (response-match-code? (match-http-response (read-line in)) 200))))
+         (handle-exceptions enx
+           #f
+           (let-values (((in out) (tcp-connect egg-doc-host egg-doc-port)))
+             (let ((req (HEAD-request
+                         (make-absolute-pathname
+                          `("eggref" ,(number->string major-version))
+                          (->string egg)))))
+               (display req out)
+               (flush-output out)
+               (response-match-code? (match-http-response (read-line in)) 200)))))
         (else (error 'egg-doc-exists?
                      "Missing one of `major-version' or `eggs-doc-dir'"))))
 
