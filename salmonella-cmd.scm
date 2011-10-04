@@ -3,10 +3,22 @@
 
 (define default-verbosity 2)
 
+(define *instance-id* #f) ;; for when sallmonella is called by salmonella-epidemy
+
 (define (progress-indicator action egg verbosity #!optional egg-count total)
   (case verbosity
     ((0) "")
-    ((1) (when (eq? action 'fetch) (print "=== " egg)))
+    ((1) (when (eq? action 'fetch)
+           (print "=== " egg
+                  " "
+                  (if *instance-id*
+                      (sprintf "(instance ~a, ~a of ~a)"
+                               *instance-id*
+                               egg-count
+                               total)
+                      (sprintf "(~a of ~a)"
+                               egg-count
+                               total)))))
     (else
      (let ((running (case action
                       ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
@@ -207,6 +219,9 @@ EOF
 
   (when (> verbosity 1)
     (print "Using " tmp-dir " as temporary directory"))
+
+  ;; for salmonella-epidemy
+  (set! *instance-id* (cmd-line-arg '--instance-id args))
 
   ;; Remove old log
   (delete-file* log-file)

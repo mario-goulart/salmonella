@@ -50,6 +50,7 @@
              (string-append "--log-file="
                             (make-pathname log-dir (number->string instance) "log"))
              "--verbosity=1"
+             (conc "--instance-id=" instance)
              (string-intersperse (map ->string eggs)))))))
     (print cmd)
     (process-run cmd)))
