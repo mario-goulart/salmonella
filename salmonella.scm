@@ -341,6 +341,15 @@
                          "Missing license information")
                      0)))
 
+    (define (check-author egg meta-data)
+      (let ((author (alist-ref 'author meta-data)))
+        (make-report egg
+                     'check-author
+                     (and author #t)
+                     (if author
+                         ""
+                         "Missing author information")
+                     0)))
 
     (define (env-info)
       #<#EOF
@@ -389,6 +398,8 @@ EOF
         ((check-doc) (check-egg-doc egg))
 
         ((check-license) (check-license egg (car more-args)))
+
+        ((check-author) (check-author egg (car more-args)))
 
         (else (error 'salmonella "Invalid action" action))))))
 

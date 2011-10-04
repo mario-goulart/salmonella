@@ -18,6 +18,7 @@
                       ((check-dependencies) "  Checking dependencies")
                       ((check-category) "  Checking category")
                       ((check-license) "  Checking license")
+                      ((check-author) "  Checking author")
                       ((check-doc) "  Checking documentation")
                       (else (error 'salmonella-progress-indicator
                                    "Invalid action"
@@ -260,6 +261,13 @@ EOF
                  (unless (report-status license-log)
                    (log! license-log log-file))
                  (status-reporter license-log verbosity))
+
+               ;; Check author
+               (progress-indicator 'check-author egg verbosity)
+               (let ((author-log (salmonella 'check-author egg meta-data)))
+                 (unless (report-status author-log)
+                   (log! author-log log-file))
+                 (status-reporter author-log verbosity))
 
                ;; Install egg
                (progress-indicator 'install egg verbosity)
