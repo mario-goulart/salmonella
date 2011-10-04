@@ -1,5 +1,3 @@
-;; Todo: remove temp dirs on exit
-
 (use posix salmonella-log-parser)
 (include "salmonella-common.scm")
 
@@ -114,6 +112,13 @@
     (print "Nothing to do.")
     (exit 0))
 
+  ;; Remove the temporary directory if interrupted
+  (set-signal-handler! signal/int
+                       (lambda (signal)
+                         (delete-path tmp-dir)
+                         (delete-path log-dir)
+                         (exit)))
+
   (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
     (set! *verbosity*
           (or (string->number verbosity) default-verbosity)))
@@ -146,4 +151,5 @@
       (loop (- i 1))))
 
   ;; Merge logs
-  (merge-logs salmonella-prefix log-dir log-file instances))
+  (merge-logs salmonella-prefix log-dir log-file instances)
+  (delete-path log-dir))
