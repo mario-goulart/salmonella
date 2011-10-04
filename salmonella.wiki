@@ -346,6 +346,10 @@ methods are (example considering a {{salmonella}} object returned by
 
 ====== {{(salmonella 'check-category <egg> <meta data>)}}
 
+====== {{(salmonella 'check-license <egg> <meta data>)}}
+
+====== {{(salmonella 'check-author <egg> <meta data>)}}
+
 ====== {{(salmonella 'check-doc <egg>)}}
 
 
