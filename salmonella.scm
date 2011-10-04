@@ -284,7 +284,7 @@
                               eggs-doc-dir: eggs-doc-dir
                               major-version: (if eggs-doc-dir #f major-version)))
             (end (current-seconds)))
-        (make-report egg 'doc (if doc-exists? 0 1) "" (- end start))))
+        (make-report egg 'check-doc (if doc-exists? 0 1) "" (- end start))))
 
     (define (check-dependencies egg meta-data)
       (let* ((egg-deps (get-egg-dependencies meta-data 'with-test-deps))
