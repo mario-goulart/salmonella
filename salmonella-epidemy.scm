@@ -3,6 +3,8 @@
 (use posix salmonella-log-parser)
 (include "salmonella-common.scm")
 
+(define *verbosity* 0)
+
 (define (split-eggs eggs slices)
   (let loop ((eggs eggs)
              (lists (make-list slices '())))
@@ -52,7 +54,7 @@
              "--verbosity=1"
              (conc "--instance-id=" instance)
              (string-intersperse (map ->string eggs)))))))
-    (print cmd)
+    (when (> *verbosity* 0) (print cmd))
     (process-run cmd)))
 
 
@@ -64,7 +66,7 @@
                      (map (lambda (i)
                             (make-pathname log-dir (number->string i) "log"))
                           (iota instances 1)))))))
-    (print cmd)
+    (when (> *verbosity* 0) (print cmd))
     (system cmd)))
 
 
@@ -112,15 +114,18 @@
     (print "Nothing to do.")
     (exit 0))
 
+  (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
+    (set! *verbosity*
+          (or (string->number verbosity) default-verbosity)))
+
   (when (file-exists? log-file)
     (die log-file " already exists. Aborting."))
 
   ;; Run salmonellas
   (let ((egg-slices (split-eggs eggs instances)))
-    (pp egg-slices)
     (let loop ((i instances))
       (unless (zero? i)
-        (print "Running instance " i ".")
+        (when (> *verbosity* 0) (print "Running instance " i "."))
         (run-salmonella i
                         (list-ref egg-slices (- i 1))
                         chicken-installation-prefix
