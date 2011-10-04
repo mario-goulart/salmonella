@@ -331,6 +331,16 @@
                                       egg-category))))
                      0)))
 
+    (define (check-license egg meta-data)
+      (let ((license (alist-ref 'license meta-data)))
+        (make-report egg
+                     'check-license
+                     (and license #t)
+                     (if license
+                         ""
+                         "Missing license information")
+                     0)))
+
 
     (define (env-info)
       #<#EOF
@@ -377,6 +387,8 @@ EOF
         ((check-category) (check-category egg (car more-args)))
 
         ((check-doc) (check-egg-doc egg))
+
+        ((check-license) (check-license egg (car more-args)))
 
         (else (error 'salmonella "Invalid action" action))))))
 

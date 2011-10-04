@@ -17,6 +17,7 @@
                       ((meta-data) "  Reading .meta")
                       ((check-dependencies) "  Checking dependencies")
                       ((check-category) "  Checking category")
+                      ((check-license) "  Checking license")
                       ((check-doc) "  Checking documentation")
                       (else (error 'salmonella-progress-indicator
                                    "Invalid action"
@@ -253,6 +254,12 @@ EOF
                    (log! categ-log log-file))
                  (status-reporter categ-log verbosity))
 
+               ;; Check license
+               (progress-indicator 'check-license egg verbosity)
+               (let ((license-log (salmonella 'check-license egg meta-data)))
+                 (unless (report-status license-log)
+                   (log! license-log log-file))
+                 (status-reporter license-log verbosity))
 
                ;; Install egg
                (progress-indicator 'install egg verbosity)
