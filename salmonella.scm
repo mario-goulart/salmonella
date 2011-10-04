@@ -375,7 +375,9 @@ EOF
                          (delete-path (make-pathname tmp-dir egg))))
 
         ((init-repo!) (begin
-                        (create-directory tmp-repo-lib-dir 'parents)
+                        (parameterize ((setup-verbose-mode #f)
+                                       (run-verbose #f))
+                          (create-directory/parents tmp-repo-lib-dir))
                         (run-shell-command
                          (sprintf "~a -init ~a" chicken-install tmp-repo-lib-dir))))
 
