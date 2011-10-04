@@ -118,8 +118,8 @@
     (set! *verbosity*
           (or (string->number verbosity) default-verbosity)))
 
-  (when (file-exists? log-file)
-    (die log-file " already exists. Aborting."))
+  ;; Remove old log
+  (delete-file* log-file)
 
   ;; Run salmonellas
   (let ((egg-slices (split-eggs eggs instances)))
