@@ -5,4 +5,5 @@
  (category egg-tools)
  (doc-from-wiki)
  (egg "salmonella.egg")
+ (test-depends test)
  )
