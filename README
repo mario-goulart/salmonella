@@ -54,6 +54,18 @@ command line option:
 
 
 
+== Running multiple salmonella instances in parallel
+
+If you have a multicore machine, salmonella-epidemy may speed things
+up.  It can run a number of salmonella instances in parallel.  The
+syntax is basically the same as for salmonella.  You just need an
+extra command line option to specify the number of instances you want
+to run (--instances=<number>):
+
+  $ salmonella-epidemy --instances=2 big-chicken slice
+
+
+
 == Using salmonella as an egg lint tool
 
 Suppose you are working on a new egg and you want to check if it is
