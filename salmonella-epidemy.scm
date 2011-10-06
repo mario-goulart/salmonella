@@ -1,4 +1,4 @@
-(use posix salmonella-log-parser)
+(use posix salmonella salmonella-log-parser)
 (include "salmonella-common.scm")
 
 (define *verbosity* 0)
