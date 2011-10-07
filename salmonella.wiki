@@ -494,6 +494,12 @@ Reads the log file {{filename}} and returns a list of report records.
 
 
 
+=== Environment variables
+
+When running, salmonella sets the {{SALMONELLA_RUNNING}} environment
+variable.  If you need to check if your tests code is being run by
+salmonella, this variable can be used.
+
 
 
 === License
