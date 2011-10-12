@@ -360,7 +360,7 @@ Command line: #(string-intersperse (argv))
 
 Options:
   chicken-install: #chicken-install
-  tmp-repo-dir: #tmp-repo-dir
+  repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
 Chicken banner:
