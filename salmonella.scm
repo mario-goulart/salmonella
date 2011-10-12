@@ -354,8 +354,10 @@
     (define (env-info)
       #<#EOF
 salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
+
 Started on #(seconds->string (current-seconds))
-Chicken version: #(nth-value 1 (run-shell-command (string-append chicken-install " -version") 'omit-cmd))
+Command line: #(string-intersperse (argv))
+
 Options:
   chicken-install: #chicken-install
   tmp-repo-dir: #tmp-repo-dir
