@@ -196,16 +196,21 @@
 
 ;; Misc
 (define (prettify-time seconds)
-  (cond ((zero? seconds)
-         "")
-        ((< seconds 60)
-         (conc seconds "s"))
-        ((< seconds 3600)
-         (let ((mins (quotient seconds 60)))
-           (conc mins "m" (prettify-time (- seconds (* 60 mins))))))
-        (else
-         (let ((hours (quotient seconds 3600)))
-           (conc hours "h" (prettify-time (- seconds (* 3600 hours))))))))
+  (define (pretty-time seconds)
+    (cond ((zero? seconds)
+           "")
+          ((< seconds 60)
+           (conc seconds "s"))
+          ((< seconds 3600)
+           (let ((mins (quotient seconds 60)))
+             (conc mins "m" (pretty-time (- seconds (* 60 mins))))))
+          (else
+           (let ((hours (quotient seconds 3600)))
+             (conc hours "h" (pretty-time (- seconds (* 3600 hours))))))))
+    (if (zero? seconds)
+      "0s"
+      (pretty-time seconds)))
+
 
 (define (sort-eggs eggs)
   (sort eggs (lambda (e1 e2)
