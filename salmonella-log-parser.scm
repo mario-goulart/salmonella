@@ -112,7 +112,9 @@
 (define (test-status egg log) (log-get egg 'test report-status log))
 (define (test-message egg log) (log-get egg 'test report-message log))
 (define (test-duration egg log) (log-get egg 'test report-duration log))
-(define (has-test? egg log) (not (= (test-status egg log) -1)))
+(define (has-test? egg log)
+  (let ((status (test-status egg log)))
+    (and status (not (= status -1)))))
 
 ;; meta-data
 (define (meta-data egg log) (log-get egg 'meta-data report-message log))
