@@ -230,6 +230,12 @@ EOF
   (log! (make-report #f 'start 0 (salmonella 'env-info) (current-seconds))
         log-file)
 
+  ;; Log skipped eggs
+  (for-each (lambda (egg)
+              (log! (make-report egg 'skip 0 "" 0) log-file))
+            skip-eggs)
+
+  ;; Handle all eggs
   (for-each
    (lambda (egg egg-count)
 

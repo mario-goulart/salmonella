@@ -472,7 +472,7 @@ Reads the log file {{filename}} and returns a list of report records.
 <procedure>(count-no-test log)</procedure>
 
 ====== count-total-eggs
-<procedure>(count-total-eggs log)</procedure>
+<procedure>(count-total-eggs log #!key with-skipped?)</procedure>
 
 ====== count-documented
 <procedure>(count-documented log)</procedure>
@@ -491,6 +491,9 @@ Reads the log file {{filename}} and returns a list of report records.
 
 ====== log-eggs
 <procedure>(log-eggs log)</procedure>
+
+====== log-skipped-eggs
+<procedure>(log-skipped-eggs log)</procedure>
 
 
 

@@ -1,7 +1,7 @@
 (module salmonella-log-parser
 
 (;; Exported API
- read-log-file log-eggs
+ read-log-file log-eggs log-skipped-eggs
 
  ;; fetch
  fetch-status fetch-message fetch-duration
@@ -53,17 +53,38 @@
     (getter log-line)))
 
 (define (log-eggs log)
-  ;; Return a list of eggs from `log'
+  ;; Return a list of eggs from `log', except skipped eggs
   (let loop ((log log)
              (eggs '()))
     (if (null? log)
         eggs
-        (let ((egg (report-egg (car log))))
+        (let* ((report (car log))
+               (egg (report-egg report))
+               (action (report-action report)))
           (loop (cdr log)
                 (if (or (not (symbol? egg))
-                        (memq egg eggs))
+                        (memq egg eggs)
+                        (eq? action 'skip))
                     eggs
                     (cons egg eggs)))))))
+
+
+(define (log-skipped-eggs log)
+  ;; Return a list of skipped eggs from `log'
+  (let loop ((log log)
+             (eggs '()))
+    (if (null? log)
+        eggs
+        (let* ((report (car log))
+               (egg (report-egg report))
+               (action (report-action report)))
+          (loop (cdr log)
+                (if (and (symbol? egg)
+                         (not (memq egg eggs))
+                         (eq? action 'skip))
+                    (cons egg eggs)
+                    eggs))))))
+
 
 ;; fetch
 (define (fetch-status egg log) (log-get egg 'fetch report-status log))
@@ -153,8 +174,11 @@
                 (< (report-status entry) 0)))
          log))
 
-(define (count-total-eggs log)
-  (length (log-eggs log)))
+(define (count-total-eggs log #key with-skipped?)
+  (+ (length (log-eggs log))
+     (if with-skipped?
+         (length (log-skipped-eggs log))
+         0)))
 
 (define (count-documented log)
   (count (lambda (entry)
