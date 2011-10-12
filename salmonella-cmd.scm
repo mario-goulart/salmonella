@@ -55,7 +55,8 @@
                 (and (eq? action 'test)
                      (= status -1)))
             ""
-            (conc (report-duration report) "s")))))))
+            (conc (prettify-time
+                   (inexact->exact (report-duration report))))))))))
 
 
 (define (show-statistics log-file verbosity)
