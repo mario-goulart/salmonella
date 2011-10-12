@@ -154,8 +154,7 @@
          log))
 
 (define (count-total-eggs log)
-  (let ((eggs (filter symbol? (map report-egg log))))
-    (length (delete-duplicates eggs eq?))))
+  (length (log-eggs log)))
 
 (define (count-documented log)
   (count (lambda (entry)
