@@ -174,7 +174,7 @@
                 (< (report-status entry) 0)))
          log))
 
-(define (count-total-eggs log #key with-skipped?)
+(define (count-total-eggs log #!key with-skipped?)
   (+ (length (log-eggs log))
      (if with-skipped?
          (length (log-skipped-eggs log))
