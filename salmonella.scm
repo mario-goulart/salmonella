@@ -70,6 +70,12 @@
                    srfi-18 srfi-69 posix utils tcp lolevel foreign))
        #t))
 
+(define (egg-installed? egg repo-lib-dir)
+  (let ((installed-eggs
+        (map pathname-file
+             (glob (make-pathname repo-lib-dir "*" "setup-info")))))
+    (and (member (->string egg) installed-eggs) #t)))
+
 ;;; meta data
 (define (read-meta-file egg tmp-repo-dir)
   ;; If `tmp-repo-dir' is `#f', assume this-egg
@@ -219,11 +225,12 @@
                (test-deps (alist-ref 'test-depends meta-data)))
           (for-each
            (lambda (dep)
-             (let ((fetch-log (fetch-egg dep 'fetch-test-dep)))
-               (when (and (zero? (report-status fetch-log))
-                          (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
-                           (make-pathname tmp-dir (->string dep))))
-                 (install-egg dep 'install-test-dep))))
+             (unless (egg-installed? dep tmp-repo-lib-dir)
+               (let ((fetch-log (fetch-egg dep 'fetch-test-dep)))
+                 (when (and (zero? (report-status fetch-log))
+                            (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
+                             (make-pathname tmp-dir (->string dep))))
+                   (install-egg dep 'install-test-dep)))))
            (remove chicken-unit? (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
