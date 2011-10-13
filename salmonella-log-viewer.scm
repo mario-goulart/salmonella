@@ -20,9 +20,9 @@
 
        ;; Installation
        (print (h2 egg " installation: ")
-              (if (zero? (install-status egg log))
-                  "[OK]"
-                  "[FAIL]")
+              (case (install-status egg log)
+                ((0) "[OK]")
+                (else "[FAIL]"))
               "\n")
        (print (install-message egg log))
 
