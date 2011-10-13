@@ -118,7 +118,10 @@
                           (->string egg)))))
                (display req out)
                (flush-output out)
-               (response-match-code? (match-http-response (read-line in)) 200)))))
+               (let ((doc-exists? (response-match-code? (match-http-response (read-line in)) 200)))
+                 (close-output-port out)
+                 (close-input-port in)
+                 doc-exists?)))))
         (else (error 'egg-doc-exists?
                      "Missing one of `major-version' or `eggs-doc-dir'"))))
 
