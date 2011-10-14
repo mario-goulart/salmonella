@@ -161,12 +161,12 @@
         (csi (make-pathname (list chicken-installation-prefix "bin") "csi"))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
         (binary-version
-         (call-with-input-pipe (string-append csi " -p '(##sys#fudge 42)'")
+         (call-with-input-pipe (string-append csi " -p \"(##sys#fudge 42)\"")
                                read-line))
         (major-version
          (string->number
           (call-with-input-pipe
-           (string-append csi " -p '(car (string-split (chicken-version) \".\"))'")
+           (string-append csi " -p \"(car (string-split (chicken-version) \\\".\\\"))\"")
            read-line)))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
