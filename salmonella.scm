@@ -30,8 +30,7 @@
 (define (run-shell-command command #!optional (omit-command #f))
   ;; Returns (values <status> <output> <duration>)
   (let* ((start (current-seconds))
-         (p (open-input-pipe
-             (string-append "SALMONELLA_RUNNING=1 " command " 2>&1")))
+         (p (open-input-pipe (string-append command " 2>&1")))
          (output (read-all p)))
     (values (arithmetic-shift (close-input-pipe p) -8)
             (conc (if omit-command "" (conc command "\n")) output)
@@ -170,16 +169,15 @@
            read-line)))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
-        (chicken-env-vars
-         (string-append
-          "CHICKEN_INSTALL_PREFIX=" tmp-repo-dir
-          " "
-          "CHICKEN_INCLUDE_PATH=" (make-pathname tmp-repo-dir "share/chicken")
-          " "
-          "CHICKEN_REPOSITORY=" tmp-repo-lib-dir))
         (egg-information (if eggs-source-dir
                              (gather-egg-information eggs-source-dir)
                              '())))
+
+    ;; Set environment variables (CHICKEN_REPOSITORY will only be set
+    ;; after initializing the repository)
+    (setenv "SALMONELLA_RUNNING" "1")
+    (setenv "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
+    (setenv "CHICKEN_INCLUDE_PATH" (make-pathname tmp-repo-dir "share/chicken"))
 
     (define (log-shell-command egg action command)
       (let-values (((status output duration) (run-shell-command command)))
@@ -205,8 +203,7 @@
                (log-shell-command
                 egg
                 'install
-                (sprintf "~a ~a ~a"
-                         chicken-env-vars
+                (sprintf "~a ~a"
                          chicken-install
                          (let ((args (chicken-install-args tmp-repo-dir)))
                            (or (irregex-replace ;; ugly hack to remove -test
@@ -244,8 +241,7 @@
                          (log-shell-command
                           egg
                           'test
-                          (sprintf "~a ~a -script run.scm"
-                                   chicken-env-vars csi))))
+                          (sprintf "~a -script run.scm" csi))))
                     (report-duration-set! report (- (current-seconds) start))
                     report)))
               (make-report egg 'test -1 "" 0)))))
@@ -256,8 +252,8 @@
       (let ((installed-version
              (and-let* ((version
                          (with-input-from-pipe
-                          (sprintf "~a ~a -e \"(print (extension-information '~a))\""
-                                   chicken-env-vars csi egg)
+                          (sprintf "~a -e \"(print (extension-information '~a))\""
+                                   csi egg)
                           read))
                         (version (alist-ref 'version version)))
                (->string (car version)))))
@@ -390,7 +386,9 @@ EOF
                                        (run-verbose #f))
                           (create-directory/parents tmp-repo-lib-dir))
                         (run-shell-command
-                         (sprintf "~a -init ~a" chicken-install tmp-repo-lib-dir))))
+                         (sprintf "~a -init ~a" chicken-install tmp-repo-lib-dir))
+                        ;; Only set CHICKEN_REPOSITORY after initializing the repo
+                        (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
 
         ((fetch) (fetch-egg egg))
 
