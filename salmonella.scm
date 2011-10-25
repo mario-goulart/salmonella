@@ -389,6 +389,7 @@ EOF
                         (parameterize ((setup-verbose-mode #f)
                                        (run-verbose #f))
                           (create-directory/parents tmp-repo-lib-dir))
+                        (unsetenv "CHICKEN_REPOSITORY")
                         (run-shell-command
                          (sprintf "~a -init ~a" chicken-install tmp-repo-lib-dir))
                         ;; Only set CHICKEN_REPOSITORY after initializing the repo
