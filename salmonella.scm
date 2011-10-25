@@ -241,7 +241,11 @@
                          (log-shell-command
                           egg
                           'test
-                          (sprintf "~a -script run.scm" csi))))
+                          (sprintf "~a -script run.scm ~a"
+                                   csi
+                                   (if (eq? (software-type) 'windows)
+                                       ""
+                                       "< /dev/null")))))
                     (report-duration-set! report (- (current-seconds) start))
                     report)))
               (make-report egg 'test -1 "" 0)))))
