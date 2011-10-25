@@ -173,6 +173,13 @@
                              (gather-egg-information eggs-source-dir)
                              '())))
 
+    (for-each (lambda (file)
+                (unless (and (file-exists? file)
+                             (file-execute-access? file))
+                  (error 'make-salmonella
+                         (conc file " cannot be found or have no execute access."))))
+              (list chicken-install csi))
+
     ;; Set environment variables (CHICKEN_REPOSITORY will only be set
     ;; after initializing the repository)
     (setenv "SALMONELLA_RUNNING" "1")
