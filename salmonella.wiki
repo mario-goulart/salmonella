@@ -19,6 +19,11 @@ summary of features:
 [[http://wiki.call-cc.org/users/mario-domenech-goulart|Mario Domenech Goulart]]
 
 
+=== Repository
+
+salmonella is hosted on [[http://github.com|github]]:
+[[https://github.com/mario-goulart/salmonella|https://github.com/mario-goulart/salmonella]]
+
 
 === Tools
 
