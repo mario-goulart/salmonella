@@ -58,8 +58,8 @@ salmonella and formats the data on the standard output.
 Here's the output of {{salmonella -h}} with an explanation for each
 command line option:
 
-  salmonella-cmd.scm [ -h | --help ]
-  salmonella-cmd.scm <options> eggs
+  salmonella [ -h | --help ]
+  salmonella <options> eggs
 
   <options>:
   --log-file=<logfile>
