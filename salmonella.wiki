@@ -36,7 +36,7 @@ the following tests:
 * dependencies verification
 * {{.meta}} file consistency check
 * egg tests execution
-* general egg consistency (i.e., can be use as an ''egg lint'' to
+* general egg consistency (i.e., can be used as an ''egg lint'' to
 avoid common mistakes when publishing a new egg or a new egg
 version)
 
