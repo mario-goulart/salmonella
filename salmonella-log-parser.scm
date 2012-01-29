@@ -207,9 +207,9 @@
           (else
            (let ((hours (quotient seconds 3600)))
              (conc hours "h" (pretty-time (- seconds (* 3600 hours))))))))
-    (if (zero? seconds)
+  (if (zero? seconds)
       "0s"
-      (pretty-time seconds)))
+      (pretty-time (inexact->exact seconds))))
 
 
 (define (sort-eggs eggs)
