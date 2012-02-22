@@ -13,7 +13,7 @@
 (compile -S -O3 -d1 salmonella-log-viewer.scm -o salmonella-log-viewer)
 (compile -S -O3 -d1 salmonella-log-merger.scm -o salmonella-log-merger)
 
-(define salmonella-version "2.2")
+(define salmonella-version "2.3")
 
 (install-extension 'salmonella
                    '("salmonella.so" "salmonella.import.so")
