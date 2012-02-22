@@ -214,7 +214,7 @@
                          chicken-install
                          (let ((args (chicken-install-args tmp-repo-dir)))
                            (or (irregex-replace ;; ugly hack to remove -test
-                                "-test" args "")
+                                " -test" args "")
                                args)))))))
         (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
             (install)
