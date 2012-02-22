@@ -157,9 +157,6 @@ EOF
             (member "--help" args))
     (usage 0))
 
-  (when (null? eggs)
-    (print "Nothing to do.")
-    (exit))
   (let* ((log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
@@ -210,6 +207,12 @@ EOF
                                           (string-prefix? "--" arg))
                                         args)))))
          (total-eggs (length eggs)))
+
+    (when (null? eggs)
+      (delete-directory tmp-dir 'recursive)
+      (print "Nothing to do.")
+      (exit))
+
 
     ;; Remove the temporary directory if interrupted
     (set-signal-handler! signal/int
