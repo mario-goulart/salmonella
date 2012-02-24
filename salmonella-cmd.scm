@@ -302,10 +302,9 @@ EOF
                    (when (zero? (report-status install-log))
                      ;; Check version
                      (let ((check-version-log (salmonella 'check-version egg)))
-                       (unless (= -1 (report-status check-version-log))
-                         (progress-indicator 'check-version egg verbosity)
-                         (log! check-version-log log-file)
-                         (status-reporter check-version-log verbosity)))
+                       (progress-indicator 'check-version egg verbosity)
+                       (log! check-version-log log-file)
+                       (status-reporter check-version-log verbosity))
 
                      ;; Test egg
                      (progress-indicator 'test egg verbosity)
