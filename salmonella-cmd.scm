@@ -92,7 +92,11 @@ EOF
   (let ((this (pathname-strip-directory (program-name))))
     (display #<#EOF
 #this [ -h | --help ]
-#this <options> eggs
+#this [ [ <options> ] eggs ]
+
+When called without eggs in the command line, salmonella will try to
+find a .setup file in the current directory and process it (just like
+chicken-install).
 
 <options>:
 --log-file=<logfile>
@@ -132,10 +136,6 @@ EOF
 --skip-eggs=<comma-separated list of eggs to skip>
     A comma-separated list of eggs to be skipped.
 
---this-egg
-    To be used from withing the egg source directory to check for common errors
-    before releasing an egg or a new egg version.
-
 --repo-dir=<path to repo dir to be used>
     Alternative location for the egg installation directory used by salmonella.
     By default, salmonella generates a `salmonella-tmp-xxxxx' directory in the
@@ -157,7 +157,15 @@ EOF
             (member "--help" args))
     (usage 0))
 
-  (let* ((log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
+  (let* ((this-egg? (or (and (member "--this-egg" args)
+                             (begin
+                               (print "WARNING: --this-egg is deprecated")
+                               #t))
+                        (and (null? (remove (lambda (arg)
+                                              (string-prefix? "--" arg))
+                                            args))
+                             (not (null? (glob "*.setup"))))))
+         (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (chicken-install-args
@@ -171,7 +179,6 @@ EOF
                           (map string->symbol (string-split skip ","))
                           '())))
          (keep-repo? (and (member "--keep-repo" args) #t))
-         (this-egg? (and (member "--this-egg" args) #t))
          (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
                      (if (absolute-pathname? path)
                          path
