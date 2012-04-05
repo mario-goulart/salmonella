@@ -140,7 +140,8 @@
                eggs-doc-dir
                this-egg?)
 
-  (let* ((chicken-installation-prefix (or chicken-installation-prefix (installation-prefix)))
+  (let* ((mingw? (eq? (build-platform) 'mingw32))
+         (chicken-installation-prefix (or chicken-installation-prefix (installation-prefix)))
          (eggs-source-dir
           (and eggs-source-dir
                (if (absolute-pathname? eggs-source-dir)
@@ -156,8 +157,11 @@
                                    " -test")))))
          (chicken-install
           (make-pathname (list chicken-installation-prefix "bin")
-                         "chicken-install"))
-        (csi (make-pathname (list chicken-installation-prefix "bin") "csi"))
+                         "chicken-install"
+                         (and mingw? "exe")))
+        (csi (make-pathname (list chicken-installation-prefix "bin")
+                            "csi"
+                            (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
         (binary-version
          (call-with-input-pipe (string-append csi " -p \"(##sys#fudge 42)\"")
