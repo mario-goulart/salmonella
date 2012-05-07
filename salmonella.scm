@@ -194,7 +194,7 @@
       (let-values (((status output duration) (run-shell-command command)))
         (make-report egg action status output duration)))
 
-    (define (fetch-egg egg #!optional (action 'fetch))
+    (define (fetch-egg egg #!key (action 'fetch) version)
       ;; Fetches egg and returns a report object
       (save-excursion tmp-dir
         (lambda ()
@@ -205,7 +205,9 @@
                                  (sprintf "~a -r ~a ~a"
                                           chicken-install
                                           (chicken-install-args tmp-repo-dir)
-                                          egg))))))
+                                          (if version
+                                              (conc egg ":" version)
+                                              egg)))))))
 
     (define (install-egg egg #!optional (action 'install))
       ;; Installs egg and returns a report object
@@ -234,11 +236,15 @@
           (for-each
            (lambda (dep)
              (unless (egg-installed? dep tmp-repo-lib-dir)
-               (let ((fetch-log (fetch-egg dep 'fetch-test-dep)))
+               (let* ((egg (if (pair? dep)
+                               (car dep)
+                               dep))
+                      (version (and (list? dep) (cadr dep)))
+                      (fetch-log (fetch-egg egg action: 'fetch-test-dep version: version)))
                  (when (and (zero? (report-status fetch-log))
                             (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
-                             (make-pathname tmp-dir (->string dep))))
-                   (install-egg dep 'install-test-dep)))))
+                             (make-pathname tmp-dir (->string egg))))
+                   (install-egg egg 'install-test-dep)))))
            (remove chicken-unit? (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
