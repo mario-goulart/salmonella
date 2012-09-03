@@ -83,7 +83,9 @@
                                    egg
                                    "meta")))
     (and (file-exists? meta-file)
-         (with-input-from-file meta-file read))))
+         (handle-exceptions exn
+           #f
+           (with-input-from-file meta-file read)))))
 
 
 ;;; HTTP (for docs)
