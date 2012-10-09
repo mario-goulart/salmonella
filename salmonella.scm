@@ -381,6 +381,13 @@
                      0)))
 
     (define (env-info)
+      (define (show-envvar var #!optional value)
+        (string-append "  " var ": "
+                       (or value
+                           (cond ((get-environment-variable var)
+                                  => (lambda (val)
+                                       val))
+                                 (else "(not set)")))))
       #<#EOF
 salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
 
@@ -394,8 +401,20 @@ Options:
 
 Chicken banner:
 #(call-with-input-pipe (string-append csi " -version") read-all)
+Environment variables:
+#(show-envvar "SALMONELLA_RUNNING")
+#(show-envvar "CHICKEN_INSTALL_PREFIX")
+#(show-envvar "CHICKEN_INCLUDE_PATH")
+#(show-envvar "CHICKEN_REPOSITORY" tmp-repo-lib-dir)
+#(show-envvar "CHICKEN_HOME")
+#(show-envvar "CSC_OPTIONS")
+
 EOF
-)
+) ;; Beware of the hack above.  CHICKEN_REPOSITORY is only set by
+  ;; salmonella after `init-repo!' is called.  Here we print its value
+  ;; but the environment variable is not actually set, since
+  ;; `env-info' can be called before `init-repo!'.
+
 
     (lambda (action #!optional egg #!rest more-args)
 

@@ -228,7 +228,7 @@ EOF
                            (exit)))
 
     (when (> verbosity 1)
-      (print "Using " tmp-dir " as temporary directory"))
+      (print (salmonella 'env-info)))
 
     ;; for salmonella-epidemy
     (set! *instance-id* (cmd-line-arg '--instance-id args))
