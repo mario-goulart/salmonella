@@ -191,6 +191,7 @@
     (setenv "SALMONELLA_RUNNING" "1")
     (setenv "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
     (setenv "CHICKEN_INCLUDE_PATH" (make-pathname tmp-repo-dir "share/chicken"))
+    (setenv "CHICKEN_C_INCLUDE_PATH" (make-pathname tmp-repo-dir "include/chicken"))
 
     (define (log-shell-command egg action command)
       (let-values (((status output duration) (run-shell-command command)))
@@ -405,6 +406,7 @@ Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
 #(show-envvar "CHICKEN_INSTALL_PREFIX")
 #(show-envvar "CHICKEN_INCLUDE_PATH")
+#(show-envvar "CHICKEN_C_INCLUDE_PATH")
 #(show-envvar "CHICKEN_REPOSITORY" tmp-repo-lib-dir)
 #(show-envvar "CHICKEN_HOME")
 #(show-envvar "CSC_OPTIONS")
@@ -412,7 +414,7 @@ Environment variables:
 EOF
 ) ;; Beware of the hack above.  CHICKEN_REPOSITORY is only set by
   ;; salmonella after `init-repo!' is called.  Here we print its value
-  ;; but the environment variable is not actually set, since
+  ;; but the environment variable may not be actually set, since
   ;; `env-info' can be called before `init-repo!'.
 
 
