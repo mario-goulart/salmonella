@@ -76,7 +76,8 @@
   (let* ((chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (salmonella-prefix
-          (cmd-line-arg '--salmonella-prefix args))
+          (or (cmd-line-arg '--salmonella-prefix args)
+              (pathname-directory (program-name))))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
          (eggs-source-dir
