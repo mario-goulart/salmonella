@@ -39,7 +39,8 @@
                   (string-append "--chicken-install-args=" chicken-install-args))
              (and skip-eggs
                   (not (null? skip-eggs))
-                  (string-append "--skip-eggs=" skip-eggs))
+                  (string-append "--skip-eggs="
+                                 (string-intersperse (map symbol->string skip-eggs) ",")))
              (and eggs-source-dir
                   (string-append "--eggs-source-dir=" eggs-source-dir))
              (and eggs-doc-dir
