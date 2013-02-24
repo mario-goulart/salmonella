@@ -20,7 +20,6 @@
                         salmonella-prefix
                         chicken-install-args
                         skip-eggs
-                        eggs-source-dir
                         eggs-doc-dir
                         keep-repo?
                         repo-dir
@@ -41,8 +40,6 @@
                   (not (null? skip-eggs))
                   (string-append "--skip-eggs="
                                  (string-intersperse (map symbol->string skip-eggs) ",")))
-             (and eggs-source-dir
-                  (string-append "--eggs-source-dir=" eggs-source-dir))
              (and eggs-doc-dir
                   (string-append "--eggs-doc-dir=" eggs-doc-dir))
              (and keep-repo?
@@ -117,6 +114,10 @@
       (print "Nothing to do.")
       (exit 0))
 
+    (when eggs-source-dir
+      (die (pathname-strip-directory (program-name))
+           " doesn't support --egg-sources-dir.  Aborting."))
+
     ;; Remove the temporary directory if interrupted
     (set-signal-handler! signal/int
                          (lambda (signal)
@@ -142,7 +143,6 @@
                           salmonella-prefix
                           chicken-install-args
                           skip-eggs
-                          eggs-source-dir
                           eggs-doc-dir
                           keep-repo?
                           repo-dir
