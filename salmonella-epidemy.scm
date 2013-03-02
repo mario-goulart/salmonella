@@ -35,7 +35,7 @@
                   (string-append "--chicken-installation-prefix="
                                  chicken-installation-prefix))
              (and chicken-install-args
-                  (string-append "--chicken-install-args=" chicken-install-args))
+                  (qs (string-append "--chicken-install-args=" chicken-install-args)))
              (and skip-eggs
                   (not (null? skip-eggs))
                   (string-append "--skip-eggs="
