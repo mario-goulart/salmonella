@@ -133,27 +133,33 @@
     (delete-file* log-file)
 
     ;; Run salmonellas
-    (let ((egg-slices (split-eggs eggs instances)))
+    (let ((egg-slices (split-eggs eggs instances))
+          (salmonellas '())) ;; (pid . instance-id)
       (let loop ((i instances))
         (unless (zero? i)
           (when (> *verbosity* 0) (print "Running instance " i "."))
-          (run-salmonella i
-                          (list-ref egg-slices (- i 1))
-                          chicken-installation-prefix
-                          salmonella-prefix
-                          chicken-install-args
-                          skip-eggs
-                          eggs-doc-dir
-                          keep-repo?
-                          repo-dir
-                          log-dir)
-          (loop (- i 1)))))
+          (set! salmonellas
+                (cons
+                 (cons (run-salmonella i
+                                       (list-ref egg-slices (- i 1))
+                                       chicken-installation-prefix
+                                       salmonella-prefix
+                                       chicken-install-args
+                                       skip-eggs
+                                       eggs-doc-dir
+                                       keep-repo?
+                                       repo-dir
+                                       log-dir)
+                       i)
+                 salmonellas))
+          (loop (- i 1))))
 
-    ;; Wait for all salmonellas
-    (let loop ((i instances))
-      (unless (zero? i)
-        (process-wait)
-        (loop (- i 1))))
+      ;; Wait for all salmonellas
+      (let loop ((i instances))
+        (unless (zero? i)
+          (let-values (((pid exit-normally? exit-status) (process-wait)))
+            (printf "### Instance ~a has finished.\n" (alist-ref pid salmonellas =))
+            (loop (- i 1))))))
 
     ;; Merge logs
     (merge-logs salmonella-prefix log-dir log-file instances)
