@@ -89,18 +89,18 @@
                           (map string->symbol (string-split skip ","))
                           '())))
          (keep-repo? (and (member "--keep-repo" args) #t))
-         (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
-                     (if (absolute-pathname? path)
-                         path
-                         (normalize-pathname
-                          (make-pathname (current-directory) path)))))
+         (repo-dir (or (and-let* ((path (cmd-line-arg '--repo-dir args)))
+                         (if (absolute-pathname? path)
+                             path
+                             (normalize-pathname
+                              (make-pathname (current-directory) path))))
+                       (mktempdir)))
          (log-dir (or (and-let* ((path (cmd-line-arg '--log-dir args)))
                         (if (absolute-pathname? path)
                             path
                             (normalize-pathname
                              (make-pathname (current-directory) path))))
                       (mktempdir)))
-         (tmp-dir (or repo-dir (mktempdir)))
          (eggs (remove (lambda (egg)
                          (memq egg skip-eggs))
                        (map string->symbol
@@ -123,7 +123,7 @@
     ;; Remove the temporary directory if interrupted
     (set-signal-handler! signal/int
                          (lambda (signal)
-                           (delete-path tmp-dir)
+                           (delete-path repo-dir)
                            (delete-path log-dir)
                            (exit)))
 
