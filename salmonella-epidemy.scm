@@ -166,4 +166,6 @@
 
     ;; Merge logs
     (merge-logs salmonella-prefix log-dir log-file instances)
-    (delete-path log-dir)))
+    (delete-path log-dir)
+    (unless keep-repo?
+      (delete-path repo-dir))))
