@@ -1,6 +1,8 @@
 (use posix salmonella salmonella-log-parser)
 (include "salmonella-common.scm")
 
+(define default-verbosity 0)
+
 (define *verbosity* 0)
 
 (define (split-eggs eggs slices)
@@ -125,9 +127,10 @@
                            (delete-path log-dir)
                            (exit)))
 
-    (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
-      (set! *verbosity*
-            (or (string->number verbosity) default-verbosity)))
+    (set! *verbosity*
+          (or (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
+                (string->number verbosity))
+              default-verbosity))
 
     ;; Remove old log
     (delete-file* log-file)
