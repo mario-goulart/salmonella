@@ -192,6 +192,13 @@
     (setenv "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
     (setenv "CHICKEN_INCLUDE_PATH" (make-pathname tmp-repo-dir "share/chicken"))
     (setenv "CHICKEN_C_INCLUDE_PATH" (make-pathname tmp-repo-dir "include/chicken"))
+    (setenv "PATH" (string-intersperse
+                   (list (make-pathname tmp-repo-dir "bin")
+                         (make-pathname chicken-installation-prefix "bin")
+                         (get-environment-variable "PATH"))
+                    (if (eq? (software-type) 'windows)
+                        ";"
+                        ":")))
 
     (define (log-shell-command egg action command)
       (let-values (((status output duration) (run-shell-command command)))
@@ -410,6 +417,7 @@ Environment variables:
 #(show-envvar "CHICKEN_REPOSITORY" tmp-repo-lib-dir)
 #(show-envvar "CHICKEN_HOME")
 #(show-envvar "CSC_OPTIONS")
+#(show-envvar "PATH")
 
 EOF
 ) ;; Beware of the hack above.  CHICKEN_REPOSITORY is only set by
