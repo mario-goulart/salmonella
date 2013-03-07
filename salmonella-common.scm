@@ -74,7 +74,7 @@ chicken-install).
     If you want to test eggs using a chicken installed on a certain directory,
     you can use this option (it should point to the same directory as given to
     `PREFIX' when installing CHICKEN). If omitted, salmonella uses CHICKEN
-    tools from the system PATH variable.
+    tools from the current runtime's installation prefix.
 
 --chicken-install-args=<install args>
     This option can be used customize chicken-install's arguments.  You can
