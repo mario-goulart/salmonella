@@ -1,4 +1,5 @@
 (use salmonella salmonella-log-parser)
+(include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
 (define default-verbosity 2)
@@ -93,6 +94,10 @@ EOF
   (when (or (member "-h" args)
             (member "--help" args))
     (usage exit-code: 0))
+
+  (when (member "--version" args)
+    (print salmonella-version)
+    (exit 0))
 
   (let* ((this-egg? (or (and (member "--this-egg" args)
                              (begin

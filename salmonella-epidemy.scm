@@ -1,5 +1,6 @@
 (use posix salmonella salmonella-log-parser)
 (include "salmonella-common.scm")
+(include "salmonella-version.scm")
 
 (define default-verbosity 0)
 
@@ -72,6 +73,9 @@
   (when (or (member "-h" args)
             (member "--help" args))
     (usage exit-code: 0 epidemy?: #t))
+  (when (member "--version" args)
+    (print salmonella-version)
+    (exit 0))
   (let* ((chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (salmonella-prefix

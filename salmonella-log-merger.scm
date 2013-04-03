@@ -1,5 +1,6 @@
 (use salmonella salmonella-log-parser)
 (include "salmonella-common.scm")
+(include "salmonella-version.scm")
 
 (define (merge-logs log-files)
   (let* ((logs (map read-log-file log-files))
@@ -47,6 +48,9 @@
 (let ((args (command-line-arguments)))
   (when (null? args)
     (usage 1))
+  (when (member "--version" args)
+    (print salmonella-version)
+    (exit 0))
   (let ((log-files
          (remove (lambda (arg)
                    (string-prefix? "--" arg))

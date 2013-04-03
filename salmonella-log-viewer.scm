@@ -1,4 +1,5 @@
 (use salmonella-log-parser)
+(include "salmonella-version.scm")
 
 (define (concat l)
   (string-intersperse (map ->string l) ""))
@@ -51,4 +52,7 @@
   (when (or (member "-h" args)
             (member "--help" args))
     (usage 0))
+  (when (member "--version" args)
+    (print salmonella-version)
+    (exit 0))
   (view-log (car args)))
