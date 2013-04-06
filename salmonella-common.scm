@@ -59,6 +59,7 @@
   (let ((this (pathname-strip-directory (program-name))))
     (display #<#EOF
 #this [ -h | --help ]
+#this --version
 #this [ [ <options> ] eggs ]
 
 When called without eggs in the command line, salmonella will try to
