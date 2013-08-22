@@ -46,16 +46,12 @@
 
 
 (define (delete-path . paths)
-  ;; mostly stolen from chicken-setup.scm
-  (define *windows*
-    (and (eq? (software-type) 'windows)
-         (build-platform) ) )
-
-  (define *windows-shell* (memq *windows* '(msvc mingw32)))
-
-  (let ((cmd (if *windows-shell* "del /Q /S" "rm -fr")))
-    (for-each (lambda (path) (system* "~a ~a" cmd path)) paths)))
-
+  (for-each (lambda (path)
+              (when (file-exists? path)
+                (if (directory? path)
+                    (delete-directory path 'recursive)
+                    (delete-file path))))
+            paths))
 
 (define (log! report log-file)
   (with-output-to-file log-file
@@ -430,7 +426,9 @@ EOF
 
       (case action
         ((clear-repo!) (begin
-                         (delete-path (make-pathname tmp-repo-dir "*"))
+                         (when (file-exists? tmp-repo-dir)
+                           (for-each delete-path
+                                     (glob (make-pathname tmp-repo-dir "*"))))
                          (delete-path (make-pathname tmp-dir egg))))
 
         ((init-repo!) (begin
