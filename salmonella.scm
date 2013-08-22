@@ -36,6 +36,16 @@
             (conc (if omit-command "" (conc command "\n")) output)
             (- (current-seconds) start))))
 
+(define (shell-command-output fmt . args)
+  (let ((command (apply sprintf (cons fmt args))))
+    (let-values (((status output _) (run-shell-command command 'ommit-command)))
+      (unless (zero? status)
+        (error 'shell-command-output
+               (sprintf "Command '~a' exited status ~a. Output:\n~a"
+                        command
+                        status
+                        output)))
+      (string-chomp output))))
 
 (define (save-excursion dir proc)
   (let ((current-dir (current-directory)))
@@ -161,14 +171,10 @@
                             "csi"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version
-         (call-with-input-pipe (string-append csi " -p \"(##sys#fudge 42)\"")
-                               read-line))
+        (binary-version (shell-command-output "~a -p \"(##sys#fudge 42)\"" csi))
         (major-version
          (string->number
-          (call-with-input-pipe
-           (string-append csi " -p \"(car (string-split (chicken-version) \\\".\\\"))\"")
-           read-line)))
+          (shell-command-output "~a -p \"(car (string-split (chicken-version) \\\".\\\"))\"" csi)))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (egg-information (if eggs-source-dir
@@ -278,10 +284,9 @@
       ;; Check egg version and return a report object
       (let ((installed-version
              (and-let* ((version
-                         (with-input-from-pipe
-                          (sprintf "~a -e \"(print (extension-information '~a))\""
-                                   csi egg)
-                          read))
+                         (shell-command-output
+                          "~a -e \"(print (extension-information '~a))\""
+                          csi egg))
                         (version (alist-ref 'version version)))
                (->string (car version)))))
         (if eggs-source-dir
@@ -404,7 +409,7 @@ Options:
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
 Chicken banner:
-#(call-with-input-pipe (string-append csi " -version") read-all)
+#(shell-command-output "~a -version" csi)
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
 #(show-envvar "CHICKEN_INSTALL_PREFIX")
