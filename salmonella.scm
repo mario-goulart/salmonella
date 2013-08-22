@@ -27,25 +27,31 @@
         (report-message report)
         (report-duration report)))
 
+(define (format-command command)
+  (string-append
+   (string-intersperse
+    (map qs (map ->string command)))
+   " 2>&1"))
+
 (define (run-shell-command command #!optional (omit-command #f))
   ;; Returns (values <status> <output> <duration>)
-  (let* ((start (current-seconds))
-         (p (open-input-pipe (string-append command " 2>&1")))
+  (let* ((command (format-command command))
+         (start (current-seconds))
+         (p (open-input-pipe command))
          (output (read-all p)))
     (values (arithmetic-shift (close-input-pipe p) -8)
             (conc (if omit-command "" (conc command "\n")) output)
             (- (current-seconds) start))))
 
-(define (shell-command-output fmt . args)
-  (let ((command (apply sprintf (cons fmt args))))
-    (let-values (((status output _) (run-shell-command command 'ommit-command)))
-      (unless (zero? status)
-        (error 'shell-command-output
-               (sprintf "Command '~a' exited status ~a. Output:\n~a"
-                        command
-                        status
-                        output)))
-      (string-chomp output))))
+(define (shell-command-output command)
+  (let-values (((status output _) (run-shell-command command 'ommit-command)))
+    (unless (zero? status)
+      (error 'shell-command-output
+             (sprintf "Command '~a' exited status ~a. Output:\n~a"
+                      (format-command command)
+                      status
+                      output)))
+    (string-chomp output)))
 
 (define (save-excursion dir proc)
   (let ((current-dir (current-directory)))
@@ -159,10 +165,10 @@
          (chicken-install-args
           (or chicken-install-args
               (lambda (repo-dir)
-                (string-append " -prefix " repo-dir
-                               (if eggs-source-dir
-                                   (string-append " -t local -l " eggs-source-dir)
-                                   " -test")))))
+                `(-prefix ,repo-dir
+                          ,@(if eggs-source-dir
+                                `(-t local -l ,eggs-source-dir)
+                                '(-test))))))
          (chicken-install
           (make-pathname (list chicken-installation-prefix "bin")
                          "chicken-install"
@@ -171,10 +177,10 @@
                             "csi"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version (shell-command-output "~a -p \"(##sys#fudge 42)\"" csi))
+        (binary-version (shell-command-output `(,csi -p "(##sys#fudge 42)")))
         (major-version
          (string->number
-          (shell-command-output "~a -p \"(car (string-split (chicken-version) \\\".\\\"))\"" csi)))
+          (shell-command-output `(,csi -p "(car (string-split (chicken-version) \".\"))"))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (egg-information (if eggs-source-dir
@@ -214,12 +220,11 @@
               (make-report egg 'fetch 0 "" 0)
               (log-shell-command egg
                                  'fetch
-                                 (sprintf "~a -r ~a ~a"
-                                          chicken-install
-                                          (chicken-install-args tmp-repo-dir)
-                                          (if version
-                                              (conc egg ":" version)
-                                              egg)))))))
+                                 `(,chicken-install
+                                   -r ,@(chicken-install-args tmp-repo-dir)
+                                   ,(if version
+                                        (conc egg ":" version)
+                                        egg)))))))
 
     (define (install-egg egg #!optional (action 'install))
       ;; Installs egg and returns a report object
@@ -228,12 +233,8 @@
                (log-shell-command
                 egg
                 'install
-                (sprintf "~a ~a"
-                         chicken-install
-                         (let ((args (chicken-install-args tmp-repo-dir)))
-                           (or (irregex-replace ;; ugly hack to remove -test
-                                " -test" args "")
-                               args)))))))
+                `(,chicken-install
+                  ,@(delete '-test (chicken-install-args tmp-repo-dir)))))))
         (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
             (install)
             (save-excursion (make-pathname tmp-dir (->string egg)) install))))
@@ -270,11 +271,10 @@
                          (log-shell-command
                           egg
                           'test
-                          (sprintf "~a -script run.scm ~a"
-                                   csi
-                                   (if (eq? (software-type) 'windows)
-                                       ""
-                                       "< /dev/null")))))
+                          `(,csi -script run.scm
+                                 ,(if (eq? (software-type) 'windows)
+                                      ""
+                                      "< /dev/null")))))
                     (report-duration-set! report (- (current-seconds) start))
                     report)))
               (make-report egg 'test -1 "" 0)))))
@@ -285,8 +285,7 @@
       (let ((installed-version
              (and-let* ((version
                          (shell-command-output
-                          "~a -e \"(print (extension-information '~a))\""
-                          csi egg))
+                          `(,csi -e ,(sprintf "\"(print (extension-information '~a))\"" egg))))
                         (version (alist-ref 'version version)))
                (->string (car version)))))
         (if eggs-source-dir
@@ -409,7 +408,7 @@ Options:
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
 Chicken banner:
-#(shell-command-output "~a -version" csi)
+#(shell-command-output `(,csi -version))
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
 #(show-envvar "CHICKEN_INSTALL_PREFIX")
@@ -443,7 +442,7 @@ EOF
                         (unsetenv "CHICKEN_REPOSITORY")
                         (receive (_ _ _) ;; make the scrutinizer happy
                             (run-shell-command
-                             (sprintf "~a -init ~a" chicken-install tmp-repo-lib-dir))
+                             `(,chicken-install -init ,tmp-repo-lib-dir))
                           (void))
                         ;; Only set CHICKEN_REPOSITORY after initializing the repo
                         (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
