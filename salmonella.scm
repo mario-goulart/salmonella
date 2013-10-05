@@ -17,6 +17,7 @@
      ports extras files utils)
 
 (include "salmonella-common.scm")
+(include "salmonella-version.scm")
 
 (define-record report egg action status message duration)
 
@@ -397,7 +398,7 @@
                                        val))
                                  (else "(not set)")))))
       #<#EOF
-salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
+salmonella #salmonella-version -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
 
 Started on #(seconds->string (current-seconds))
 Command line: #(string-intersperse (argv))
