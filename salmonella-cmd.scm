@@ -2,6 +2,8 @@
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
+(define salmonella-log-version 2)
+
 (define default-verbosity 2)
 
 (define *instance-id* #f) ;; for when salmonella is called by salmonella-epidemy
@@ -177,6 +179,10 @@ EOF
 
     ;; Remove old log
     (delete-file* log-file)
+
+    ;; Log version
+    (log! (make-report #f 'log-version 0 salmonella-log-version 0)
+          log-file)
 
     ;; Log start
     (log! (make-report #f 'start 0 (salmonella 'env-info) (current-seconds))

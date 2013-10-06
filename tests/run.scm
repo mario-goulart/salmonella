@@ -1,8 +1,14 @@
 (use test salmonella salmonella-log-parser)
 
-(define log (read-log-file "salmonella.log"))
+(define log-v0 (read-log-file "salmonella.log.v0"))
+(define log-v1 (read-log-file "salmonella.log.v1"))
+(define log (read-log-file "salmonella.log")) ;; Log v2
 
 (test-begin "Salmonella")
+
+(test 0 (log-version log-v0))
+(test 1 (log-version log-v1))
+(test 2 (log-version log))
 
 (test '(ansi-escape-sequences slice) (log-eggs log))
 (test 0 (fetch-status 'slice log))

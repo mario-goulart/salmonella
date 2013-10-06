@@ -1,0 +1,736 @@
+"salmonella -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
+Started on Sun Oct 31 01:38:07 2010
+Chicken version: 4.6.2
+
+Options:
+  csi: /root/salmonella/chicken/bin/csi
+  chicken-install: /root/salmonella/chicken/bin/chicken-install
+  chicken-eggs-dir: /root/salmonella/chicken-eggs
+  wiki-dir: /root/salmonella/wiki
+  repo-test-dir: /root/salmonella/salmonella-repo
+  chicken-install-args:  -prefix /root/salmonella/salmonella-repo -t local  -l /root/salmonella/chicken-eggs
+  env-vars: CHICKEN_INSTALL_PREFIX=/root/salmonella/salmonella-repo CHICKEN_INCLUDE_PATH=/root/salmonella/salmonella-repo/share/chicken CHICKEN_REPOSITORY=/root/salmonella/salmonella-repo/lib/chicken/5 LC_ALL=C LANG=C QTDIR=/usr PATH=$PATH:/root/salmonella/chicken/bin
+  skip-eggs:  (macosx objc hfs+ osxattr)
+  verbose: #f
+  logfile: salmonella.log
+  pkg-manager: #f
+  system-deps: #f
+  resume: #f
+  dont-ask: #t
+  progress-file: salmonella.progress
+  html-output: salmonella-report
+  dep-graphs-dir: salmonella-report/dep-graphs
+  dep-graphs-webdir: dep-graphs
+  css-file: http://wiki.call-cc.org/chicken.css
+  ->html: #f
+  base-uri: http://tests.call-cc.org/2010/10/31
+  run-tests: #t"
+("fpio"
+ egg-install
+ 0
+ "retrieving ...
+ fpio located at /root/salmonella/chicken-eggs/fpio/tags/1.4
+checking platform for `fpio' ...
+checking dependencies for `fpio' ...
+install order:
+(\"fpio\")
+installing fpio:1.4 ...
+changing current directory to /root/salmonella/chicken-eggs/fpio/tags/1.4
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"fpio\\\" \\\"1.4\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/fpio/tags/1.4/fpio.setup
+  make
+make: Nothing to be done for `all'.
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -O2 -d0 -I. -s fpio.scm gdtoa.a -j fpio
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -O2 -d0 -s fpio.import.scm
+  cp -r fpio.so /root/salmonella/salmonella-repo/lib/chicken/5/fpio.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/fpio.so
+  cp -r fpio.import.so /root/salmonella/salmonella-repo/lib/chicken/5/fpio.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/fpio.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/fpio.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/fpio.so
+         /root/salmonella/salmonella-repo/fpio.import.so)
+  (version 1.4)
+  (documentation fpio.html)))
+("fpio" doc-check 0 "" ())
+("fpio" run-tests no-tests "
+no-tests" ())
+("autoload"
+ egg-install
+ 0
+ "retrieving ...
+ autoload located at /root/salmonella/chicken-eggs/autoload/tags/1.2
+checking platform for `autoload' ...
+checking dependencies for `autoload' ...
+install order:
+(\"autoload\")
+installing autoload:1.2 ...
+changing current directory to /root/salmonella/chicken-eggs/autoload/tags/1.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"autoload\\\" \\\"1.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/autoload/tags/1.2/autoload.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -j autoload autoload.scm
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 autoload.import.scm
+  cp -r autoload.so /root/salmonella/salmonella-repo/lib/chicken/5/autoload.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/autoload.so
+  cp -r autoload.import.so /root/salmonella/salmonella-repo/lib/chicken/5/autoload.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/autoload.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/autoload.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/autoload.so
+         /root/salmonella/salmonella-repo/autoload.import.so)
+  (version 1.2)
+  (syntax)))
+("autoload" doc-check 0 "" ())
+("autoload" run-tests no-tests "
+no-tests" ())
+("datatype"
+ egg-install
+ 0
+ "retrieving ...
+ datatype located at /root/salmonella/chicken-eggs/datatype/tags/1.3
+checking platform for `datatype' ...
+checking dependencies for `datatype' ...
+install order:
+(\"datatype\")
+installing datatype:1.3 ...
+changing current directory to /root/salmonella/chicken-eggs/datatype/tags/1.3
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"datatype\\\" \\\"1.3\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/datatype/tags/1.3/datatype.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d1 datatype.scm -j datatype
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 datatype.import.scm
+  cp -r datatype.so /root/salmonella/salmonella-repo/lib/chicken/5/datatype.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/datatype.so
+  cp -r datatype.import.so /root/salmonella/salmonella-repo/lib/chicken/5/datatype.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/datatype.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/datatype.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/datatype.so
+         /root/salmonella/salmonella-repo/datatype.import.so)
+  (version 1.3)))
+("datatype" doc-check 0 "" ())
+("datatype" run-tests 0 "
+((33 . 44) . 55)
+" ())
+("3viewer"
+ egg-install
+ 0
+ "retrieving ...
+ 3viewer located at /root/salmonella/chicken-eggs/3viewer/tags/0.2
+checking platform for `3viewer' ...
+checking dependencies for `3viewer' ...
+ missing: defstruct, matchable, miscmacros, opengl, glut
+retrieving ...
+ defstruct located at /root/salmonella/chicken-eggs/defstruct/tags/1.5
+ matchable located at /root/salmonella/chicken-eggs/matchable/tags/2.6
+ miscmacros located at /root/salmonella/chicken-eggs/miscmacros/tags/2.91
+ opengl located at /root/salmonella/chicken-eggs/opengl/tags/1.18
+ glut located at /root/salmonella/chicken-eggs/glut/tags/1.17
+checking platform for `glut' ...
+checking dependencies for `glut' ...
+ missing: silex, easyffi
+retrieving ...
+ silex located at /root/salmonella/chicken-eggs/silex/tags/1.2
+ easyffi located at /root/salmonella/chicken-eggs/easyffi/tags/1.99.4
+checking platform for `easyffi' ...
+checking dependencies for `easyffi' ...
+ missing: silex, matchable, regex
+retrieving ...
+ regex located at /root/salmonella/chicken-eggs/regex/tags/1.0
+checking platform for `regex' ...
+checking dependencies for `regex' ...
+checking platform for `matchable' ...
+checking dependencies for `matchable' ...
+checking platform for `silex' ...
+checking dependencies for `silex' ...
+checking platform for `opengl' ...
+checking dependencies for `opengl' ...
+ missing: silex, easyffi
+retrieving ...
+checking platform for `miscmacros' ...
+checking dependencies for `miscmacros' ...
+checking platform for `defstruct' ...
+checking dependencies for `defstruct' ...
+install order:
+(\"defstruct\"
+ \"miscmacros\"
+ \"silex\"
+ \"matchable\"
+ \"regex\"
+ \"easyffi\"
+ \"opengl\"
+ \"glut\"
+ \"3viewer\")
+installing defstruct:1.5 ...
+changing current directory to /root/salmonella/chicken-eggs/defstruct/tags/1.5
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"defstruct\\\" \\\"1.5\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/defstruct/tags/1.5/defstruct.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 defstruct.scm -j defstruct
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 defstruct.import.scm
+  cp -r defstruct.so /root/salmonella/salmonella-repo/lib/chicken/5/defstruct.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/defstruct.so
+  cp -r defstruct.import.so /root/salmonella/salmonella-repo/lib/chicken/5/defstruct.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/defstruct.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/defstruct.setup-info
+installing miscmacros:2.91 ...
+changing current directory to /root/salmonella/chicken-eggs/miscmacros/tags/2.91
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"miscmacros\\\" \\\"2.91\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/miscmacros/tags/2.91/miscmacros.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 miscmacros.scm -j miscmacros
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 miscmacros.import.scm
+  cp -r miscmacros.so /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.so
+  cp -r miscmacros.import.so /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.setup-info
+installing silex:1.2 ...
+changing current directory to /root/salmonella/chicken-eggs/silex/tags/1.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"silex\\\" \\\"1.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/silex/tags/1.2/silex.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d1 silex.scm -j silex
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d1 silex.import.scm
+  cp -r silex.so /root/salmonella/salmonella-repo/lib/chicken/5/silex.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/silex.so
+  cp -r silex.import.so /root/salmonella/salmonella-repo/lib/chicken/5/silex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/silex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/silex.setup-info
+installing matchable:2.6 ...
+changing current directory to /root/salmonella/chicken-eggs/matchable/tags/2.6
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"matchable\\\" \\\"2.6\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/matchable/tags/2.6/matchable.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 matchable.scm -j matchable
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 matchable.import.scm
+  cp -r matchable.so /root/salmonella/salmonella-repo/lib/chicken/5/matchable.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/matchable.so
+  cp -r matchable.import.so /root/salmonella/salmonella-repo/lib/chicken/5/matchable.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/matchable.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/matchable.setup-info
+installing regex:1.0 ...
+changing current directory to /root/salmonella/chicken-eggs/regex/tags/1.0
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"regex\\\" \\\"1.0\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/regex/tags/1.0/regex.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d1 regex.scm -JS
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 regex.import.scm
+  cp -r regex.so /root/salmonella/salmonella-repo/lib/chicken/5/regex.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/regex.so
+  cp -r regex.import.so /root/salmonella/salmonella-repo/lib/chicken/5/regex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/regex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/regex.setup-info
+installing easyffi:1.99.4 ...
+changing current directory to /root/salmonella/chicken-eggs/easyffi/tags/1.99.4
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"easyffi\\\" \\\"1.99.4\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/easyffi/tags/1.99.4/easyffi.setup
+  cp -r easyffi.so /root/salmonella/salmonella-repo/lib/chicken/5/easyffi.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi.so
+  cp -r easyffi.import.so /root/salmonella/salmonella-repo/lib/chicken/5/easyffi.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi.setup-info
+  cp -r easyffi-base.so /root/salmonella/salmonella-repo/lib/chicken/5/easyffi-base.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi-base.so
+  cp -r easyffi-base.import.so /root/salmonella/salmonella-repo/lib/chicken/5/easyffi-base.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi-base.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/easyffi-base.setup-info
+  mkdir -p /root/salmonella/salmonella-repo/bin
+  chmod a+x /root/salmonella/salmonella-repo/bin
+  cp -r chicken-wrap /root/salmonella/salmonella-repo/bin/chicken-wrap
+  chmod a+r /root/salmonella/salmonella-repo/bin/chicken-wrap
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/chicken-wrap.setup-info
+installing opengl:1.18 ...
+changing current directory to /root/salmonella/chicken-eggs/opengl/tags/1.18
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"opengl\\\" \\\"1.18\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/opengl/tags/1.18/opengl.setup
+  cp -r gl.so /root/salmonella/salmonella-repo/lib/chicken/5/gl.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/gl.so
+  cp -r glu.so /root/salmonella/salmonella-repo/lib/chicken/5/glu.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glu.so
+  cp -r gl.import.so /root/salmonella/salmonella-repo/lib/chicken/5/gl.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/gl.import.so
+  cp -r glu.import.so /root/salmonella/salmonella-repo/lib/chicken/5/glu.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glu.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/opengl.setup-info
+installing glut:1.17 ...
+changing current directory to /root/salmonella/chicken-eggs/glut/tags/1.17
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"glut\\\" \\\"1.17\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/glut/tags/1.17/glut.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 glut.scm -J  -L/usr/X11R6/lib -L/usr/X11/lib -LX11 -lglut
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -c -O3 -d0 glut.scm -J  -o glut-static.o -unit glut
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s glut.import.scm -d0 -O3
+  cp -r glut.so /root/salmonella/salmonella-repo/lib/chicken/5/glut.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glut.so
+  cp -r glut.import.so /root/salmonella/salmonella-repo/lib/chicken/5/glut.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glut.import.so
+  cp -r glut-static.o /root/salmonella/salmonella-repo/lib/chicken/5/glut-static.o
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glut-static.o
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/glut.setup-info
+installing 3viewer:0.2 ...
+changing current directory to /root/salmonella/chicken-eggs/3viewer/tags/0.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"3viewer\\\" \\\"0.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/3viewer/tags/0.2/3viewer.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -dynamic -optimize-level 3 -debug-level 1 3viewer.scm -emit-import-library 3viewer
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -c -optimize-level 3 -debug-level 1 3viewer.scm -emit-import-library 3viewer -unit 3viewer
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -dynamic -optimize-level 3 -debug-level 0 3viewer.import.scm
+  cp -r 3viewer.so /root/salmonella/salmonella-repo/lib/chicken/5/3viewer.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/3viewer.so
+  cp -r 3viewer.import.so /root/salmonella/salmonella-repo/lib/chicken/5/3viewer.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/3viewer.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/3viewer.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/3viewer.so
+         /root/salmonella/salmonella-repo/3viewer.import.so)
+  (version 0.2)
+  (static 3viewer.scm.o)))
+("3viewer" doc-check 0 "" ())
+("3viewer"
+ run-tests
+ 256
+ "
+freeglut (/root/salmonella/chicken/bin/csi): failed to open display ''
+"
+ ())
+("sxml-templates"
+ egg-install
+ 0
+ "retrieving ...
+ sxml-templates located at /root/salmonella/chicken-eggs/sxml-templates/tags/0.2
+checking platform for `sxml-templates' ...
+checking dependencies for `sxml-templates' ...
+ missing: sxml-transforms, records, setup-helper
+retrieving ...
+ sxml-transforms located at /root/salmonella/chicken-eggs/sxml-transforms/tags/1.4
+ records located at /root/salmonella/chicken-eggs/records/tags/1.3
+ setup-helper located at /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0
+checking platform for `setup-helper' ...
+checking dependencies for `setup-helper' ...
+checking platform for `records' ...
+checking dependencies for `records' ...
+checking platform for `sxml-transforms' ...
+checking dependencies for `sxml-transforms' ...
+install order:
+(\"sxml-transforms\" \"records\" \"setup-helper\" \"sxml-templates\")
+installing sxml-transforms:1.4 ...
+changing current directory to /root/salmonella/chicken-eggs/sxml-transforms/tags/1.4
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"sxml-transforms\\\" \\\"1.4\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/sxml-transforms/tags/1.4/sxml-transforms.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d0 -o sxml-transforms.so -j sxml-transforms chicken/sxml-transforms.scm
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d0 sxml-transforms.import.scm
+  cp -r sxml-transforms.so /root/salmonella/salmonella-repo/lib/chicken/5/sxml-transforms.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-transforms.so
+  cp -r sxml-transforms.import.so /root/salmonella/salmonella-repo/lib/chicken/5/sxml-transforms.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-transforms.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-transforms.setup-info
+installing records:1.3 ...
+changing current directory to /root/salmonella/chicken-eggs/records/tags/1.3
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"records\\\" \\\"1.3\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/records/tags/1.3/records.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d1 records.scm -j records
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -c -O2 -d1 records.scm
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O2 -d0 records.import.scm
+  cp -r records.so /root/salmonella/salmonella-repo/lib/chicken/5/records.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/records.so
+  cp -r records.import.so /root/salmonella/salmonella-repo/lib/chicken/5/records.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/records.import.so
+  cp -r records.o /root/salmonella/salmonella-repo/lib/chicken/5/records.o
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/records.o
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/records.setup-info
+installing setup-helper:1.3.0 ...
+changing current directory to /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"setup-helper\\\" \\\"1.3.0\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0/setup-helper.setup
+  mkdir -p /root/salmonella/salmonella-repo/share/chicken
+  chmod a+x /root/salmonella/salmonella-repo/share/chicken
+  cp -r setup-helper.scm /root/salmonella/salmonella-repo/share/chicken/setup-helper.scm
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/setup-helper.setup-info
+installing sxml-templates:0.2 ...
+changing current directory to /root/salmonella/chicken-eggs/sxml-templates/tags/0.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"sxml-templates\\\" \\\"0.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/sxml-templates/tags/0.2/sxml-templates.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    sxml-templates.scm -shared -optimize-leaf-routines -inline -output-file sxml-templates.so -emit-import-library sxml-templates
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    sxml-templates.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file sxml-templates.import.so
+  cp -r sxml-templates.so /root/salmonella/salmonella-repo/lib/chicken/5/sxml-templates.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-templates.so
+  cp -r sxml-templates.import.so /root/salmonella/salmonella-repo/lib/chicken/5/sxml-templates.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-templates.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/sxml-templates.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/sxml-templates.so
+         /root/salmonella/salmonella-repo/sxml-templates.import.so)
+  (version 0.2)
+  (documentation sxml-templates.html)))
+("sxml-templates" doc-check 0 "" ())
+("sxml-templates"
+ run-tests
+ 0
+ "
+sxml-template:fill-string ............................................ [ PASS]
+"
+ ())
+("message-digest"
+ egg-install
+ 0
+ "retrieving ...
+ message-digest located at /root/salmonella/chicken-eggs/message-digest/tags/2.3.2
+checking platform for `message-digest' ...
+checking dependencies for `message-digest' ...
+ missing: setup-helper, miscmacros, check-errors, moremacros, string-utils
+retrieving ...
+ setup-helper located at /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0
+ miscmacros located at /root/salmonella/chicken-eggs/miscmacros/tags/2.91
+ check-errors located at /root/salmonella/chicken-eggs/check-errors/tags/1.12.2
+ moremacros located at /root/salmonella/chicken-eggs/moremacros/tags/1.2.0
+ string-utils located at /root/salmonella/chicken-eggs/string-utils/tags/1.2.0
+checking platform for `string-utils' ...
+checking dependencies for `string-utils' ...
+ missing: setup-helper, miscmacros, lookup-table, check-errors
+retrieving ...
+ lookup-table located at /root/salmonella/chicken-eggs/lookup-table/tags/1.13.1
+checking platform for `check-errors' ...
+checking dependencies for `check-errors' ...
+ missing: setup-helper
+retrieving ...
+checking platform for `setup-helper' ...
+checking dependencies for `setup-helper' ...
+checking platform for `lookup-table' ...
+checking dependencies for `lookup-table' ...
+ missing: setup-helper, check-errors, miscmacros, record-variants, synch
+retrieving ...
+ record-variants located at /root/salmonella/chicken-eggs/record-variants/tags/0.5
+ synch located at /root/salmonella/chicken-eggs/synch/tags/2.1.1
+checking platform for `synch' ...
+checking dependencies for `synch' ...
+ missing: setup-helper, check-errors
+retrieving ...
+checking platform for `record-variants' ...
+checking dependencies for `record-variants' ...
+checking platform for `miscmacros' ...
+checking dependencies for `miscmacros' ...
+checking platform for `moremacros' ...
+checking dependencies for `moremacros' ...
+ missing: setup-helper, miscmacros, check-errors
+retrieving ...
+install order:
+(\"setup-helper\"
+ \"miscmacros\"
+ \"check-errors\"
+ \"moremacros\"
+ \"record-variants\"
+ \"synch\"
+ \"lookup-table\"
+ \"string-utils\"
+ \"message-digest\")
+installing setup-helper:1.3.0 ...
+changing current directory to /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"setup-helper\\\" \\\"1.3.0\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/setup-helper/tags/1.3.0/setup-helper.setup
+  mkdir -p /root/salmonella/salmonella-repo/share/chicken
+  chmod a+x /root/salmonella/salmonella-repo/share/chicken
+  cp -r setup-helper.scm /root/salmonella/salmonella-repo/share/chicken/setup-helper.scm
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/setup-helper.setup-info
+installing miscmacros:2.91 ...
+changing current directory to /root/salmonella/chicken-eggs/miscmacros/tags/2.91
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"miscmacros\\\" \\\"2.91\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/miscmacros/tags/2.91/miscmacros.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 miscmacros.scm -j miscmacros
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -s -O3 -d0 miscmacros.import.scm
+  cp -r miscmacros.so /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.so
+  cp -r miscmacros.import.so /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/miscmacros.setup-info
+installing check-errors:1.12.2 ...
+changing current directory to /root/salmonella/chicken-eggs/check-errors/tags/1.12.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"check-errors\\\" \\\"1.12.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/check-errors/tags/1.12.2/check-errors.setup
+  cp -r inline-type-checks.scm /root/salmonella/salmonella-repo/share/chicken/inline-type-checks.scm
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    type-errors.scm -shared -optimize-leaf-routines -inline -output-file type-errors.so -emit-import-library type-errors -fixnum-arithmetic -no-procedure-checks -no-bound-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    type-errors.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file type-errors.import.so
+  cp -r type-errors.so /root/salmonella/salmonella-repo/lib/chicken/5/type-errors.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-errors.so
+  cp -r type-errors.import.so /root/salmonella/salmonella-repo/lib/chicken/5/type-errors.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-errors.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-errors.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    srfi-4-errors.scm -shared -optimize-leaf-routines -inline -output-file srfi-4-errors.so -emit-import-library srfi-4-errors -fixnum-arithmetic -no-procedure-checks -no-bound-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    srfi-4-errors.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file srfi-4-errors.import.so
+  cp -r srfi-4-errors.so /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-errors.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-errors.so
+  cp -r srfi-4-errors.import.so /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-errors.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-errors.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-errors.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    type-checks.scm -shared -optimize-leaf-routines -inline -output-file type-checks.so -emit-import-library type-checks -optimize-level 3 -no-procedure-checks -no-bound-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    type-checks.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file type-checks.import.so
+  cp -r type-checks.so /root/salmonella/salmonella-repo/lib/chicken/5/type-checks.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-checks.so
+  cp -r type-checks.import.so /root/salmonella/salmonella-repo/lib/chicken/5/type-checks.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-checks.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/type-checks.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    srfi-4-checks.scm -shared -optimize-leaf-routines -inline -output-file srfi-4-checks.so -emit-import-library srfi-4-checks -optimize-level 3 -no-procedure-checks -no-bound-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    srfi-4-checks.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file srfi-4-checks.import.so
+  cp -r srfi-4-checks.so /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-checks.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-checks.so
+  cp -r srfi-4-checks.import.so /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-checks.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-checks.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/srfi-4-checks.setup-info
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/check-errors.setup-info
+installing moremacros:1.2.0 ...
+changing current directory to /root/salmonella/chicken-eggs/moremacros/tags/1.2.0
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"moremacros\\\" \\\"1.2.0\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/moremacros/tags/1.2.0/moremacros.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    moremacros.scm -shared -optimize-leaf-routines -inline -output-file moremacros.so -emit-import-library moremacros
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    moremacros.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file moremacros.import.so
+  cp -r moremacros.so /root/salmonella/salmonella-repo/lib/chicken/5/moremacros.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/moremacros.so
+  cp -r moremacros.import.so /root/salmonella/salmonella-repo/lib/chicken/5/moremacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/moremacros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/moremacros.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    hash-let.scm -shared -optimize-leaf-routines -inline -output-file hash-let.so -emit-import-library hash-let
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    hash-let.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file hash-let.import.so
+  cp -r hash-let.so /root/salmonella/salmonella-repo/lib/chicken/5/hash-let.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/hash-let.so
+  cp -r hash-let.import.so /root/salmonella/salmonella-repo/lib/chicken/5/hash-let.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/hash-let.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/hash-let.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    numeric-macros.scm -shared -optimize-leaf-routines -inline -output-file numeric-macros.so -emit-import-library numeric-macros
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    numeric-macros.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file numeric-macros.import.so
+  cp -r numeric-macros.so /root/salmonella/salmonella-repo/lib/chicken/5/numeric-macros.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/numeric-macros.so
+  cp -r numeric-macros.import.so /root/salmonella/salmonella-repo/lib/chicken/5/numeric-macros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/numeric-macros.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/numeric-macros.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    variable-item.scm -shared -optimize-leaf-routines -inline -output-file variable-item.so -emit-import-library variable-item -fixnum-arithmetic -optimize-level 3 -debug-level 1 -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    variable-item.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file variable-item.import.so
+  cp -r variable-item.so /root/salmonella/salmonella-repo/lib/chicken/5/variable-item.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/variable-item.so
+  cp -r variable-item.import.so /root/salmonella/salmonella-repo/lib/chicken/5/variable-item.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/variable-item.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/variable-item.setup-info
+installing record-variants:0.5 ...
+changing current directory to /root/salmonella/chicken-eggs/record-variants/tags/0.5
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"record-variants\\\" \\\"0.5\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/record-variants/tags/0.5/record-variants.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -host -s -O2 -d0 record-variants.scm -j record-variants
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    -host -s -O2 -d0 record-variants.import.scm
+  cp -r record-variants.so /root/salmonella/salmonella-repo/lib/chicken/5/record-variants.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/record-variants.so
+  cp -r record-variants.import.so /root/salmonella/salmonella-repo/lib/chicken/5/record-variants.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/record-variants.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/record-variants.setup-info
+installing synch:2.1.1 ...
+changing current directory to /root/salmonella/chicken-eggs/synch/tags/2.1.1
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"synch\\\" \\\"2.1.1\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/synch/tags/2.1.1/synch.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    synch.scm -shared -optimize-leaf-routines -inline -output-file synch.so -emit-import-library synch -fixnum-arithmetic -optimize-level 3 -disable-interrupts
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    synch.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file synch.import.so
+  cp -r synch.so /root/salmonella/salmonella-repo/lib/chicken/5/synch.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/synch.so
+  cp -r synch.import.so /root/salmonella/salmonella-repo/lib/chicken/5/synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/synch.setup-info
+installing lookup-table:1.13.1 ...
+changing current directory to /root/salmonella/chicken-eggs/lookup-table/tags/1.13.1
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"lookup-table\\\" \\\"1.13.1\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/lookup-table/tags/1.13.1/lookup-table.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table.scm -shared -optimize-leaf-routines -inline -output-file lookup-table.so -emit-import-library lookup-table -prelude \"(define-constant MAGIC-LIMIT 12)\" -disable-interrupts -fixnum-arithmetic -local -inline-limit 50 -no-procedure-checks -debug-level 1
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file lookup-table.import.so
+  cp -r lookup-table.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table.so
+  cp -r lookup-table.import.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-unsafe.scm -shared -optimize-leaf-routines -inline -output-file lookup-table-unsafe.so -emit-import-library lookup-table-unsafe -prelude \"(define-constant MAGIC-LIMIT 12)\" -disable-interrupts -fixnum-arithmetic -local -inline-limit 50 -no-procedure-checks -debug-level 0 -no-bound-checks -no-argc-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-unsafe.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file lookup-table-unsafe.import.so
+  cp -r lookup-table-unsafe.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe.so
+  cp -r lookup-table-unsafe.import.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-synch.scm -shared -optimize-leaf-routines -inline -output-file lookup-table-synch.so -emit-import-library lookup-table-synch -prelude \"(define-constant MAGIC-LIMIT 12)\" -disable-interrupts -fixnum-arithmetic -local -inline-limit 50 -no-procedure-checks -debug-level 1
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-synch.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file lookup-table-synch.import.so
+  cp -r lookup-table-synch.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-synch.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-synch.so
+  cp -r lookup-table-synch.import.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-synch.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-unsafe-synch.scm -shared -optimize-leaf-routines -inline -output-file lookup-table-unsafe-synch.so -emit-import-library lookup-table-unsafe-synch -prelude \"(define-constant MAGIC-LIMIT 12)\" -disable-interrupts -fixnum-arithmetic -local -inline-limit 50 -no-procedure-checks -debug-level 0 -no-bound-checks -no-argc-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    lookup-table-unsafe-synch.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file lookup-table-unsafe-synch.import.so
+  cp -r lookup-table-unsafe-synch.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe-synch.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe-synch.so
+  cp -r lookup-table-unsafe-synch.import.so /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe-synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe-synch.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/lookup-table-unsafe-synch.setup-info
+installing string-utils:1.2.0 ...
+changing current directory to /root/salmonella/chicken-eggs/string-utils/tags/1.2.0
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"string-utils\\\" \\\"1.2.0\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/string-utils/tags/1.2.0/string-utils.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    unicode-utils.scm -shared -optimize-leaf-routines -inline -output-file unicode-utils.so -emit-import-library unicode-utils -scrutinize -fixnum-arithmetic -O3 -d1 -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    unicode-utils.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file unicode-utils.import.so
+  cp -r unicode-utils.so /root/salmonella/salmonella-repo/lib/chicken/5/unicode-utils.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/unicode-utils.so
+  cp -r unicode-utils.import.so /root/salmonella/salmonella-repo/lib/chicken/5/unicode-utils.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/unicode-utils.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/unicode-utils.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    memoized-string.scm -shared -optimize-leaf-routines -inline -output-file memoized-string.so -emit-import-library memoized-string -scrutinize -disable-interrupts -fixnum-arithmetic -O3 -d1 -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    memoized-string.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file memoized-string.import.so
+  cp -r memoized-string.so /root/salmonella/salmonella-repo/lib/chicken/5/memoized-string.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/memoized-string.so
+  cp -r memoized-string.import.so /root/salmonella/salmonella-repo/lib/chicken/5/memoized-string.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/memoized-string.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/memoized-string.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    to-hex.scm -shared -optimize-leaf-routines -inline -output-file to-hex.so -emit-import-library to-hex
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    to-hex.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file to-hex.import.so
+  cp -r to-hex.so /root/salmonella/salmonella-repo/lib/chicken/5/to-hex.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/to-hex.so
+  cp -r to-hex.import.so /root/salmonella/salmonella-repo/lib/chicken/5/to-hex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/to-hex.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/to-hex.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    string-hexadecimal.scm -shared -optimize-leaf-routines -inline -output-file string-hexadecimal.so -emit-import-library string-hexadecimal -scrutinize -fixnum-arithmetic -O3 -d1 -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    string-hexadecimal.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file string-hexadecimal.import.so
+  cp -r string-hexadecimal.so /root/salmonella/salmonella-repo/lib/chicken/5/string-hexadecimal.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-hexadecimal.so
+  cp -r string-hexadecimal.import.so /root/salmonella/salmonella-repo/lib/chicken/5/string-hexadecimal.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-hexadecimal.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-hexadecimal.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    string-utils.scm -shared -optimize-leaf-routines -inline -output-file string-utils.so -emit-import-library string-utils -scrutinize -fixnum-arithmetic -O3 -d1 -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    string-utils.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file string-utils.import.so
+  cp -r string-utils.so /root/salmonella/salmonella-repo/lib/chicken/5/string-utils.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-utils.so
+  cp -r string-utils.import.so /root/salmonella/salmonella-repo/lib/chicken/5/string-utils.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-utils.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/string-utils.setup-info
+installing message-digest:2.3.2 ...
+changing current directory to /root/salmonella/chicken-eggs/message-digest/tags/2.3.2
+  /root/salmonella/chicken/bin/csi -bnq -setup-mode -e \"(require-library setup-api)\" -e \"(import setup-api)\" -e \"(setup-error-handling)\" -e \"(extension-name-and-version '(\\\"message-digest\\\" \\\"2.3.2\\\"))\" -e \"(destination-prefix \\\"/root/salmonella/salmonella-repo\\\")\" -e \"(runtime-prefix \\\"/root/salmonella/salmonella-repo\\\")\" /root/salmonella/chicken-eggs/message-digest/tags/2.3.2/message-digest.setup
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    message-digest.scm -shared -optimize-leaf-routines -inline -output-file message-digest.so -emit-import-library message-digest -fixnum-arithmetic -optimize-level 3 -lambda-lift -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    message-digest.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file message-digest.import.so
+  cp -r message-digest.so /root/salmonella/salmonella-repo/lib/chicken/5/message-digest.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest.so
+  cp -r message-digest.import.so /root/salmonella/salmonella-repo/lib/chicken/5/message-digest.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest.setup-info
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    message-digest-port.scm -shared -optimize-leaf-routines -inline -output-file message-digest-port.so -emit-import-library message-digest-port -fixnum-arithmetic -optimize-level 3 -lambda-lift -no-procedure-checks
+  /root/salmonella/chicken/bin/csc -feature compiling-extension -setup-mode    message-digest-port.import.scm -shared -optimize-leaf-routines -inline -local -no-trace -no-lambda-info -output-file message-digest-port.import.so
+  cp -r message-digest-port.so /root/salmonella/salmonella-repo/lib/chicken/5/message-digest-port.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest-port.so
+  cp -r message-digest-port.import.so /root/salmonella/salmonella-repo/lib/chicken/5/message-digest-port.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest-port.import.so
+  chmod a+r /root/salmonella/salmonella-repo/lib/chicken/5/message-digest-port.setup-info
+
+"
+ ((files /root/salmonella/salmonella-repo/message-digest.so
+         /root/salmonella/salmonella-repo/message-digest.import.so)
+  (version 2.3.2)
+  (documentation message-digest.html)))
+("message-digest" doc-check 0 "" ())
+("message-digest"
+ run-tests
+ 0
+ "
+
+-- testing Message Digest Chunk Read -----------------------------------------
+First chunk type ..................................................... [ PASS]
+First chunk size ..................................................... [ PASS]
+No more chunk ........................................................ [ PASS]
+3 tests completed in 0.001 seconds.
+3 out of 3 (100%) tests passed.
+-- done testing Message Digest Chunk Read ------------------------------------
+
+
+-- testing Message Digest Make Primitive -------------------------------------
+(message-digest-primitive? mdp) ...................................... [ PASS]
+(message-digest-primitive-context-info mdp) .......................... [ PASS]
+(message-digest-primitive-digest-length mdp) ......................... [ PASS]
+(message-digest-primitive-init mdp) .................................. [ PASS]
+(message-digest-primitive-update mdp) ................................ [ PASS]
+(message-digest-primitive-final mdp) ................................. [ PASS]
+(message-digest-primitive-name mdp) .................................. [ PASS]
+7 tests completed in 0.001 seconds.
+7 out of 7 (100%) tests passed.
+-- done testing Message Digest Make Primitive --------------------------------
+
+
+-- testing Message Digest Proper Phase Arguments (Def Alloc) -----------------
+(message-digest? md) ................................................. [ PASS]
+(message-digest-update-string md simple-src) ......................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+3 tests completed in 0.007 seconds.
+3 out of 3 (100%) tests passed.
+-- done testing Message Digest Proper Phase Arguments (Def Alloc) ------------
+
+
+-- testing Message Digest Proper Phase Arguments (Own Alloc) -----------------
+(message-digest? md) ................................................. [ PASS]
+(message-digest-update-string md simple-src) ......................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+3 tests completed in 0.0 seconds.
+3 out of 3 (100%) tests passed.
+-- done testing Message Digest Proper Phase Arguments (Own Alloc) ------------
+
+
+-- testing Message Digest u8vector Source ------------------------------------
+(message-digest-update-u8vector md (u8vector 1 2 3 4 5)) ............. [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.001 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest u8vector Source -------------------------------
+
+
+-- testing Message Digest u8 Source ------------------------------------------
+(message-digest-update-u8 md 162) .................................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest u8 Source -------------------------------------
+
+
+-- testing Message Digest u16-le Source --------------------------------------
+(message-digest-update-u16-le md 41650) .............................. [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest u16-le Source ---------------------------------
+
+
+-- testing Message Digest u32-be Source --------------------------------------
+(message-digest-update-u32-be md 2729624274.0) ....................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest u32-be Source ---------------------------------
+
+
+-- testing Message Digest char-u8 Source -------------------------------------
+(message-digest-update-char-u8 md #\\space) ........................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest char-u8 Source --------------------------------
+
+
+-- testing Message Digest char-be Source -------------------------------------
+(message-digest-update-char-be md #\\u3bb) ............................ [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.001 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest char-be Source --------------------------------
+
+
+-- testing Message Digest char-le Source -------------------------------------
+(message-digest-update-char-le md #\\u3bb) ............................ [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest char-le Source --------------------------------
+
+
+-- testing Message Digest Procedure Source -----------------------------------
+(message-digest-update-procedure md just-once) ....................... [ PASS]
+(finalize-message-digest md) ......................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest Procedure Source ------------------------------
+
+
+-- testing Message Digest Port -----------------------------------------------
+(output-port? port) .................................................. [ PASS]
+(get-output-digest-hexstring port) ................................... [ PASS]
+(port-closed? port) .................................................. [ PASS]
+3 tests completed in 0.001 seconds.
+3 out of 3 (100%) tests passed.
+-- done testing Message Digest Port ------------------------------------------
+
+
+-- testing Message Digest Primitive Apply (DEPRECATED) -----------------------
+(string? res) ........................................................ [ PASS]
+(byte-string->hexadecimal res) ....................................... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest Primitive Apply (DEPRECATED) ------------------
+
+
+-- testing Message Digest Make (DEPRECATED) ----------------------------------
+(make-binary-message-digest simple-src make-context digest-leng... ... [ PASS]
+(make-message-digest simple-src make-context digest-length init... ... [ PASS]
+2 tests completed in 0.0 seconds.
+2 out of 2 (100%) tests passed.
+-- done testing Message Digest Make (DEPRECATED) -----------------------------
+
+"
+ ())

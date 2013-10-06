@@ -29,7 +29,7 @@
  count-no-test count-total-eggs count-documented count-undocumented
 
  ;; misc
- prettify-time sort-eggs
+ prettify-time sort-eggs log-version
  )
 
 (import scheme chicken)
@@ -43,10 +43,20 @@
                (eq? (report-action entry) action)))
         log))
 
+(define (log-version-0? log)
+  ;; Log files emitted by salmonella 1.x had salmonella-info as a
+  ;; string as the first entry
+  (string? (car log)))
+
 (define (read-log-file log-file)
-  (map (lambda (entry)
-         (apply make-report entry))
-       (with-input-from-file log-file read-file)))
+  (let ((entries (with-input-from-file log-file read-file)))
+    ;; Ugly hack to avoid breaking on old log files. We don't actually
+    ;; support parsing old logs at the moment -- just avoid crashing.
+    (if (log-version-0? entries)
+        entries
+        (map (lambda (entry)
+               (apply make-report entry))
+             entries))))
 
 (define (log-get egg action getter log)
   (and-let* ((log-line (get-by-egg/action egg action log)))
@@ -134,13 +144,46 @@
 (define (doc-exists? egg log)
   (zero? (log-get egg 'check-doc report-status log)))
 
+;; log version
+
+;; Version 0: emitted by salmonella 1.x
+;;
+;; Version 1: emmited by salmonellas 2.0 - 2.7
+;;
+;; Version 2: same format as log version 1's, but with version
+;; information -- `log-version' action.
+;; Emitted by salmonellas 2.8 - <current version>
+
+(define (log-version log)
+  (if (log-version-0? log)
+      0
+      (let loop ((log log))
+        (if (null? log)
+            1
+            (let ((report (car log)))
+              (if (eq? 'log-version (report-action report))
+                  (report-message report)
+                  (loop (cdr log))))))))
 
 ;; start & end
+(define start-report
+  (let ((report #f))
+    (lambda (log)
+      (unless report
+        (let loop ((log log))
+          (if (null? log)
+              (error 'start-report "Could not determine start report entry.")
+              (let ((current-report (car log)))
+                (if (eq? 'start (report-action current-report))
+                    (set! report current-report)
+                    (loop (cdr log)))))))
+      report)))
+
 (define (start-time log)
-  (report-duration (car log)))
+  (report-duration (start-report log)))
 
 (define (salmonella-info log)
-  (report-message (car log)))
+  (report-message (start-report log)))
 
 (define (end-time log)
   (report-duration (last log)))
