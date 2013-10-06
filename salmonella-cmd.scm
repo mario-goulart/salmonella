@@ -4,7 +4,7 @@
 
 (define default-verbosity 2)
 
-(define *instance-id* #f) ;; for when sallmonella is called by salmonella-epidemy
+(define *instance-id* #f) ;; for when salmonella is called by salmonella-epidemy
 
 (define (progress-indicator action egg verbosity #!optional egg-count total)
   (case verbosity
