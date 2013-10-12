@@ -2,18 +2,27 @@
 
 (include "salmonella-version.scm")
 
-;; Compile the extensions
-(compile -S -s -O3 -d1 -J salmonella.scm)
-(compile -S -s -O3 -d1 salmonella.import.scm)
+(define debug-build?
+  (get-environment-variable "SALMONELLA_DEBUG_BUILD"))
 
-(compile -S -s -O3 -d1 -J salmonella-log-parser.scm)
-(compile -S -s -O3 -d1 salmonella-log-parser.import.scm)
+(define csc-args
+  (cons '-S
+        (if debug-build?
+            '(-O0 -d2)
+            '(-O3 -d1))))
+
+;; Compile the extensions
+(compile -s ,@csc-args -J salmonella.scm)
+(compile -s ,@csc-args salmonella.import.scm)
+
+(compile -s ,@csc-args -J salmonella-log-parser.scm)
+(compile -s ,@csc-args salmonella-log-parser.import.scm)
 
 ;; Compile the applications
-(compile -S -O3 -d1 salmonella-cmd.scm -o salmonella)
-(compile -S -O3 -d1 salmonella-epidemy.scm -o salmonella-epidemy)
-(compile -S -O3 -d1 salmonella-log-viewer.scm -o salmonella-log-viewer)
-(compile -S -O3 -d1 salmonella-log-merger.scm -o salmonella-log-merger)
+(compile ,@csc-args salmonella-cmd.scm -o salmonella)
+(compile ,@csc-args salmonella-epidemy.scm -o salmonella-epidemy)
+(compile ,@csc-args salmonella-log-viewer.scm -o salmonella-log-viewer)
+(compile ,@csc-args salmonella-log-merger.scm -o salmonella-log-merger)
 
 (install-extension 'salmonella
                    '("salmonella.so" "salmonella.import.so")
