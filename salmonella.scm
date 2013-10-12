@@ -178,10 +178,10 @@
                             "csi"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version (shell-command-output `(,csi -p "(##sys#fudge 42)")))
+        (binary-version (shell-command-output `(,csi -np "(##sys#fudge 42)")))
         (major-version
          (string->number
-          (shell-command-output `(,csi -p "(car (string-split (chicken-version) \".\"))"))))
+          (shell-command-output `(,csi -np "(car (string-split (chicken-version) \".\"))"))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (egg-information (if eggs-source-dir
