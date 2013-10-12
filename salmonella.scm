@@ -281,41 +281,91 @@
               (make-report egg 'test -1 "" 0)))))
 
 
-    (define (read-setup-info egg)
+    (define (find-setup-info-files egg)
       (let ((setup-info-file (make-pathname tmp-repo-lib-dir egg "setup-info")))
-        (unless (file-read-access? setup-info-file)
-          (error 'read-setup-info
-                 (sprintf "Could not open setup-info file for egg ~a" egg)))
-        (with-input-from-file setup-info-file read)))
+        (if (file-read-access? setup-info-file)
+            (list setup-info-file)
+            ;; extension install more than one module. Find them based
+            ;; on the egg-name key in setup-info files. This feature
+            ;; requires chicken > 4.6.0
+            (let loop ((setup-info-files
+                        (glob (make-pathname tmp-repo-lib-dir "*.setup-info"))))
+              (if (null? setup-info-files)
+                  '()
+                  (or (and-let* ((current-setup-info-file (car setup-info-files))
+                                 (setup-info
+                                  (handle-exceptions exn
+                                    '()
+                                    (with-input-from-file current-setup-info-file read)))
+                                 (egg-name (alist-ref 'egg-name setup-info)))
+                        (if (equal? (car egg-name) egg)
+                            (cons current-setup-info-file
+                                  (loop (cdr setup-info-files)))
+                            (loop (cdr setup-info-files))))
+                      (loop (cdr setup-info-files))))))))
 
+
+    (define (setup-info-version egg)
+
+      (define (read-version setup-info-file)
+        (let ((data (with-input-from-file setup-info-file read)))
+          (and-let* ((version (alist-ref 'version data)))
+            (car version))))
+
+      (let ((setup-info-files (find-setup-info-files egg)))
+        (cond ((null? setup-info-files) ;; no setup-info file
+               #f)
+              ((null? (cdr setup-info-files)) ;; a single setup-info file
+               (read-version (car setup-info-files)))
+              (else ;; multiple setup-info files
+               (let ((versions
+                      (delete-duplicates
+                       (let loop ((setup-info-files setup-info-files))
+                         (if (null? setup-info-files)
+                             '()
+                             (cons (read-version (car setup-info-files))
+                                   (loop (cdr setup-info-files)))))
+                       equal?)))
+                 (cond ((null? versions) ;; no version
+                        #f)
+                       ((null? (cdr versions)) ;; a single version among all installed modules
+                        (car versions))
+                       (else ;; multiple versions among all installed modules (should not happen)
+                        versions)))))))
 
     (define (check-version egg)
-      ;; Check egg version and return a report object
-      (let ((installed-version
-             (and-let* ((version
-                         (alist-ref 'version (read-setup-info (symbol->string egg)))))
-               (->string (car version)))))
-        (if eggs-source-dir
-          (let* ((setup-version
-                  (and-let* ((egg-info (alist-ref egg egg-information))
-                             (ver (alist-ref 'version egg-info)))
-                    (->string (car ver))))
-                 (version-ok? (equal? installed-version setup-version)))
+      ;; Check egg version and return a report object.
+      ;; Status:
+      ;;   0: success
+      ;;   1: failure
+      ;;  -1: ignore (cannot determine failure or success)
+      (let ((installed-version (setup-info-version (symbol->string egg))))
+        (if (list? installed-version)
             (make-report egg
                          'check-version
-                         (if version-ok? 0 1)
-                         (if version-ok?
-                             ""
-                             (conc "Mismatch between installed egg version "
-                                   installed-version
-                                   " and declared egg version "
-                                   setup-version))
-                         installed-version))
-          (make-report egg
-                       'check-version
-                       -1
-                       "Version check requires a local repository of eggs sources."
-                       installed-version))))
+                         1
+                         (sprintf "~a installs multiple modules with different versions" egg)
+                         (string-intersperse (map ->string installed-version) " "))
+            (if eggs-source-dir
+                (let* ((setup-version
+                        (and-let* ((egg-info (alist-ref egg egg-information))
+                                   (ver (alist-ref 'version egg-info)))
+                          (->string (car ver))))
+                       (version-ok? (and (not (list? installed-version))
+                                         (equal? installed-version setup-version))))
+                  (make-report egg
+                               'check-version
+                               (if version-ok? 0 1)
+                               (if version-ok?
+                                   ""
+                                   (sprintf "Mismatch between installed egg version ~a and declared egg version ~a"
+                                            installed-version setup-version))
+                               installed-version))
+                (make-report egg
+                             'check-version
+                             -1
+                             "Version check requires a local repository of eggs sources."
+                             installed-version)))))
 
     (define (meta-data egg)
       (let ((data (read-meta-file egg (if this-egg? #f tmp-dir))))
