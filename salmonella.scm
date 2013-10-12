@@ -281,13 +281,19 @@
               (make-report egg 'test -1 "" 0)))))
 
 
+    (define (read-setup-info egg)
+      (let ((setup-info-file (make-pathname tmp-repo-lib-dir egg "setup-info")))
+        (unless (file-read-access? setup-info-file)
+          (error 'read-setup-info
+                 (sprintf "Could not open setup-info file for egg ~a" egg)))
+        (with-input-from-file setup-info-file read)))
+
+
     (define (check-version egg)
       ;; Check egg version and return a report object
       (let ((installed-version
              (and-let* ((version
-                         (shell-command-output
-                          `(,csi -e ,(sprintf "\"(print (extension-information '~a))\"" egg))))
-                        (version (alist-ref 'version version)))
+                         (alist-ref 'version (read-setup-info (symbol->string egg)))))
                (->string (car version)))))
         (if eggs-source-dir
           (let* ((setup-version
