@@ -166,18 +166,14 @@
                   (loop (cdr log))))))))
 
 ;; start & end
-(define start-report
-  (let ((report #f))
-    (lambda (log)
-      (unless report
-        (let loop ((log log))
-          (if (null? log)
-              (error 'start-report "Could not determine start report entry.")
-              (let ((current-report (car log)))
-                (if (eq? 'start (report-action current-report))
-                    (set! report current-report)
-                    (loop (cdr log)))))))
-      report)))
+(define (start-report log)
+  (let loop ((log log))
+    (if (null? log)
+        (error 'start-report "Could not determine start report entry.")
+        (let ((current-report (car log)))
+          (if (eq? 'start (report-action current-report))
+              current-report
+              (loop (cdr log)))))))
 
 (define (start-time log)
   (report-duration (start-report log)))
