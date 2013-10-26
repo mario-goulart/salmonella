@@ -1,6 +1,52 @@
 (import irregex)
 (use srfi-1 ports files posix)
 
+(define (delete-path . paths)
+  ;; We could simply use delete-directory giving it a truthy value as
+  ;; second argument to make it recursive, but the recursive mode uses
+  ;; find-files, which was broken before
+  ;; ba01911d2644dd8ac40eced46a8451033e565d86.  So, we implement a
+  ;; simplified version of ##sys#find-files (find) and
+  ;; delete-directory (rmdir).
+
+  (define (find dir)
+    ;; simplified implementation of ##sys#find-files, which was broken
+    ;; before
+    (let loop ((files (glob (make-pathname dir "?*")))
+               (all-files '()))
+      (if (null? files)
+          all-files
+          (let ((f (car files))
+                (rest (cdr files)))
+            (if (directory? f)
+                (cond ((member (pathname-file f) '("." ".."))
+                       (loop rest all-files))
+                      ((and (symbolic-link? f))
+                       (loop rest (cons f all-files)))
+                      (else
+                       (loop rest
+                             (loop (glob (make-pathname f "?*"))
+                                   (cons f all-files)))))
+                (loop rest (cons f all-files)))))))
+
+  (define (rmdir name)
+    (let ((files (find name)))
+      (for-each
+       (lambda (f)
+         ((cond ((symbolic-link? f) delete-file)
+                ((directory? f) delete-directory)
+                (else delete-file))
+          f))
+       files)
+      (delete-directory name)))
+
+  (for-each (lambda (path)
+              (when (file-exists? path)
+                (if (directory? path)
+                    (rmdir path)
+                    (delete-file path))))
+            paths))
+
 (define (get-egg-dependencies meta-data #!key with-test-dependencies?
                                               with-versions?)
   (define (deps key)

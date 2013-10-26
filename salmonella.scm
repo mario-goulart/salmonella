@@ -1,7 +1,7 @@
 (module salmonella
 
 (;; Exported API
- make-salmonella log! delete-path
+ make-salmonella log!
 
  ;; report record
  make-report report->list report?
@@ -60,15 +60,6 @@
     (let ((out (proc)))
       (change-directory current-dir)
       out)))
-
-
-(define (delete-path . paths)
-  (for-each (lambda (path)
-              (when (file-exists? path)
-                (if (directory? path)
-                    (delete-directory path 'recursive)
-                    (delete-file path))))
-            paths))
 
 (define (log! report log-file)
   (with-output-to-file log-file

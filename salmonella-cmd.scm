@@ -160,7 +160,7 @@ EOF
          (total-eggs (length eggs)))
 
     (when (null? eggs)
-      (delete-directory tmp-dir 'recursive)
+      (delete-path tmp-dir)
       (print "Nothing to do.")
       (exit))
 
