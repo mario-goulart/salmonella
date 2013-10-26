@@ -445,7 +445,7 @@
                                        val))
                                  (else "(not set)")))))
       #<#EOF
-salmonella #salmonella-version -- a tool for testing Chicken eggs (http://wiki.call-cc.org/egg/salmonella)
+salmonella #salmonella-version -- a tool for testing CHICKEN eggs (http://wiki.call-cc.org/egg/salmonella)
 
 Started on #(seconds->string (current-seconds))
 Command line: #(string-intersperse (argv))
@@ -455,7 +455,7 @@ Options:
   repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
-Chicken banner:
+CHICKEN banner:
 #(shell-command-output `(,csi -version))
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
