@@ -168,6 +168,9 @@
         (csi (make-pathname (list chicken-installation-prefix "bin")
                             "csi"
                             (and mingw? "exe")))
+        (csc (make-pathname (list chicken-installation-prefix "bin")
+                            "csc"
+                            (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
         (binary-version (shell-command-output `(,csi -np "(##sys#fudge 42)")))
         (major-version
@@ -454,6 +457,15 @@ Options:
   chicken-install: #chicken-install
   repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
+
+C compiler: #(shell-command-output `(,csc -cc-name))
+C++ compiler: #(shell-command-output `(,csc -cxx-name))
+C compiler flags: #(shell-command-output `(,csc -cflags))
+
+Linker: #(shell-command-output `(,csc -ld-name))
+Linker flags: #(shell-command-output `(,csc -ldflags))
+
+Libraries: #(shell-command-output `(,csc -libs))
 
 CHICKEN banner:
 #(shell-command-output `(,csi -version))
