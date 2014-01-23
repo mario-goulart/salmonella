@@ -488,10 +488,9 @@ EOF
                                        (run-verbose #f))
                           (create-directory/parents tmp-repo-lib-dir))
                         (unsetenv "CHICKEN_REPOSITORY")
-                        (receive (_ _ _) ;; make the scrutinizer happy
+                        (receive ;; make the scrutinizer happy
                             (run-shell-command
-                             `(,chicken-install -init ,tmp-repo-lib-dir))
-                          (void))
+                             `(,chicken-install -init ,tmp-repo-lib-dir)))
                         ;; Only set CHICKEN_REPOSITORY after initializing the repo
                         (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
 
