@@ -102,7 +102,10 @@
               dir)))))
 
 (define (usage #!key exit-code epidemy?)
-  (let ((this (pathname-strip-directory (program-name))))
+  (let ((this (pathname-strip-directory (program-name)))
+        (port (if (and exit-code (not (zero? exit-code)))
+                  (current-error-port)
+                  (current-output-port))))
     (display #<#EOF
 #this [ -h | --help ]
 #this --version
@@ -162,7 +165,7 @@ chicken-install).
     while salmonella is running.
 
 EOF
-)
+    port)
     (when epidemy?
       (display #<#EOF
 
