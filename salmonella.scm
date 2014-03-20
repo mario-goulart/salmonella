@@ -279,7 +279,7 @@
       (let ((setup-info-file (make-pathname tmp-repo-lib-dir egg "setup-info")))
         (if (file-read-access? setup-info-file)
             (list setup-info-file)
-            ;; extension install more than one module. Find them based
+            ;; extension installs more than one module. Find them based
             ;; on the egg-name key in setup-info files. This feature
             ;; requires chicken > 4.6.0
             (let loop ((setup-info-files
