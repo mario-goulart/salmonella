@@ -52,6 +52,7 @@
 
 (test '() (egg-dependencies 'slice log))
 (test '() (egg-dependencies 'ansi-escape-sequences log))
+(test-error (egg-dependencies 'srfi-13))
 
 (test "BSD" (egg-license 'slice log))
 (test "BSD" (egg-license 'ansi-escape-sequences log))
