@@ -130,10 +130,16 @@
 (define (meta-data egg log) (log-get egg 'meta-data report-message log))
 
 (define (egg-dependencies egg log #!key with-test-dependencies? with-versions?)
+  ;; Make sure to call this procedure giving proper eggs as arguments.
+  ;; Core libraries, for example, don't have metadata (.meta) and will
+  ;; make egg-dependencies raise an error.
   (let ((data (meta-data egg log)))
-    (get-egg-dependencies data
-                          with-test-dependencies?: with-test-dependencies?
-                          with-versions?: with-versions?)))
+    (if data
+        (get-egg-dependencies data
+                              with-test-dependencies?: with-test-dependencies?
+                              with-versions?: with-versions?)
+        (error 'egg-dependencies
+               (sprintf "No metadata for ~a" egg)))))
 
 (define (egg-license egg log)
   (let ((data (meta-data egg log)))
