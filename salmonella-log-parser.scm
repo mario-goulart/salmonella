@@ -143,7 +143,8 @@
 
 (define (egg-license egg log)
   (let ((data (meta-data egg log)))
-    (and-let* ((license (alist-ref 'license data)))
+    (and-let* ((data)
+               (license (alist-ref 'license data)))
       (car license))))
 
 ;; doc
