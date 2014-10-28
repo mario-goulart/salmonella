@@ -34,18 +34,22 @@
     (map qs (map ->string command)))
    " 2>&1"))
 
-(define (run-shell-command command #!optional (omit-command #f))
+(define (run-shell-command command #!key omit-command?)
   ;; Returns (values <status> <output> <duration>)
+  ;;
+  ;; `omit-command?' controls whether command should be displayed or
+  ;; not in <output> (to show users what command was executed to
+  ;; obtain that output).
   (let* ((command (format-command command))
          (start (current-seconds))
          (p (open-input-pipe command))
          (output (read-all p)))
     (values (arithmetic-shift (close-input-pipe p) -8)
-            (conc (if omit-command "" (conc command "\n")) output)
+            (conc (if omit-command? "" (conc command "\n")) output)
             (- (current-seconds) start))))
 
 (define (shell-command-output command)
-  (let-values (((status output _) (run-shell-command command 'ommit-command)))
+  (let-values (((status output _) (run-shell-command command omit-command?: #t)))
     (unless (zero? status)
       (error 'shell-command-output
              (sprintf "Command '~a' exited status ~a. Output:\n~a"
