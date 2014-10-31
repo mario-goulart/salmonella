@@ -12,7 +12,7 @@
  report-duration report-duration-set!
  )
 
-(import scheme chicken irregex)
+(import scheme chicken irregex foreign)
 (use srfi-1 srfi-13 posix setup-download setup-api tcp data-structures
      ports extras files utils)
 
@@ -28,32 +28,40 @@
         (report-message report)
         (report-duration report)))
 
-(define (format-command command)
+;; From setup-api
+(define *windows-shell* (foreign-value "C_WINDOWS_SHELL" bool))
+
+(define (format-command command args)
   (string-append
-   (string-intersperse
-    (map qs (map ->string command)))
+   (if *windows-shell*
+       (normalize-pathname command)
+       (qs (normalize-pathname command)))
+   " "
+   (string-intersperse (map ->string args))
    " 2>&1"))
 
-(define (run-shell-command command #!key omit-command?)
+(define (run-shell-command command args #!key omit-command?)
   ;; Returns (values <status> <output> <duration>)
   ;;
   ;; `omit-command?' controls whether command should be displayed or
   ;; not in <output> (to show users what command was executed to
   ;; obtain that output).
-  (let* ((command (format-command command))
+  (let* ((command (format-command command args))
          (start (current-seconds))
          (p (open-input-pipe command))
          (output (read-all p)))
-    (values (arithmetic-shift (close-input-pipe p) -8)
+    (values (if *windows-shell*
+		(close-input-pipe p)
+		(arithmetic-shift (close-input-pipe p) -8))
             (conc (if omit-command? "" (conc command "\n")) output)
             (- (current-seconds) start))))
 
-(define (shell-command-output command)
-  (let-values (((status output _) (run-shell-command command omit-command?: #t)))
+(define (shell-command-output command args)
+  (let-values (((status output _) (run-shell-command command args omit-command?: #t)))
     (unless (zero? status)
       (error 'shell-command-output
              (sprintf "Command '~a' exited status ~a. Output:\n~a"
-                      (format-command command)
+                      (format-command command args)
                       status
                       output)))
     (string-chomp output)))
@@ -176,10 +184,11 @@
                             "csc"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version (shell-command-output `(,csi -np "(##sys#fudge 42)")))
+        (binary-version
+	 (shell-command-output csi '(-np "\"(##sys#fudge 42)\"")))
         (major-version
-         (string->number
-          (shell-command-output `(,csi -np "(car (string-split (chicken-version) \".\"))"))))
+	 (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
+	   (string->number (car (string-split v ".")))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (egg-information (if eggs-source-dir
@@ -207,8 +216,8 @@
                         ";"
                         ":")))
 
-    (define (log-shell-command egg action command)
-      (let-values (((status output duration) (run-shell-command command)))
+    (define (log-shell-command egg action command args)
+      (let-values (((status output duration) (run-shell-command command args)))
         (make-report egg action status output duration)))
 
     (define (fetch-egg egg #!key (action 'fetch) version)
@@ -219,11 +228,11 @@
               (make-report egg 'fetch 0 "" 0)
               (log-shell-command egg
                                  'fetch
-                                 `(,chicken-install
-                                   -r ,@(chicken-install-args tmp-repo-dir)
-                                   ,(if version
-                                        (conc egg ":" version)
-                                        egg)))))))
+                                 chicken-install
+                                 `(-r ,@(chicken-install-args tmp-repo-dir)
+                                      ,(if version
+                                           (conc egg ":" version)
+                                           egg)))))))
 
     (define (install-egg egg #!optional (action 'install))
       ;; Installs egg and returns a report object
@@ -232,8 +241,8 @@
                (log-shell-command
                 egg
                 'install
-                `(,chicken-install
-                  ,@(delete '-test (chicken-install-args tmp-repo-dir)))))))
+                chicken-install
+                `(,@(delete '-test (chicken-install-args tmp-repo-dir)))))))
         (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
             (install)
             (save-excursion (make-pathname tmp-dir (->string egg)) install))))
@@ -270,10 +279,11 @@
                          (log-shell-command
                           egg
                           'test
-                          `(,csi -script run.scm
-                                 ,(if (eq? (software-type) 'windows)
-                                      ""
-                                      "< /dev/null")))))
+                          csi
+                          `(-script run.scm
+                                    ,(if (eq? (software-type) 'windows)
+                                         ""
+                                         "< /dev/null")))))
                     (report-duration-set! report (- (current-seconds) start))
                     report)))
               (make-report egg 'test -1 "" 0)))))
@@ -462,17 +472,17 @@ Options:
   repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
-C compiler: #(shell-command-output `(,csc -cc-name))
-C++ compiler: #(shell-command-output `(,csc -cxx-name))
-C compiler flags: #(shell-command-output `(,csc -cflags))
+C compiler: #(shell-command-output csc '(-cc-name))
+C++ compiler: #(shell-command-output csc '(-cxx-name))
+C compiler flags: #(shell-command-output csc '(-cflags))
 
-Linker: #(shell-command-output `(,csc -ld-name))
-Linker flags: #(shell-command-output `(,csc -ldflags))
+Linker: #(shell-command-output csc '(-ld-name))
+Linker flags: #(shell-command-output csc '(-ldflags))
 
-Libraries: #(shell-command-output `(,csc -libs))
+Libraries: #(shell-command-output csc '(-libs))
 
 CHICKEN banner:
-#(shell-command-output `(,csi -version))
+#(shell-command-output csi '(-version))
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
 #(show-envvar "CHICKEN_INSTALL_PREFIX")
@@ -505,8 +515,8 @@ EOF
                           (create-directory/parents tmp-repo-lib-dir))
                         (unsetenv "CHICKEN_REPOSITORY")
                         (receive ;; make the scrutinizer happy
-                            (run-shell-command
-                             `(,chicken-install -init ,tmp-repo-lib-dir)))
+                            (run-shell-command chicken-install
+                                               `(-init ,tmp-repo-lib-dir)))
                         ;; Only set CHICKEN_REPOSITORY after initializing the repo
                         (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
 
