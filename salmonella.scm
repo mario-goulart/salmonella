@@ -33,12 +33,16 @@
 
 (define (format-command command args)
   (string-append
-   (if *windows-shell*
-       (normalize-pathname command)
-       (qs (normalize-pathname command)))
+   (let ((cmd (qs (normalize-pathname command))))
+     (if *windows-shell*
+	 (string-append "\"" cmd)
+	 cmd))
    " "
    (string-intersperse (map ->string args))
-   " 2>&1"))
+   " 2>&1"
+   (if *windows-shell*
+       "\""
+       "")))
 
 (define (run-shell-command command args #!key omit-command?)
   ;; Returns (values <status> <output> <duration>)
