@@ -195,6 +195,8 @@
 	   (string->number (car (string-split v ".")))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
+        (tmp-repo-share-dir
+         (make-pathname (list tmp-repo-dir "share") "chicken"))
         (egg-information (if eggs-source-dir
                              (gather-egg-information eggs-source-dir)
                              '())))
@@ -210,7 +212,7 @@
     ;; after initializing the repository)
     (setenv "SALMONELLA_RUNNING" "1")
     (setenv "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
-    (setenv "CHICKEN_INCLUDE_PATH" (make-pathname tmp-repo-dir "share/chicken"))
+    (setenv "CHICKEN_INCLUDE_PATH" tmp-repo-share-dir)
     (setenv "CHICKEN_C_INCLUDE_PATH" (make-pathname tmp-repo-dir "include/chicken"))
     (setenv "PATH" (string-intersperse
                    (list (make-pathname tmp-repo-dir "bin")
@@ -223,6 +225,29 @@
     (define (log-shell-command egg action command args)
       (let-values (((status output duration) (run-shell-command command args)))
         (make-report egg action status output duration)))
+
+    (define (init-repo!)
+      ;; for create-directory/parents
+      (parameterize ((setup-verbose-mode #f)
+                     (run-verbose #f))
+        (create-directory/parents tmp-repo-lib-dir)
+        (unsetenv "CHICKEN_REPOSITORY")
+        (unsetenv "CHICKEN_PREFIX")
+        (receive ;; make the scrutinizer happy
+            (run-shell-command chicken-install `(-init ,tmp-repo-lib-dir)))
+        ;; Copy setup.defaults, so we can set CHICKEN_PREFIX
+        (let ((setup.defaults
+               (make-pathname (list chicken-installation-prefix
+                                    "share"
+                                    "chicken")
+                              "setup.defaults")))
+          (create-directory tmp-repo-share-dir 'parents)
+          (file-copy setup.defaults (make-pathname tmp-repo-share-dir
+                                                   "setup.defaults")))
+        ;; Only set CHICKEN_REPOSITORY and
+        ;; CHICKEN_PREFIX after initializing the repo
+        (setenv "CHICKEN_PREFIX" chicken-installation-prefix)
+        (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
 
     (define (fetch-egg egg #!key (action 'fetch) version)
       ;; Fetches egg and returns a report object
@@ -489,6 +514,7 @@ CHICKEN banner:
 #(shell-command-output csi '(-version))
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
+#(show-envvar "CHICKEN_PREFIX" chicken-installation-prefix)
 #(show-envvar "CHICKEN_INSTALL_PREFIX")
 #(show-envvar "CHICKEN_INCLUDE_PATH")
 #(show-envvar "CHICKEN_C_INCLUDE_PATH")
@@ -498,10 +524,10 @@ Environment variables:
 #(show-envvar "PATH")
 
 EOF
-) ;; Beware of the hack above.  CHICKEN_REPOSITORY is only set by
-  ;; salmonella after `init-repo!' is called.  Here we print its value
-  ;; but the environment variable may not be actually set, since
-  ;; `env-info' can be called before `init-repo!'.
+) ;; Beware of the hack above.  CHICKEN_REPOSITORY and CHICKEN_PREFIX
+  ;; are only set by salmonella after `init-repo!' is called.  Here we
+  ;; print their value but the environment variable may not be
+  ;; actually set, since `env-info' can be called before `init-repo!'.
 
 
     (lambda (action #!optional egg #!rest more-args)
@@ -513,16 +539,7 @@ EOF
                                      (glob (make-pathname tmp-repo-dir "*"))))
                          (delete-path (make-pathname tmp-dir egg))))
 
-        ((init-repo!) (begin
-                        (parameterize ((setup-verbose-mode #f)
-                                       (run-verbose #f))
-                          (create-directory/parents tmp-repo-lib-dir))
-                        (unsetenv "CHICKEN_REPOSITORY")
-                        (receive ;; make the scrutinizer happy
-                            (run-shell-command chicken-install
-                                               `(-init ,tmp-repo-lib-dir)))
-                        ;; Only set CHICKEN_REPOSITORY after initializing the repo
-                        (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
+        ((init-repo!) (init-repo!))
 
         ((fetch) (fetch-egg egg))
 
