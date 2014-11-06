@@ -242,8 +242,9 @@
                                     "chicken")
                               "setup.defaults")))
           (create-directory tmp-repo-share-dir 'parents)
-          (file-copy setup.defaults (make-pathname tmp-repo-share-dir
-                                                   "setup.defaults")))
+          (file-copy setup.defaults
+                     (make-pathname tmp-repo-share-dir "setup.defaults")
+                     'clobber))
         ;; Only set CHICKEN_REPOSITORY and
         ;; CHICKEN_PREFIX after initializing the repo
         (setenv "CHICKEN_PREFIX" chicken-installation-prefix)
