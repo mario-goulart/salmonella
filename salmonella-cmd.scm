@@ -1,3 +1,4 @@
+(use setup-api) ;; for installation-prefix
 (use salmonella salmonella-log-parser)
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
@@ -92,7 +93,10 @@ EOF
 
 
 
-(let ((args (command-line-arguments)))
+(let* ((args (command-line-arguments))
+       (chicken-installation-prefix
+        (cmd-line-arg '--chicken-installation-prefix args))
+       (warning-message #f))
   (when (or (member "-h" args)
             (member "--help" args))
     (usage exit-code: 0))
@@ -100,6 +104,20 @@ EOF
   (when (member "--version" args)
     (print salmonella-version)
     (exit 0))
+
+  (unless chicken-installation-prefix
+    (let ((share-dir (make-pathname (list (installation-prefix)
+                                          "share")
+                                    "chicken")))
+      (unless (null? (glob (make-pathname share-dir "*.scm")))
+        (set! warning-message
+              (string-append
+               "======================[ W A R N I N G ]======================\n"
+               "=== Scheme files have been found in " share-dir ", \n"
+               "=== which is in CHICKEN's include path.  Those files may \n"
+               "=== influence the test results.\n"
+               "==============================================================\n"
+               )))))
 
   (let* ((this-egg? (or (and (member "--this-egg" args)
                              (begin
@@ -110,8 +128,6 @@ EOF
                                             args))
                              (not (null? (glob "*.setup"))))))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
-         (chicken-installation-prefix
-          (cmd-line-arg '--chicken-installation-prefix args))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
          (eggs-source-dir
@@ -192,6 +208,11 @@ EOF
     (for-each (lambda (egg)
                 (log! (make-report egg 'skip 0 "" 0) log-file))
               skip-eggs)
+
+    ;; Maybe show warning about existing Scheme files in chicken-home
+    (when warning-message
+      (with-output-to-port (current-error-port)
+        (cut print warning-message)))
 
     ;; Handle all eggs
     (for-each
