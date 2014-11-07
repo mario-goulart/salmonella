@@ -142,14 +142,10 @@ EOF
     (print salmonella-version)
     (exit 0))
 
-  (let* ((this-egg? (or (and (member "--this-egg" args)
-                             (begin
-                               (print "WARNING: --this-egg is deprecated")
-                               #t))
-                        (and (null? (remove (lambda (arg)
-                                              (string-prefix? "--" arg))
-                                            args))
-                             (not (null? (glob "*.setup"))))))
+  (let* ((this-egg? (and (null? (remove (lambda (arg)
+                                          (string-prefix? "--" arg))
+                                        args))
+                         (not (null? (glob "*.setup")))))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
