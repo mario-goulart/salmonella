@@ -92,11 +92,48 @@ EOF
 ))))
 
 
+(define (check-chicken-home chicken-installation-prefix this-egg?)
+  ;; Return a warning message if (chicken-home) contains Scheme files
+  ;; or #f otherwise.
+  (and (not chicken-installation-prefix)
+       (let* ((share-dir (make-pathname (list (installation-prefix)
+                                              "share")
+                                        "chicken"))
+              (scheme-files (glob (make-pathname share-dir "*.scm"))))
+         (and (not (null? scheme-files))
+              (string-append
+               "======================[ W A R N I N G ]======================\n"
+               "=== Scheme files have been found in " share-dir ", \n"
+               "=== which is in CHICKEN's include path.  Those files may \n"
+               "=== influence the test results:\n"
+               (if (null? scheme-files)
+                   ""
+                   "===\n")
+               (string-intersperse
+                (map (lambda (file-path)
+                       (let* ((file (pathname-strip-directory file-path))
+                              (egg (case (string->symbol file)
+                                     ((setup-helper.scm) "setup-helper")
+                                     ((inline-type-checks.scm) "check-errors")
+                                     (else #f))))
+                         (sprintf "===     * ~a~a\n"
+                                  file
+                                  (if egg
+                                      (sprintf " (~a egg)" egg)
+                                      ""))))
+                     scheme-files)
+                "")
+               (if (and this-egg? (not (null? scheme-files)))
+                   (string-append
+                    "===\n"
+                    "=== If your egg depends on eggs that install these files,\n"
+                    "=== check if you have added them to you egg's dependencies list.\n")
+                   "")
+               "==============================================================\n"
+               )))))
 
-(let* ((args (command-line-arguments))
-       (chicken-installation-prefix
-        (cmd-line-arg '--chicken-installation-prefix args))
-       (warning-message #f))
+
+(let* ((args (command-line-arguments)))
   (when (or (member "-h" args)
             (member "--help" args))
     (usage exit-code: 0))
@@ -104,20 +141,6 @@ EOF
   (when (member "--version" args)
     (print salmonella-version)
     (exit 0))
-
-  (unless chicken-installation-prefix
-    (let ((share-dir (make-pathname (list (installation-prefix)
-                                          "share")
-                                    "chicken")))
-      (unless (null? (glob (make-pathname share-dir "*.scm")))
-        (set! warning-message
-              (string-append
-               "======================[ W A R N I N G ]======================\n"
-               "=== Scheme files have been found in " share-dir ", \n"
-               "=== which is in CHICKEN's include path.  Those files may \n"
-               "=== influence the test results.\n"
-               "==============================================================\n"
-               )))))
 
   (let* ((this-egg? (or (and (member "--this-egg" args)
                              (begin
@@ -127,6 +150,8 @@ EOF
                                               (string-prefix? "--" arg))
                                             args))
                              (not (null? (glob "*.setup"))))))
+         (chicken-installation-prefix
+          (cmd-line-arg '--chicken-installation-prefix args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
@@ -210,9 +235,10 @@ EOF
               skip-eggs)
 
     ;; Maybe show warning about existing Scheme files in chicken-home
-    (when warning-message
-      (with-output-to-port (current-error-port)
-        (cut print warning-message)))
+    (let ((msg (check-chicken-home chicken-installation-prefix this-egg?)))
+      (when msg
+        (with-output-to-port (current-error-port)
+          (cut print msg))))
 
     ;; Handle all eggs
     (for-each
