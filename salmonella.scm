@@ -77,6 +77,15 @@
       (change-directory current-dir)
       out)))
 
+(define (strip-surrounding-quotes text)
+  (let ((len (string-length text)))
+    (if (zero? len)
+        ""
+        (if (and (char=? (string-ref text 0) #\')
+                 (char=? (string-ref text (fx- len 1)) #\'))
+            (substring text 1 (fx- len 1))
+            text))))
+
 (define (log! report log-file)
   (with-output-to-file log-file
     (lambda ()
@@ -491,7 +500,22 @@
                                   => (lambda (val)
                                        val))
                                  (else "(not set)")))))
-      #<#EOF
+
+      (define (program-version prog)
+        ;; Try to obtain the program version by calling it with --version.
+        ;; In case the program doesn't recognize that option, return #f.
+        (let-values (((status output dur)
+                      (run-shell-command prog '(--version) omit-command?: #t)))
+          (and (zero? status)
+               (string-trim-both output))))
+
+      (let* ((c-compiler (strip-surrounding-quotes
+                          (shell-command-output csc '(-cc-name))))
+             (c++-compiler (strip-surrounding-quotes
+                            (shell-command-output csc '(-cxx-name))))
+             (c-compiler-version (program-version c-compiler))
+             (c++-compiler-version (program-version c++-compiler)))
+        #<#EOF
 salmonella #salmonella-version -- a tool for testing CHICKEN eggs (http://wiki.call-cc.org/egg/salmonella)
 
 Started on #(seconds->string (current-seconds))
@@ -502,11 +526,15 @@ Options:
   repo-dir: #tmp-repo-dir
   chicken-install-args: #(chicken-install-args tmp-repo-dir)
 
-C compiler: #(shell-command-output csc '(-cc-name))
-C++ compiler: #(shell-command-output csc '(-cxx-name))
+C compiler: #c-compiler
+#c-compiler-version
+
+C++ compiler: #c++-compiler
+#c++-compiler-version
+
 C compiler flags: #(shell-command-output csc '(-cflags))
 
-Linker: #(shell-command-output csc '(-ld-name))
+Linker: #(strip-surrounding-quotes (shell-command-output csc '(-ld-name)))
 Linker flags: #(shell-command-output csc '(-ldflags))
 
 Libraries: #(shell-command-output csc '(-libs))
@@ -525,10 +553,10 @@ Environment variables:
 #(show-envvar "PATH")
 
 EOF
-) ;; Beware of the hack above.  CHICKEN_REPOSITORY and CHICKEN_PREFIX
-  ;; are only set by salmonella after `init-repo!' is called.  Here we
-  ;; print their value but the environment variable may not be
-  ;; actually set, since `env-info' can be called before `init-repo!'.
+)) ;; Beware of the hack above.  CHICKEN_REPOSITORY and CHICKEN_PREFIX
+   ;; are only set by salmonella after `init-repo!' is called.  Here we
+   ;; print their value but the environment variable may not be
+   ;; actually set, since `env-info' can be called before `init-repo!'.
 
 
     (lambda (action #!optional egg #!rest more-args)
