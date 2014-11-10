@@ -169,6 +169,7 @@
                chicken-install-args
                eggs-source-dir
                eggs-doc-dir
+               clear-chicken-home?
                this-egg?)
 
   (let* ((mingw? (eq? (build-platform) 'mingw32))
@@ -492,6 +493,18 @@
                          "Missing author information")
                      0)))
 
+    (define (clear-repo! egg)
+      (when (file-exists? tmp-repo-dir)
+        (for-each delete-path
+                  (glob (make-pathname tmp-repo-dir "*"))))
+      (delete-path (make-pathname tmp-dir egg))
+
+      (when clear-chicken-home?
+        (let ((chicken-home
+               (shell-command-output csi '(-np "\"(chicken-home)\""))))
+          (for-each delete-path
+                    (glob (make-pathname chicken-home "*.scm"))))))
+
     (define (env-info)
       (define (show-envvar var #!optional value)
         (string-append "  " var ": "
@@ -562,11 +575,7 @@ EOF
     (lambda (action #!optional egg #!rest more-args)
 
       (case action
-        ((clear-repo!) (begin
-                         (when (file-exists? tmp-repo-dir)
-                           (for-each delete-path
-                                     (glob (make-pathname tmp-repo-dir "*"))))
-                         (delete-path (make-pathname tmp-dir egg))))
+        ((clear-repo!) (clear-repo! egg))
 
         ((init-repo!) (init-repo!))
 

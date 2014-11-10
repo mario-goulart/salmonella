@@ -159,6 +159,14 @@ chicken-install).
     current directory.  This option can be useful when used with `--keep-repo'
     to reuse egg installation repositories for several salmonella executions.
 
+--clear-chicken-home
+    Remove Scheme files from <chicken-installation-prefix>/share/chicken.
+    WARNING: use this option with care.  If you don't understand the
+    consequences of this option, DON'T USE IT.  Extra care when you don't
+    use --chicken-installation-prefix -- in this case --clear-chicken-home
+    will remove Scheme files from your "host" CHICKEN installation.
+    This option is only effective when --keep-repo is NOT used.
+
 --verbosity=<number>
     A number to indicate salmonella's verbosity level.  0 means practically
     silent. 1 is mostly silent and 2 (default) prints some useful information

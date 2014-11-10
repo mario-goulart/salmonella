@@ -160,6 +160,7 @@ EOF
                           (map string->symbol (string-split skip ","))
                           '())))
          (keep-repo? (and (member "--keep-repo" args) #t))
+         (clear-chicken-home? (and (member "--clear-chicken-home" args) #t))
          (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
                      (if (absolute-pathname? path)
                          path
@@ -174,6 +175,7 @@ EOF
                       eggs-source-dir: eggs-source-dir
                       eggs-doc-dir: eggs-doc-dir
                       chicken-installation-prefix: chicken-installation-prefix
+                      clear-chicken-home?: clear-chicken-home?
                       chicken-install-args:
                       (and chicken-install-args
                            (lambda (repo)
