@@ -35,8 +35,8 @@
   (string-append
    (let ((cmd (qs (normalize-pathname command))))
      (if *windows-shell*
-	 (string-append "\"" cmd)
-	 cmd))
+         (string-append "\"" cmd)
+         cmd))
    " "
    (string-intersperse (map ->string args))
    " 2>&1"
@@ -55,8 +55,8 @@
          (p (open-input-pipe command))
          (output (read-all p)))
     (values (if *windows-shell*
-		(close-input-pipe p)
-		(arithmetic-shift (close-input-pipe p) -8))
+                (close-input-pipe p)
+                (arithmetic-shift (close-input-pipe p) -8))
             (conc (if omit-command? "" (conc command "\n")) output)
             (- (current-seconds) start))))
 
@@ -199,10 +199,10 @@
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
         (binary-version
-	 (shell-command-output csi '(-np "\"(##sys#fudge 42)\"")))
+         (shell-command-output csi '(-np "\"(##sys#fudge 42)\"")))
         (major-version
-	 (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
-	   (string->number (car (string-split v ".")))))
+         (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
+           (string->number (car (string-split v ".")))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (tmp-repo-share-dir
