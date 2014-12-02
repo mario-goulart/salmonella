@@ -212,8 +212,7 @@
                              '())))
 
     (for-each (lambda (file)
-                (unless (and (file-exists? file)
-                             (file-execute-access? file))
+                (unless (file-execute-access? file)
                   (error 'make-salmonella
                          (conc file " cannot be found or have no execute access."))))
               (list chicken-install csi))
