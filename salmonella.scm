@@ -111,7 +111,7 @@
          (meta-file (make-pathname (and tmp-repo-dir (list tmp-repo-dir egg))
                                    egg
                                    "meta")))
-    (and (file-exists? meta-file)
+    (and (file-read-access? meta-file)
          (handle-exceptions exn
            #f
            (with-input-from-file meta-file read)))))
@@ -312,7 +312,7 @@
                                            (list tmp-dir (->string egg)))
                                        "tests")))
           (if (and (directory? test-dir)
-                   (file-exists? (make-pathname test-dir "run.scm")))
+                   (file-read-access? (make-pathname test-dir "run.scm")))
               (save-excursion test-dir
                 (lambda ()
                   (let ((report
