@@ -255,7 +255,11 @@
              (conc hours "h" (pretty-time (- seconds (* 3600 hours))))))))
   (if (zero? seconds)
       "0s"
-      (pretty-time (inexact->exact seconds))))
+      (let ((-? (negative? seconds))
+            (pretty (pretty-time (abs (inexact->exact seconds)))))
+        (if -?
+            (string-append "-" pretty)
+            pretty))))
 
 
 (define (sort-eggs eggs)
