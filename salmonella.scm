@@ -300,8 +300,10 @@
                                (car dep)
                                dep))
                       (version (and (list? dep) (cadr dep)))
-                      (fetch-log (fetch-egg egg action: 'fetch-test-dep version: version)))
-                 (when (and (zero? (report-status fetch-log))
+                      (fetch-log (fetch-egg egg action: 'fetch-test-dep version: version))
+                      (status (report-status fetch-log)))
+                 (when (and status
+                            (zero? status)
                             (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
                              (make-pathname tmp-dir (->string egg))))
                    (install-egg egg 'install-test-dep)))))
