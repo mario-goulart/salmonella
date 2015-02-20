@@ -1,7 +1,7 @@
 (module salmonella-log-parser
 
 (;; Exported API
- read-log-file log-eggs log-skipped-eggs
+ read-log-file log-eggs log-skipped-eggs status-zero?
 
  ;; fetch
  fetch-status fetch-message fetch-duration
@@ -36,6 +36,9 @@
 (use srfi-1 data-structures extras salmonella)
 
 (include "salmonella-common.scm")
+
+(define (status-zero? status)
+  (and status (zero? status)))
 
 (define (get-by-egg/action egg action log)
   (find (lambda (entry)
@@ -115,7 +118,7 @@
 
 (define (check-version-ok? egg log)
   (let ((status (check-version-status egg log)))
-    (or (zero? status) (= status -1))))
+    (or (status-zero? status) (= status -1))))
 
 
 ;; test
@@ -149,7 +152,7 @@
 
 ;; doc
 (define (doc-exists? egg log)
-  (zero? (log-get egg 'check-doc report-status log)))
+  (status-zero? (log-get egg 'check-doc report-status log)))
 
 ;; log version
 
@@ -197,8 +200,7 @@
 ;; statistics
 (define (count-install-ok log)
   (count (lambda (egg)
-           (let ((status (install-status egg log)))
-             (and status (zero? status))))
+           (status-zero? (install-status egg log)))
          (log-eggs log)))
 
 (define (count-install-fail log)
@@ -207,7 +209,7 @@
 (define (count-test-ok log)
   (count (lambda (entry)
            (and (eq? 'test (report-action entry))
-                (zero? (report-status entry))))
+                (status-zero? (report-status entry))))
          log))
 
 (define (count-test-fail log)
@@ -231,13 +233,13 @@
 (define (count-documented log)
   (count (lambda (entry)
            (and (eq? 'check-doc (report-action entry))
-                (zero? (report-status entry))))
+                (status-zero? (report-status entry))))
          log))
 
 (define (count-undocumented log)
   (count (lambda (entry)
            (and (eq? 'check-doc (report-action entry))
-                (not (zero? (report-status entry)))))
+                (not (status-zero? (report-status entry)))))
          log))
 
 ;; Misc
