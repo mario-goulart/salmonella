@@ -322,5 +322,6 @@ EOF
      (iota total-eggs 1))
 
     (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
-    (show-statistics log-file verbosity)
+    (unless this-egg?
+      (show-statistics log-file verbosity))
     (unless keep-repo? (delete-path tmp-dir))))
