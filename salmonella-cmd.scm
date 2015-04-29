@@ -25,7 +25,7 @@
                                total)))))
     (else
      (let ((running (case action
-                      ((fetch) (print "==== " egg " (" egg-count " of " total ")====")
+                      ((fetch) (print "==== " egg " (" egg-count " of " total ") ====")
                        "  Fetching")
                       ((install) "  Installing")
                       ((check-version) "  Checking version")
