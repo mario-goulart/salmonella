@@ -257,9 +257,8 @@
              (conc hours "h" (pretty-time (- seconds (* 3600 hours))))))))
   (if (zero? seconds)
       "0s"
-      (let ((-? (negative? seconds))
-            (pretty (pretty-time (abs (inexact->exact seconds)))))
-        (if -?
+      (let ((pretty (pretty-time (abs (inexact->exact seconds)))))
+        (if (negative? seconds)
             (string-append "-" pretty)
             pretty))))
 
