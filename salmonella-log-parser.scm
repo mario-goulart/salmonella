@@ -30,6 +30,9 @@
 
  ;; misc
  prettify-time sort-eggs log-version
+
+ ;; low level stuff
+ log-get
  )
 
 (import scheme chicken)

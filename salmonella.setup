@@ -23,6 +23,7 @@
 (compile ,@csc-args salmonella-epidemy.scm -o salmonella-epidemy)
 (compile ,@csc-args salmonella-log-viewer.scm -o salmonella-log-viewer)
 (compile ,@csc-args salmonella-log-merger.scm -o salmonella-log-merger)
+(compile ,@csc-args salmonella-log-inquirer.scm -o salmonella-log-inquirer)
 
 (install-extension 'salmonella
                    '("salmonella.so" "salmonella.import.so")
@@ -43,6 +44,10 @@
 
 (install-program 'salmonella-log-merger
                  '("salmonella-log-merger")
+                 `((version ,salmonella-version)))
+
+(install-program 'salmonella-log-inquirer
+                 '("salmonella-log-inquirer")
                  `((version ,salmonella-version)))
 
 (install-program 'salmonella-epidemy
