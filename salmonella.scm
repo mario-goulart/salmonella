@@ -242,22 +242,25 @@
         (create-directory/parents tmp-repo-lib-dir)
         (unsetenv "CHICKEN_REPOSITORY")
         (unsetenv "CHICKEN_PREFIX")
-        (receive ;; make the scrutinizer happy
-            (run-shell-command chicken-install `(-init ,tmp-repo-lib-dir)))
-        ;; Copy setup.defaults, so we can set CHICKEN_PREFIX
-        (let ((setup.defaults
-               (make-pathname (list chicken-installation-prefix
-                                    "share"
-                                    "chicken")
-                              "setup.defaults")))
-          (create-directory tmp-repo-share-dir 'parents)
-          (file-copy setup.defaults
-                     (make-pathname tmp-repo-share-dir "setup.defaults")
-                     'clobber))
-        ;; Only set CHICKEN_REPOSITORY and
-        ;; CHICKEN_PREFIX after initializing the repo
-        (setenv "CHICKEN_PREFIX" chicken-installation-prefix)
-        (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir)))
+        (let-values (((status output duration)
+                      (run-shell-command chicken-install
+                                         `(-init ,tmp-repo-lib-dir))))
+          (unless (zero? status)
+            (error 'init-repo! output))
+          ;; Copy setup.defaults, so we can set CHICKEN_PREFIX
+          (let ((setup.defaults
+                 (make-pathname (list chicken-installation-prefix
+                                      "share"
+                                      "chicken")
+                                "setup.defaults")))
+            (create-directory tmp-repo-share-dir 'parents)
+            (file-copy setup.defaults
+                       (make-pathname tmp-repo-share-dir "setup.defaults")
+                       'clobber))
+          ;; Only set CHICKEN_REPOSITORY and
+          ;; CHICKEN_PREFIX after initializing the repo
+          (setenv "CHICKEN_PREFIX" chicken-installation-prefix)
+          (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir))))
 
     (define (fetch-egg egg #!key (action 'fetch) version)
       ;; Fetches egg and returns a report object
