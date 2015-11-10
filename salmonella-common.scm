@@ -33,9 +33,9 @@
     (let ((files (find name)))
       (for-each
        (lambda (f)
-         ((cond ((symbolic-link? f) delete-file)
-                ((directory? f) delete-directory)
-                (else delete-file))
+         ((if (directory? f)
+              delete-directory
+              delete-file)
           f))
        files)
       (delete-directory name)))
