@@ -92,11 +92,16 @@
       (pp (report->list report)))
     append:))
 
-(define (chicken-unit? lib)
-  (and (memq lib '(library eval expand data-structures ports files
-                   extras irregex srfi-1 srfi-4 srfi-13 srfi-14
-                   srfi-18 srfi-69 posix utils tcp lolevel foreign))
-       #t))
+(define (chicken-unit? lib major-version)
+  (and
+   (memq lib
+         (if (< major-version 5)
+             '(library eval expand data-structures ports files
+               extras irregex srfi-1 srfi-4 srfi-13 srfi-14
+               srfi-18 srfi-69 posix utils tcp lolevel foreign)
+             '(library eval expand data-structures ports files
+               extras irregex srfi-4 posix utils tcp lolevel foreign)))
+   #t))
 
 (define (egg-installed? egg repo-lib-dir)
   (let ((installed-eggs
@@ -310,7 +315,9 @@
                             (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
                              (make-pathname tmp-dir (->string egg))))
                    (install-egg egg 'install-test-dep)))))
-           (remove chicken-unit? (or test-deps '()))))
+           (remove (lambda (dep)
+                     (chicken-unit? dep major-version))
+                   (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
                                            (list tmp-dir (->string egg)))
@@ -435,7 +442,9 @@
     (define (check-dependencies egg meta-data)
       (let* ((egg-deps (get-egg-dependencies meta-data 'with-test-deps))
              (invalid-deps
-              (filter chicken-unit? egg-deps))
+              (filter (lambda (dep)
+                        (chicken-unit? dep major-version))
+                      egg-deps))
              (invalid-deps? (not (null? invalid-deps)))
              (non-symbol-deps (remove (lambda (egg) (symbol? egg)) egg-deps)))
         (make-report egg 'check-dependencies (not (or invalid-deps? (not (null? non-symbol-deps))))
