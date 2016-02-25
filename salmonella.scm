@@ -93,7 +93,7 @@
     append:))
 
 (define (chicken-unit? lib)
-  (and (memq lib '(library eval expand data-strucutures ports files
+  (and (memq lib '(library eval expand data-structures ports files
                    extras irregex srfi-1 srfi-4 srfi-13 srfi-14
                    srfi-18 srfi-69 posix utils tcp lolevel foreign))
        #t))
