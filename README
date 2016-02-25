@@ -1,1 +1,4 @@
-See http://wiki.call-cc.org/egg/salmonella
+Salmonella is the tool behind http://tests.call-cc.org for testing
+extensions.
+
+See http://wiki.call-cc.org/egg/salmonella for documentation.
