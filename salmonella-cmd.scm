@@ -179,8 +179,9 @@ EOF
                       chicken-install-args:
                       (and chicken-install-args
                            (lambda (repo)
-                             (or (irregex-replace "<repo>" chicken-install-args repo)
-                                 chicken-install-args)))
+                             (list
+                              (or (irregex-replace "<repo>" chicken-install-args repo)
+                                  chicken-install-args))))
                       this-egg?: this-egg?))
          (eggs (if this-egg?
                    (let ((setup (glob "*.setup")))
