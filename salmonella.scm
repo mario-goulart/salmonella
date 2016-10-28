@@ -203,13 +203,10 @@
                             "csc"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version
-         (shell-command-output csi '(-np "\"(##sys#fudge 42)\"")))
         (major-version
          (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
            (string->number (car (string-split v ".")))))
-        (lib-dir (make-pathname '("lib" "chicken") binary-version))
-        (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
+        (tmp-repo-lib-dir (make-pathname tmp-repo-dir "lib/chicken/0"))
         (tmp-repo-share-dir
          (make-pathname (list tmp-repo-dir "share") "chicken"))
         (egg-information (if eggs-source-dir
