@@ -1,3 +1,10 @@
+(module salmonella-log-viewer ()
+
+(import scheme chicken)
+
+(use chicken.data-structures
+     chicken.pathname)
+
 (use salmonella-log-parser)
 (include "salmonella-version.scm")
 
@@ -56,3 +63,5 @@
     (print salmonella-version)
     (exit 0))
   (view-log (car args)))
+
+) ;; end module

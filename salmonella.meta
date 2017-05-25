@@ -1,9 +1,0 @@
-;;;; -*- scheme -*-
-((synopsis "A tool for testing eggs")
- (author "<a href=\"http://wiki.call-cc.org/users/mario-domenech-goulart\">Mario Domenech Goulart</a>")
- (license "BSD")
- (category egg-tools)
- (doc-from-wiki)
- (egg "salmonella.egg")
- (test-depends test)
- )

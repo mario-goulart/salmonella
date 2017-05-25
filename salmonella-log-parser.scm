@@ -36,8 +36,13 @@
  )
 
 (import scheme chicken)
-(use srfi-1 data-structures extras salmonella)
+(use (chicken data-structures)
+     (chicken io)
+     (chicken format)
+     (chicken random)
+     salmonella)
 
+(include "libs/srfi-1.scm")
 (include "salmonella-common.scm")
 
 (define (status-zero? status)
@@ -55,7 +60,7 @@
   (string? (car log)))
 
 (define (read-log-file log-file)
-  (let ((entries (with-input-from-file log-file read-file)))
+  (let ((entries (with-input-from-file log-file read-all)))
     ;; Ugly hack to avoid breaking on old log files. We don't actually
     ;; support parsing old logs at the moment -- just avoid crashing.
     (if (log-version-0? entries)

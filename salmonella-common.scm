@@ -1,5 +1,11 @@
-(import irregex)
-(use srfi-1 ports files posix)
+(import foreign)
+(use (chicken irregex)
+     (chicken pathname)
+     (chicken port)
+     (chicken posix))
+
+;; Used to be chicken-prefix in C4
+(define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))
 
 (define (delete-path . paths)
   ;; We could simply use delete-directory giving it a truthy value as

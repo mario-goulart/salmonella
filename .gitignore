@@ -1,0 +1,12 @@
+*.import.scm
+*.so
+*.o
+salmonella
+salmonella-epidemy
+salmonella-log-inquirer
+salmonella-log-merger
+salmonella-log-parser
+salmonella-log-viewer
+salmonella.build.sh
+salmonella.install.sh
+salmonella*.link
