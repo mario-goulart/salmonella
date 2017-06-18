@@ -6,12 +6,16 @@
  (category egg-tools)
  (test-dependencies test)
  (components (extension salmonella)
-             (extension salmonella-log-parser)
+             (extension salmonella-log-parser
+                        (dependencies salmonella))
              (program salmonella-cmd
+                      (dependencies salmonella
+                                    salmonella-log-parser)
                       (install-name salmonella))
              ;; FIXME:
              ;; (program salmonella-epidemy)
              ;; (program salmonella-log-enquirer)
              ;; (program salmonella-log-merger)
-             (program salmonella-log-viewer)
+             (program salmonella-log-viewer
+                      (dependencies salmonella-log-parser))
              ))
