@@ -249,7 +249,7 @@
                  "chicken.condition" "chicken.continuation" "chicken.csi"
                  "chicken.data-structures" "chicken.errno" "chicken.eval"
                  "chicken.expand" "chicken.file" "chicken.file.posix"
-                 "chicken.files" "chicken.fixnum" "chicken.flonum"
+                 "chicken.file" "chicken.fixnum" "chicken.flonum"
                  "chicken.foreign" "chicken.format" "chicken.gc"
                  "chicken.internal" "chicken.io" "chicken.irregex"
                  "chicken.keyword" "chicken.load" "chicken.locative"
