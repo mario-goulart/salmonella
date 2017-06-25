@@ -124,10 +124,10 @@
     (and (member (->string egg) installed-eggs) #t)))
 
 ;;; meta data
-(define (read-egg-file egg tmp-repo-dir)
+(define (read-egg-file egg cache-dir)
   ;; If `tmp-repo-dir' is `#f', assume this-egg
   (let* ((egg (symbol->string egg))
-         (egg-file (make-pathname (and tmp-repo-dir (list tmp-repo-dir egg))
+         (egg-file (make-pathname (and cache-dir (list cache-dir egg))
                                   egg
                                   "egg")))
     (handle-exceptions exn
@@ -338,7 +338,7 @@
       ;; Runs egg tests and returns a report object
       (let ((start (current-seconds)))
         ;; Installing test dependencies
-        (let* ((meta-data (read-egg-file egg (if this-egg? #f tmp-dir)))
+        (let* ((meta-data (read-egg-file egg (if this-egg? #f cache-dir)))
                (test-deps (alist-ref 'test-dependencies meta-data)))
           (for-each
            (lambda (dep)
@@ -470,7 +470,7 @@
                              installed-version)))))
 
     (define (meta-data egg)
-      (let ((data (read-egg-file egg (if this-egg? #f tmp-dir))))
+      (let ((data (read-egg-file egg (if this-egg? #f cache-dir))))
         (make-report egg 'meta-data (and data #t) data 0)))
 
     (define (check-egg-doc egg)
