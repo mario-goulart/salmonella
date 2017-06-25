@@ -244,23 +244,22 @@
                (map (lambda (unit)
                       (string-chomp (symbol->string unit) ".import.so"))
                     unit-filenames)
-               ;; List of units before chicken-import-libraries.db existed
-               '("chicken" "chicken.bitwise" "chicken.compiler.user-pass"
-                 "chicken.condition" "chicken.continuation" "chicken.csi"
-                 "chicken.data-structures" "chicken.errno" "chicken.eval"
-                 "chicken.expand" "chicken.file" "chicken.file.posix"
-                 "chicken.file" "chicken.fixnum" "chicken.flonum"
-                 "chicken.foreign" "chicken.format" "chicken.gc"
-                 "chicken.internal" "chicken.io" "chicken.irregex"
-                 "chicken.keyword" "chicken.load" "chicken.locative"
-                 "chicken.lolevel" "chicken.memory" "chicken.pathname"
-                 "chicken.platform" "chicken.port" "chicken.posix"
-                 "chicken.pretty-print" "chicken.process"
-                 "chicken.process-context" "chicken.process.signal"
-                 "chicken.random" "chicken.read-syntax" "chicken.repl"
-                 "chicken.tcp" "chicken.time" "chicken.time.posix" "srfi-4")))))
-
-
+               ;; List of units before chicken-import-libraries.db
+               ;; existed (this is a bit broken, as if an egg installs
+               ;; a library called chicken*.import, this code is going
+               ;; to copy the egg library as if it was a core library.
+	       (cons
+		"srfi-4"
+		(map (lambda (unit)
+		       (string-chomp (pathname-strip-directory unit)
+				     ".import.so"))
+		     (glob (make-pathname (list chicken-installation-prefix
+						lib-dir)
+					  (string-append
+					   "chicken*.import."
+					   (if (eq? (software-type) 'windows)
+					       "dll"
+					       "so"))))))))))
     (for-each (lambda (file)
                 (unless (file-execute-access? file)
                   (error 'make-salmonella
