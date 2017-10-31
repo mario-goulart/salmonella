@@ -1,5 +1,6 @@
-(use chicken.data-structures)
-(use test salmonella salmonella-log-parser)
+(import (chicken data-structures)
+        (chicken string))
+(import test salmonella salmonella-log-parser)
 
 ;; FIXME: deduplicate
 (define (string-prefix? prefix str)

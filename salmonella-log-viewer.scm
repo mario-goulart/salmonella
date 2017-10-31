@@ -1,11 +1,11 @@
 (module salmonella-log-viewer ()
 
 (import scheme chicken)
+(import (chicken data-structures)
+        (chicken pathname)
+        (chicken string))
+(import salmonella-log-parser)
 
-(use chicken.data-structures
-     chicken.pathname)
-
-(use salmonella-log-parser)
 (include "salmonella-version.scm")
 
 (define (concat l)

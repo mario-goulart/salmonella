@@ -13,7 +13,7 @@
  )
 
 (import scheme chicken irregex foreign)
-(use (chicken bitwise)
+(import (chicken bitwise)
      (chicken data-structures)
      (chicken file)
      (chicken format)
@@ -25,6 +25,7 @@
      (chicken pretty-print)
      (chicken process)
      (chicken random)
+     (chicken string)
      (chicken tcp)
      (chicken time))
 
