@@ -201,7 +201,7 @@
                     (make-pathname (current-directory) eggs-source-dir)))))
          (chicken-install-args
           (or chicken-install-args
-              (lambda (repo-dir)
+              (lambda (repo-dir) ;; FIXME: repo-dir is unused
                 (if eggs-source-dir
                     `(-v -t local -l ,eggs-source-dir)
                     '(-v -test)))))
