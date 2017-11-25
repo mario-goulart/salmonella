@@ -359,12 +359,13 @@
            (remove (lambda (dep)
                      (chicken-unit? dep major-version))
                    (or test-deps '()))))
-        (let ((test-dir (make-pathname (if this-egg?
-                                           #f
-                                           (list cache-dir (->string egg)))
-                                       "tests")))
-          (if (and (directory? test-dir)
-                   (file-read-access? (make-pathname test-dir "run.scm")))
+        (let* ((test-dir (make-pathname (if this-egg?
+                                            #f
+                                            (list cache-dir (->string egg)))
+                                        "tests"))
+               (test-script (make-pathname test-dir "run.scm")))
+          (if (and (file-exists? test-script)
+                   (file-read-access? test-script))
               (save-excursion test-dir
                 (lambda ()
                   (let ((report
