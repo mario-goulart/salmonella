@@ -382,52 +382,53 @@
               (make-report egg 'test -1 "" 0)))))
 
 
-    (define (find-setup-info-files egg)
-      (let ((setup-info-file (make-pathname tmp-repo-lib-dir egg "setup-info")))
-        (if (file-read-access? setup-info-file)
-            (list setup-info-file)
+    (define (find-egg-info-files egg)
+      (let ((egg-info-file (make-pathname tmp-repo-lib-dir egg "egg-info")))
+        (if (and (file-exists? egg-info-file)
+                 (file-read-access? egg-info-file))
+            (list egg-info-file)
             ;; extension installs more than one module. Find them based
-            ;; on the egg-name key in setup-info files. This feature
+            ;; on the egg-name key in egg-info files. This feature
             ;; requires chicken > 4.6.0
-            (let loop ((setup-info-files
-                        (glob (make-pathname tmp-repo-lib-dir "*.setup-info"))))
-              (if (null? setup-info-files)
+            (let loop ((egg-info-files
+                        (glob (make-pathname tmp-repo-lib-dir "*.egg-info"))))
+              (if (null? egg-info-files)
                   '()
-                  (or (and-let* ((current-setup-info-file (car setup-info-files))
-                                 (setup-info
+                  (or (and-let* ((current-egg-info-file (car egg-info-files))
+                                 (egg-info
                                   (handle-exceptions exn
                                     '()
-                                    (with-input-from-file current-setup-info-file read)))
-                                 (egg-name (alist-ref 'egg-name setup-info)))
+                                    (with-input-from-file current-egg-info-file read)))
+                                 (egg-name (alist-ref 'egg-name egg-info)))
                         (if (equal? (car egg-name) egg)
-                            (cons current-setup-info-file
-                                  (loop (cdr setup-info-files)))
-                            (loop (cdr setup-info-files))))
-                      (loop (cdr setup-info-files))))))))
+                            (cons current-egg-info-file
+                                  (loop (cdr egg-info-files)))
+                            (loop (cdr egg-info-files))))
+                      (loop (cdr egg-info-files))))))))
 
 
-    ;; FIXME: do still need this?  Look for setup-info and check if we
+    ;; FIXME: do still need this?  Look for egg-info and check if we
     ;; can use egg-info instead.
-    (define (setup-info-version egg)
+    (define (egg-info-version egg)
 
-      (define (read-version setup-info-file)
-        (let ((data (with-input-from-file setup-info-file read)))
+      (define (read-version egg-info-file)
+        (let ((data (with-input-from-file egg-info-file read)))
           (and-let* ((version (alist-ref 'version data)))
             (car version))))
 
-      (let ((setup-info-files (find-setup-info-files egg)))
-        (cond ((null? setup-info-files) ;; no setup-info file
+      (let ((egg-info-files (find-egg-info-files egg)))
+        (cond ((null? egg-info-files) ;; no egg-info file
                #f)
-              ((null? (cdr setup-info-files)) ;; a single setup-info file
-               (read-version (car setup-info-files)))
-              (else ;; multiple setup-info files
+              ((null? (cdr egg-info-files)) ;; a single egg-info file
+               (read-version (car egg-info-files)))
+              (else ;; multiple egg-info files
                (let ((versions
                       (delete-duplicates
-                       (let loop ((setup-info-files setup-info-files))
-                         (if (null? setup-info-files)
+                       (let loop ((egg-info-files egg-info-files))
+                         (if (null? egg-info-files)
                              '()
-                             (cons (read-version (car setup-info-files))
-                                   (loop (cdr setup-info-files)))))
+                             (cons (read-version (car egg-info-files))
+                                   (loop (cdr egg-info-files)))))
                        equal?)))
                  (cond ((null? versions) ;; no version
                         #f)
@@ -442,7 +443,7 @@
       ;;   0: success
       ;;   1: failure
       ;;  -1: ignore (cannot determine failure or success)
-      (let ((installed-version (setup-info-version (symbol->string egg))))
+      (let ((installed-version (egg-info-version (symbol->string egg))))
         (if (list? installed-version)
             (make-report egg
                          'check-version
