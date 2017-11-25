@@ -240,7 +240,7 @@
                 (unit-filenames
                  (handle-exceptions exn ;; FIXME: check cause of exception
                      #f
-                   (with-input-from-file import-libraries-file read-all))))
+                   (with-input-from-file import-libraries-file read-list))))
            (if unit-filenames
                (map (lambda (unit)
                       (string-chomp (symbol->string unit) ".import.so"))

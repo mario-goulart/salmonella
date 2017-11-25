@@ -63,7 +63,7 @@
   (string? (car log)))
 
 (define (read-log-file log-file)
-  (let ((entries (with-input-from-file log-file read-all)))
+  (let ((entries (with-input-from-file log-file read-list)))
     ;; Ugly hack to avoid breaking on old log files. We don't actually
     ;; support parsing old logs at the moment -- just avoid crashing.
     (if (log-version-0? entries)
