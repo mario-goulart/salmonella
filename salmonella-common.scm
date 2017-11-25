@@ -1,5 +1,5 @@
-(import foreign)
-(import (chicken irregex)
+(import (chicken foreign)
+        (chicken irregex)
         (chicken pathname)
         (chicken port)
         (chicken posix))
