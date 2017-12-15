@@ -35,11 +35,15 @@
  log-get
  )
 
-(import scheme chicken)
-(import (chicken data-structures)
+(import scheme
+	(only chicken flush-output)
+	(chicken base)
+	(chicken data-structures)
         (chicken io)
         (chicken file)
+        (chicken fixnum)
         (chicken format)
+        (chicken process-context)
         (chicken random)
         (chicken sort)
         (chicken string))
@@ -63,7 +67,7 @@
   (string? (car log)))
 
 (define (read-log-file log-file)
-  (let ((entries (with-input-from-file log-file read-all)))
+  (let ((entries (with-input-from-file log-file read-string)))
     ;; Ugly hack to avoid breaking on old log files. We don't actually
     ;; support parsing old logs at the moment -- just avoid crashing.
     (if (log-version-0? entries)

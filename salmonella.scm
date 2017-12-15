@@ -12,12 +12,14 @@
  report-duration report-duration-set!
  )
 
-(import scheme chicken irregex foreign)
+(import scheme chicken)
 (import (chicken bitwise)
      (chicken data-structures)
      (chicken file)
+     (chicken foreign)
      (chicken format)
      (chicken io)
+     (chicken irregex)
      (chicken pathname)
      (chicken posix)
      (chicken port)
@@ -240,7 +242,7 @@
                 (unit-filenames
                  (handle-exceptions exn ;; FIXME: check cause of exception
                      #f
-                   (with-input-from-file import-libraries-file read-all))))
+                   (with-input-from-file import-libraries-file read-string))))
            (if unit-filenames
                (map (lambda (unit)
                       (string-chomp (symbol->string unit) ".import.so"))
