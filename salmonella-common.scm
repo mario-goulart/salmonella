@@ -1,5 +1,12 @@
-(import irregex)
-(use srfi-1 ports files posix)
+(import (chicken foreign)
+        (chicken irregex)
+        (chicken pathname)
+        (chicken port)
+        (chicken posix)
+        (chicken random))
+
+;; Used to be chicken-prefix in C4
+(define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))
 
 (define (delete-path . paths)
   ;; We could simply use delete-directory giving it a truthy value as
@@ -94,7 +101,7 @@
     (let ((dir (make-pathname
                 (current-directory)
                 (string-append "salmonella-tmp-"
-                               (number->string (random 1000000) 16)))))
+                               (number->string (pseudo-random-integer 1000000) 16)))))
         (if (file-exists? dir)
             (loop)
             (begin

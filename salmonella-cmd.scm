@@ -1,5 +1,20 @@
-(use setup-api) ;; for installation-prefix
-(use salmonella salmonella-log-parser)
+(module salmonella-cmd ()
+
+(import scheme
+	(only chicken flush-output)
+	(chicken base)
+	(chicken data-structures)
+        (chicken file)
+        (chicken fixnum)
+        (chicken format)
+        (chicken process-context)
+        (chicken random)
+        (chicken string)
+        (chicken time))
+(import salmonella salmonella-log-parser)
+
+(include "libs/srfi-1.scm")
+(include "libs/srfi-13.scm")
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
@@ -96,7 +111,7 @@ EOF
   ;; Return a warning message if (chicken-home) contains Scheme files
   ;; or #f otherwise.
   (and (not chicken-installation-prefix)
-       (let* ((share-dir (make-pathname (list (installation-prefix)
+       (let* ((share-dir (make-pathname (list default-installation-prefix
                                               "share")
                                         "chicken"))
               (scheme-files (glob (make-pathname share-dir "*.scm"))))
@@ -145,7 +160,7 @@ EOF
   (let* ((this-egg? (and (null? (remove (lambda (arg)
                                           (string-prefix? "--" arg))
                                         args))
-                         (not (null? (glob "*.setup")))))
+                         (not (null? (glob "*.egg")))))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
@@ -184,13 +199,13 @@ EOF
                                   chicken-install-args))))
                       this-egg?: this-egg?))
          (eggs (if this-egg?
-                   (let ((setup (glob "*.setup")))
-                     (cond ((null? setup)
-                            (die "Could not find a .setup file. Aborting."))
-                           ((null? (cdr setup))
-                            (map (compose string->symbol pathname-file) setup))
+                   (let ((egg-spec (glob "*.egg")))
+                     (cond ((null? egg-spec)
+                            (die "Could not find a .egg file. Aborting."))
+                           ((null? (cdr egg-spec))
+                            (map (compose string->symbol pathname-file) egg-spec))
                            (else
-                            (die "Found more than one .setup file.  Aborting."))))
+                            (die "Found more than one .egg file.  Aborting."))))
                    (remove (lambda (egg)
                              (memq egg skip-eggs))
                            (map string->symbol
@@ -326,3 +341,5 @@ EOF
     (unless this-egg?
       (show-statistics log-file verbosity))
     (unless keep-repo? (delete-path tmp-dir))))
+
+)

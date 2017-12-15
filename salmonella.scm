@@ -12,9 +12,26 @@
  report-duration report-duration-set!
  )
 
-(import scheme chicken irregex foreign)
-(use srfi-1 srfi-13 posix setup-download setup-api tcp data-structures
-     ports extras files utils)
+(import scheme chicken)
+(import (chicken bitwise)
+     (chicken data-structures)
+     (chicken file)
+     (chicken foreign)
+     (chicken format)
+     (chicken io)
+     (chicken irregex)
+     (chicken pathname)
+     (chicken posix)
+     (chicken port)
+     (chicken posix)
+     (chicken pretty-print)
+     (chicken process)
+     (chicken random)
+     (chicken string)
+     (chicken tcp)
+     (chicken time))
+
+(include "libs/srfi-1.scm")
 
 (include "salmonella-common.scm")
 (include "salmonella-version.scm")
@@ -53,7 +70,7 @@
   (let* ((command (format-command command args))
          (start (current-seconds))
          (p (open-input-pipe command))
-         (output (read-all p)))
+         (output (with-input-from-port p read-string)))
     (values (if *windows-shell*
                 (close-input-pipe p)
                 (arithmetic-shift (close-input-pipe p) -8))
@@ -106,20 +123,19 @@
 (define (egg-installed? egg repo-lib-dir)
   (let ((installed-eggs
         (map pathname-file
-             (glob (make-pathname repo-lib-dir "*" "setup-info")))))
+             (glob (make-pathname repo-lib-dir "*" "egg-info")))))
     (and (member (->string egg) installed-eggs) #t)))
 
 ;;; meta data
-(define (read-meta-file egg tmp-repo-dir)
+(define (read-egg-file egg cache-dir)
   ;; If `tmp-repo-dir' is `#f', assume this-egg
   (let* ((egg (symbol->string egg))
-         (meta-file (make-pathname (and tmp-repo-dir (list tmp-repo-dir egg))
-                                   egg
-                                   "meta")))
-    (and (file-read-access? meta-file)
-         (handle-exceptions exn
-           #f
-           (with-input-from-file meta-file read)))))
+         (egg-file (make-pathname (and cache-dir (list cache-dir egg))
+                                  egg
+                                  "egg")))
+    (handle-exceptions exn
+      #f
+      (with-input-from-file egg-file read))))
 
 
 ;;; HTTP (for docs)
@@ -172,13 +188,14 @@
 (define (make-salmonella tmp-dir
          #!key chicken-installation-prefix
                chicken-install-args
-               eggs-source-dir
+               eggs-source-dir ;; FIXME: remove this.  We can use `location' in setup.defaults
                eggs-doc-dir
                clear-chicken-home?
                this-egg?)
 
   (let* ((mingw? (eq? (build-platform) 'mingw32))
-         (chicken-installation-prefix (or chicken-installation-prefix (installation-prefix)))
+         (chicken-installation-prefix
+          (or chicken-installation-prefix default-installation-prefix))
          (eggs-source-dir
           (and eggs-source-dir
                (if (absolute-pathname? eggs-source-dir)
@@ -187,11 +204,10 @@
                     (make-pathname (current-directory) eggs-source-dir)))))
          (chicken-install-args
           (or chicken-install-args
-              (lambda (repo-dir)
-                `(-prefix ,repo-dir
-                          ,@(if eggs-source-dir
-                                `(-t local -l ,eggs-source-dir)
-                                '(-test))))))
+              (lambda (repo-dir) ;; FIXME: repo-dir is unused
+                (if eggs-source-dir
+                    `(-v -t local -l ,eggs-source-dir)
+                    '(-v -test)))))
          (chicken-install
           (make-pathname (list chicken-installation-prefix "bin")
                          "chicken-install"
@@ -203,69 +219,94 @@
                             "csc"
                             (and mingw? "exe")))
         (tmp-repo-dir (make-pathname tmp-dir "repo"))
-        (binary-version
-         (shell-command-output csi '(-np "\"(##sys#fudge 42)\"")))
+        (host-repository-path
+         (shell-command-output chicken-install '(-repository)))
+        (binary-version (pathname-file host-repository-path))
         (major-version
          (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
            (string->number (car (string-split v ".")))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
+        (cache-dir (make-pathname tmp-repo-dir "cache"))
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (tmp-repo-share-dir
          (make-pathname (list tmp-repo-dir "share") "chicken"))
         (egg-information (if eggs-source-dir
-                             (gather-egg-information eggs-source-dir)
-                             '())))
-
+                             ;; FIXME: (gather-egg-information eggs-source-dir)
+                             '()
+                             '()))
+        (chicken-import-libraries
+         (let* ((import-libraries-file
+                 (make-pathname
+                  (list chicken-installation-prefix "lib" "chicken" binary-version)
+                  "chicken-import-libraries.db"))
+                (unit-filenames
+                 (handle-exceptions exn ;; FIXME: check cause of exception
+                     #f
+                   (with-input-from-file import-libraries-file read-string))))
+           (if unit-filenames
+               (map (lambda (unit)
+                      (string-chomp (symbol->string unit) ".import.so"))
+                    unit-filenames)
+               ;; List of units before chicken-import-libraries.db
+               ;; existed (this is a bit broken, as if an egg installs
+               ;; a library called chicken*.import, this code is going
+               ;; to copy the egg library as if it was a core library.
+	       (cons
+		"srfi-4"
+		(map (lambda (unit)
+		       (string-chomp (pathname-strip-directory unit)
+				     ".import.so"))
+		     (glob (make-pathname (list chicken-installation-prefix
+						lib-dir)
+					  (string-append
+					   "chicken*.import."
+					   (if (eq? (software-type) 'windows)
+					       "dll"
+					       "so"))))))))))
     (for-each (lambda (file)
                 (unless (file-execute-access? file)
                   (error 'make-salmonella
                          (conc file " cannot be found or have no execute access."))))
               (list chicken-install csi))
 
-    ;; Set environment variables (CHICKEN_REPOSITORY will only be set
+    ;; Set environment variables (CHICKEN_REPOSITORY_PATH will only be set
     ;; after initializing the repository)
-    (setenv "SALMONELLA_RUNNING" "1")
-    (setenv "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
-    (setenv "CHICKEN_INCLUDE_PATH" tmp-repo-share-dir)
-    (setenv "CHICKEN_C_INCLUDE_PATH" (make-pathname tmp-repo-dir "include/chicken"))
-    (setenv "PATH" (string-intersperse
-                   (list (make-pathname tmp-repo-dir "bin")
-                         (make-pathname chicken-installation-prefix "bin")
-                         (get-environment-variable "PATH"))
-                    (if (eq? (software-type) 'windows)
-                        ";"
-                        ":")))
+    (set-environment-variable! "SALMONELLA_RUNNING" "1")
+    (set-environment-variable! "CHICKEN_INCLUDE_PATH" tmp-repo-share-dir)
+    (set-environment-variable! "CHICKEN_C_INCLUDE_PATH"
+                               (make-pathname tmp-repo-dir "include/chicken"))
+    (set-environment-variable! "PATH"
+                               (string-intersperse
+                                (list (make-pathname tmp-repo-dir "bin")
+                                      (make-pathname chicken-installation-prefix "bin")
+                                      (get-environment-variable "PATH"))
+                                (if (eq? (software-type) 'windows)
+                                    ";"
+                                    ":")))
+    (set-environment-variable! "CHICKEN_EGG_CACHE" cache-dir)
+    (set-environment-variable! "CHICKEN_INSTALL_REPOSITORY" tmp-repo-lib-dir)
+    (set-environment-variable! "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
+    (set-environment-variable! "CHICKEN_REPOSITORY_PATH" tmp-repo-lib-dir)
 
     (define (log-shell-command egg action command args)
       (let-values (((status output duration) (run-shell-command command args)))
         (make-report egg action status output duration)))
 
     (define (init-repo!)
-      ;; for create-directory/parents
-      (parameterize ((setup-verbose-mode #f)
-                     (run-verbose #f))
-        (create-directory/parents tmp-repo-lib-dir)
-        (unsetenv "CHICKEN_REPOSITORY")
-        (unsetenv "CHICKEN_PREFIX")
-        (let-values (((status output duration)
-                      (run-shell-command chicken-install
-                                         `(-init ,tmp-repo-lib-dir))))
-          (unless (zero? status)
-            (error 'init-repo! output))
-          ;; Copy setup.defaults, so we can set CHICKEN_PREFIX
-          (let ((setup.defaults
-                 (make-pathname (list chicken-installation-prefix
-                                      "share"
-                                      "chicken")
-                                "setup.defaults")))
-            (create-directory tmp-repo-share-dir 'parents)
-            (file-copy setup.defaults
-                       (make-pathname tmp-repo-share-dir "setup.defaults")
-                       'clobber))
-          ;; Only set CHICKEN_REPOSITORY and
-          ;; CHICKEN_PREFIX after initializing the repo
-          (setenv "CHICKEN_PREFIX" chicken-installation-prefix)
-          (setenv "CHICKEN_REPOSITORY" tmp-repo-lib-dir))))
+      ;; Create repository-path into the test directory
+      (create-directory tmp-repo-lib-dir 'recursively)
+
+      ;; Copy CHICKEN core units
+      (for-each (lambda (unit)
+                  (file-copy (make-pathname host-repository-path unit "import.so")
+                             (make-pathname tmp-repo-lib-dir unit "import.so")
+                             'clobber))
+                chicken-import-libraries)
+
+      ;; Copy types.db
+      (file-copy (make-pathname host-repository-path "types.db")
+                 (make-pathname tmp-repo-lib-dir "types.db")
+                 'clobber))
 
     (define (fetch-egg egg #!key (action 'fetch) version)
       ;; Fetches egg and returns a report object
@@ -292,15 +333,15 @@
                 `(,@(delete '-test (chicken-install-args tmp-repo-dir)))))))
         (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
             (install)
-            (save-excursion (make-pathname tmp-dir (->string egg)) install))))
+            (save-excursion (make-pathname cache-dir (->string egg)) install))))
 
 
     (define (test-egg egg)
       ;; Runs egg tests and returns a report object
       (let ((start (current-seconds)))
         ;; Installing test dependencies
-        (let* ((meta-data (read-meta-file egg (if this-egg? #f tmp-dir)))
-               (test-deps (alist-ref 'test-depends meta-data)))
+        (let* ((meta-data (read-egg-file egg (if this-egg? #f cache-dir)))
+               (test-deps (alist-ref 'test-dependencies meta-data)))
           (for-each
            (lambda (dep)
              (unless (egg-installed? dep tmp-repo-lib-dir)
@@ -310,17 +351,19 @@
                       (version (and (list? dep) (cadr dep)))
                       (fetch-log (fetch-egg egg action: 'fetch-test-dep version: version))
                       (status (report-status fetch-log)))
-                 (when (and status
-                            (zero? status)
-                            (directory-exists? ;; workaround for issue with chicken 4.5.0 and regex
-                             (make-pathname tmp-dir (->string egg))))
-                   (install-egg egg 'install-test-dep)))))
+                 ;; (log! fetch-log "salmonella.log") ;; FIXME: log fetch-test-dep actions
+                 (when (and status (zero? status))
+                   (let ((install-log
+                          (install-egg egg 'install-test-dep)))
+                     ;; (log! install-log "salmonella.log")  ;; FIXME
+                     install-log
+                     )))))
            (remove (lambda (dep)
                      (chicken-unit? dep major-version))
                    (or test-deps '()))))
         (let ((test-dir (make-pathname (if this-egg?
                                            #f
-                                           (list tmp-dir (->string egg)))
+                                           (list cache-dir (->string egg)))
                                        "tests")))
           (if (and (directory? test-dir)
                    (file-read-access? (make-pathname test-dir "run.scm")))
@@ -364,6 +407,8 @@
                       (loop (cdr setup-info-files))))))))
 
 
+    ;; FIXME: do still need this?  Look for setup-info and check if we
+    ;; can use egg-info instead.
     (define (setup-info-version egg)
 
       (define (read-version setup-info-file)
@@ -427,7 +472,7 @@
                              installed-version)))))
 
     (define (meta-data egg)
-      (let ((data (read-meta-file egg (if this-egg? #f tmp-dir))))
+      (let ((data (read-egg-file egg (if this-egg? #f cache-dir))))
         (make-report egg 'meta-data (and data #t) data 0)))
 
     (define (check-egg-doc egg)
@@ -519,13 +564,12 @@
                     (glob (make-pathname chicken-home "*.scm"))))))
 
     (define (env-info)
-      (define (show-envvar var #!optional value)
+      (define (show-envvar var)
         (string-append "  " var ": "
-                       (or value
-                           (cond ((get-environment-variable var)
-                                  => (lambda (val)
-                                       val))
-                                 (else "(not set)")))))
+                       (cond ((get-environment-variable var)
+                              => (lambda (val)
+                                   val))
+                             (else "(not set)"))))
 
       (define (program-version prog)
         ;; Try to obtain the program version by calling it with --version.
@@ -533,7 +577,7 @@
         (let-values (((status output dur)
                       (run-shell-command prog '(--version) omit-command?: #t)))
           (and (zero? status)
-               (string-trim-both output))))
+               output)))
 
       (let* ((c-compiler (strip-surrounding-quotes
                           (shell-command-output csc '(-cc-name))))
@@ -569,22 +613,17 @@ CHICKEN banner:
 #(shell-command-output csi '(-version))
 Environment variables:
 #(show-envvar "SALMONELLA_RUNNING")
-#(show-envvar "CHICKEN_PREFIX" chicken-installation-prefix)
-#(show-envvar "CHICKEN_INSTALL_PREFIX")
+#(show-envvar "CHICKEN_INSTALL_REPOSITORY")
+#(show-envvar "CHICKEN_REPOSITORY_PATH")
+#(show-envvar "CHICKEN_EGG_CACHE")
 #(show-envvar "CHICKEN_INCLUDE_PATH")
 #(show-envvar "CHICKEN_C_INCLUDE_PATH")
-#(show-envvar "CHICKEN_REPOSITORY" tmp-repo-lib-dir)
 #(show-envvar "CHICKEN_HOME")
 #(show-envvar "CSC_OPTIONS")
 #(show-envvar "PATH")
 
 EOF
-)) ;; Beware of the hack above.  CHICKEN_REPOSITORY and CHICKEN_PREFIX
-   ;; are only set by salmonella after `init-repo!' is called.  Here we
-   ;; print their value but the environment variable may not be
-   ;; actually set, since `env-info' can be called before `init-repo!'.
-
-
+))
     (lambda (action #!optional egg #!rest more-args)
 
       (case action

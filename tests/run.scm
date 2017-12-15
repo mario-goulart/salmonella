@@ -1,4 +1,11 @@
-(use test salmonella salmonella-log-parser)
+(import (chicken data-structures)
+        (chicken string))
+(import test salmonella salmonella-log-parser)
+
+;; FIXME: deduplicate
+(define (string-prefix? prefix str)
+  (let ((index (substring-index prefix str)))
+    (and index (zero? index))))
 
 (define log-v0 (read-log-file "salmonella.log.v0"))
 (define log-v1 (read-log-file "salmonella.log.v1"))
@@ -14,8 +21,6 @@
 (test 0 (fetch-status 'slice log))
 (test 0 (install-status 'slice log))
 (test 0 (test-status 'slice log))
-(test #t (string-prefix? "CHICKEN_INSTALL_PREFIX="
-                         (test-message 'slice log)))
 (test #t (has-test? 'slice log))
 
 (test 0 (fetch-status 'ansi-escape-sequences log))
