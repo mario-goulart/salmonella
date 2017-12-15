@@ -1,8 +1,9 @@
-(import foreign)
-(import (chicken irregex)
+(import (chicken foreign)
+        (chicken irregex)
         (chicken pathname)
         (chicken port)
-        (chicken posix))
+        (chicken posix)
+        (chicken random))
 
 ;; Used to be chicken-prefix in C4
 (define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))
@@ -100,7 +101,7 @@
     (let ((dir (make-pathname
                 (current-directory)
                 (string-append "salmonella-tmp-"
-                               (number->string (random 1000000) 16)))))
+                               (number->string (pseudo-random-integer 1000000) 16)))))
         (if (file-exists? dir)
             (loop)
             (begin
