@@ -223,7 +223,9 @@
          (shell-command-output chicken-install '(-repository)))
         (binary-version (pathname-file host-repository-path))
         (major-version
-         (let ((v (shell-command-output csi '(-np "\"(chicken-version)\""))))
+         (let ((v (shell-command-output
+                   csi
+                   '(-np "\"(begin (import chicken.platform) (chicken-version))\""))))
            (string->number (car (string-split v ".")))))
         (lib-dir (make-pathname '("lib" "chicken") binary-version))
         (cache-dir (make-pathname tmp-repo-dir "cache"))

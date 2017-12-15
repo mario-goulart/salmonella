@@ -100,7 +100,8 @@
     (let ((dir (make-pathname
                 (current-directory)
                 (string-append "salmonella-tmp-"
-                               (number->string (random 1000000) 16)))))
+                               (number->string
+                                (pseudo-random-integer 1000000) 16)))))
         (if (file-exists? dir)
             (loop)
             (begin
