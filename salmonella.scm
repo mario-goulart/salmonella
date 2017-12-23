@@ -307,8 +307,7 @@
                (let* ((egg (if (pair? dep)
                                (car dep)
                                dep))
-                      (version (and (list? dep) (cadr dep)))
-                      (fetch-log (fetch-egg egg action: 'fetch-test-dep version: version))
+                      (fetch-log (fetch-egg egg action: 'fetch-test-dep))
                       (status (report-status fetch-log)))
                  (when (and status
                             (zero? status)
