@@ -36,10 +36,11 @@
  )
 
 (import scheme chicken)
-(import (chicken data-structures)
+(import (chicken base)
         (chicken io)
         (chicken file)
         (chicken format)
+        (chicken process-context)
         (chicken random)
         (chicken sort)
         (chicken string))

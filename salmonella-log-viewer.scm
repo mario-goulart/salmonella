@@ -1,8 +1,9 @@
 (module salmonella-log-viewer ()
 
 (import scheme chicken)
-(import (chicken data-structures)
+(import (chicken base)
         (chicken pathname)
+        (chicken process-context)
         (chicken string))
 (import salmonella-log-parser)
 

@@ -13,8 +13,8 @@
  )
 
 (import scheme chicken)
-(import (chicken bitwise)
-        (chicken data-structures)
+(import (chicken base)
+        (chicken bitwise)
         (chicken file)
         (chicken foreign)
         (chicken format)
@@ -26,6 +26,7 @@
         (chicken posix)
         (chicken pretty-print)
         (chicken process)
+        (chicken process-context)
         (chicken random)
         (chicken string)
         (chicken tcp)
