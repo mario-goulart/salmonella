@@ -1,4 +1,4 @@
-(import (chicken data-structures)
+(import (chicken base)
         (chicken string))
 (import test salmonella salmonella-log-parser)
 
