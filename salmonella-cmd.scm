@@ -1,9 +1,10 @@
 (module salmonella-cmd ()
 
 (import chicken scheme)
-(import (chicken data-structures)
+(import (chicken base)
         (chicken file)
         (chicken format)
+        (chicken process-context)
         (chicken random)
         (chicken string)
         (chicken time))

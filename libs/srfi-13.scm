@@ -1,4 +1,4 @@
-(import (chicken data-structures))
+(import (chicken string))
 
 (define (string-prefix? prefix str)
   (let ((index (substring-index prefix str)))
