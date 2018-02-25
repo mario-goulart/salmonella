@@ -272,25 +272,6 @@
                          (conc file " cannot be found or have no execute access."))))
               (list chicken-install csi))
 
-    ;; Set environment variables (CHICKEN_REPOSITORY_PATH will only be set
-    ;; after initializing the repository)
-    (set-environment-variable! "SALMONELLA_RUNNING" "1")
-    (set-environment-variable! "CHICKEN_INCLUDE_PATH" tmp-repo-share-dir)
-    (set-environment-variable! "CHICKEN_C_INCLUDE_PATH"
-                               (make-pathname tmp-repo-dir "include/chicken"))
-    (set-environment-variable! "PATH"
-                               (string-intersperse
-                                (list (make-pathname tmp-repo-dir "bin")
-                                      (make-pathname chicken-installation-prefix "bin")
-                                      (get-environment-variable "PATH"))
-                                (if (eq? (software-type) 'windows)
-                                    ";"
-                                    ":")))
-    (set-environment-variable! "CHICKEN_EGG_CACHE" cache-dir)
-    (set-environment-variable! "CHICKEN_INSTALL_REPOSITORY" tmp-repo-lib-dir)
-    (set-environment-variable! "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
-    (set-environment-variable! "CHICKEN_REPOSITORY_PATH" tmp-repo-lib-dir)
-
     (define (log-shell-command egg action command args)
       (let-values (((status output duration) (run-shell-command command args)))
         (make-report egg action status output duration)))
@@ -309,7 +290,26 @@
       ;; Copy types.db
       (file-copy (make-pathname host-repository-path "types.db")
                  (make-pathname tmp-repo-lib-dir "types.db")
-                 'clobber))
+                 'clobber)
+
+      ;; Set environment variables (CHICKEN_REPOSITORY_PATH will only
+      ;; be set after initializing the repository)
+      (set-environment-variable! "SALMONELLA_RUNNING" "1")
+      (set-environment-variable! "CHICKEN_INCLUDE_PATH" tmp-repo-share-dir)
+      (set-environment-variable! "CHICKEN_C_INCLUDE_PATH"
+                                 (make-pathname tmp-repo-dir "include/chicken"))
+      (set-environment-variable! "PATH"
+                                 (string-intersperse
+                                  (list (make-pathname tmp-repo-dir "bin")
+                                        (make-pathname chicken-installation-prefix "bin")
+                                        (get-environment-variable "PATH"))
+                                  (if (eq? (software-type) 'windows)
+                                      ";"
+                                      ":")))
+      (set-environment-variable! "CHICKEN_EGG_CACHE" cache-dir)
+      (set-environment-variable! "CHICKEN_INSTALL_REPOSITORY" tmp-repo-lib-dir)
+      (set-environment-variable! "CHICKEN_INSTALL_PREFIX" tmp-repo-dir)
+      (set-environment-variable! "CHICKEN_REPOSITORY_PATH" tmp-repo-lib-dir))
 
     (define (fetch-egg egg #!key (action 'fetch) version)
       ;; Fetches egg and returns a report object
