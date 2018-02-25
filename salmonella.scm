@@ -167,7 +167,7 @@
   (cond (eggs-doc-dir
          (file-exists? (make-pathname eggs-doc-dir (->string egg))))
         (major-version
-         (handle-exceptions enx
+         (handle-exceptions exn
            #f
            (let-values (((in out) (tcp-connect egg-doc-host egg-doc-port)))
              (let ((req (HEAD-request
