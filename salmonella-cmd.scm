@@ -1,8 +1,9 @@
 (module salmonella-cmd ()
 
-(import chicken scheme)
+(import scheme)
 (import (chicken base)
         (chicken file)
+        (chicken fixnum)
         (chicken format)
         (chicken process-context)
         (chicken random)
