@@ -168,13 +168,20 @@
 
 ;; log version
 
-;; Version 0: emitted by salmonella 1.x
+;; Version 0 (emitted by salmonella 1.x)
 ;;
-;; Version 1: emmited by salmonellas 2.0 - 2.7
+;; Version 1 (emitted by salmonellas 2.0 - 2.7)
 ;;
-;; Version 2: same format as log version 1's, but with version
-;; information -- `log-version' action.
-;; Emitted by salmonellas 2.8 - <current version>
+;; Version 2 (emitted by salmonellas 2.8 - <current version>):
+;;   * same format as log version 1's, but with version information
+;;     -- `log-version' action.
+;;
+;; Version 3 (emitted by salmonellas 2.8 - <current version>):
+;;   * test-egg produces multiple reports, as it fetches and installs
+;;     test dependencies, besides testing eggs.  Actions for fetch and
+;;     install of test dependencies are lists whose first element is
+;;     either fetch-test-dep or install-test-dep and the second
+;;     element is the egg being tested (not the dependency!).
 
 (define (log-version log)
   (if (log-version-0? log)

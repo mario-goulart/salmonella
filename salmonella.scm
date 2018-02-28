@@ -321,7 +321,7 @@
           (if (and this-egg? (eq? action 'fetch)) ;; don't fetch this egg
               (make-report egg 'fetch 0 "" 0)
               (log-shell-command egg
-                                 'fetch
+                                 action
                                  chicken-install
                                  `(-r ,@(chicken-install-args tmp-repo-dir)
                                       ,(if version
@@ -334,7 +334,7 @@
              (lambda ()
                (log-shell-command
                 egg
-                'install
+                action
                 chicken-install
                 `(,@(delete '-test (chicken-install-args tmp-repo-dir)))))))
         (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
@@ -343,51 +343,79 @@
 
 
     (define (test-egg egg)
-      ;; Runs egg tests and returns a report object
-      (let ((start (current-seconds)))
-        ;; Installing test dependencies
-        (let* ((meta-data (read-egg-file egg (if this-egg? #f cache-dir)))
-               (test-deps (alist-ref 'test-dependencies meta-data)))
-          (for-each
-           (lambda (dep)
-             (unless (egg-installed? dep tmp-repo-lib-dir)
-               (let* ((egg (if (pair? dep)
-                               (car dep)
-                               dep))
-                      (fetch-log (fetch-egg egg action: 'fetch-test-dep))
-                      (status (report-status fetch-log)))
-                 ;; (log! fetch-log "salmonella.log") ;; FIXME: log fetch-test-dep actions
-                 (when (and status (zero? status))
-                   (let ((install-log
-                          (install-egg egg 'install-test-dep)))
-                     ;; (log! install-log "salmonella.log")  ;; FIXME
-                     install-log
-                     )))))
-           (remove (lambda (dep)
-                     (chicken-unit? dep major-version))
-                   (or test-deps '()))))
-        (let* ((test-dir (make-pathname (if this-egg?
-                                            #f
-                                            (list cache-dir (->string egg)))
-                                        "tests"))
-               (test-script (make-pathname test-dir "run.scm")))
-          (if (and (file-exists? test-script)
-                   (file-read-access? test-script))
-              (save-excursion test-dir
-                (lambda ()
-                  (let ((report
-                         (log-shell-command
-                          egg
-                          'test
-                          csi
-                          `(-script run.scm
-                                    ,(if (eq? (software-type) 'windows)
-                                         ""
-                                         "< /dev/null")))))
-                    (report-duration-set! report (- (current-seconds) start))
-                    report)))
-              (make-report egg 'test -1 "" 0)))))
-
+      ;; Run egg tests and return a list of report object.
+      (let* ((start (current-seconds))
+             (all-reports '())
+             (add-to-reports!
+              (lambda (report)
+                (set! all-reports (cons report all-reports)))))
+        (call/cc
+         (lambda (return)
+           ;; Installing test dependencies
+           (let* ((meta-data (read-egg-file egg (if this-egg? #f cache-dir)))
+                  (test-deps (alist-ref 'test-dependencies meta-data)))
+             (let loop ((deps (remove (lambda (dep)
+                                        (chicken-unit? dep major-version))
+                                      (or test-deps '()))))
+               (unless (null? deps)
+                 (let ((dep (car deps)))
+                   (unless (egg-installed? dep tmp-repo-lib-dir)
+                     (let* ((dep (if (pair? dep)
+                                     (car dep)
+                                     dep))
+                            (fetch-log (fetch-egg dep action: `(fetch-test-dep ,egg)))
+                            (fetch-status (report-status fetch-log)))
+                       (add-to-reports! fetch-log)
+                       (cond ((and fetch-status (zero? fetch-status))
+                              (let* ((install-log (install-egg dep `(install-test-dep ,egg)))
+                                     (install-status (report-status install-log)))
+                                (add-to-reports! install-log)
+                                (cond ((and install-status (zero? install-status))
+                                       (loop (cdr deps)))
+                                      (else
+                                       (add-to-reports!
+                                        (make-report egg 'test fetch-status
+                                                     (string-append
+                                                      (sprintf "Error installing test dependency (~a):\n\n"
+                                                               dep)
+                                                      (report-message fetch-log))
+                                                     (- (current-seconds) start)))
+                                       (return (reverse all-reports))))))
+                             (else
+                              (add-to-reports!
+                               (make-report egg 'test fetch-status
+                                            (string-append
+                                             (sprintf "Error fetching test dependency (~a):\n\n"
+                                                      dep)
+                                             (report-message fetch-log))
+                                            (- (current-seconds) start)))
+                              (return (reverse all-reports))))))))))
+           ;; At this point, fetching and installing test dependencies
+           ;; succeeded, so proceed to run tests.
+           (let* ((test-dir (make-pathname (if this-egg?
+                                               #f
+                                               (list cache-dir (->string egg)))
+                                           "tests"))
+                  (test-script (make-pathname test-dir "run.scm")))
+             (cond ((and (file-exists? test-script)
+                         (file-read-access? test-script))
+                    (save-excursion test-dir
+                      (lambda ()
+                        (let ((report
+                               (log-shell-command
+                                egg
+                                'test
+                                csi
+                                `(-script run.scm
+                                          ,(if (eq? (software-type) 'windows)
+                                               ""
+                                               "< /dev/null")))))
+                          (report-duration-set! report (- (current-seconds) start))
+                          (add-to-reports! report)
+                          (reverse all-reports)))))
+                   (else
+                    (add-to-reports! (make-report egg 'test -1 "" 0))
+                    (reverse all-reports))))))))
 
     (define (find-egg-info-files egg)
       (let ((egg-info-file (make-pathname tmp-repo-lib-dir egg "egg-info")))

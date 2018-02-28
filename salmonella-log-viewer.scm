@@ -24,25 +24,30 @@
          (eggs (sort-eggs (log-eggs log))))
     (for-each
      (lambda (egg)
-       ;; Heading
-       (print (h1 egg))
-
        ;; Installation
-       (print (h2 egg " installation: ")
-              (case (install-status egg log)
-                ((0) "[OK]")
-                (else "[FAIL]"))
-              "\n")
-       (print (install-message egg log))
+       (let ((status (install-status egg log)))
+         (when status
+           ;; Only print heading when there is an install action for
+           ;; the egg
+           (print (h1 egg))
+
+           (print (h2 egg " installation: ")
+                  (case status
+                    ((0) "[OK]")
+                    (else "[FAIL]"))
+                  "\n")
+           (print (install-message egg log))))
 
        ;; Tests
-       (print (h2 egg " test: ")
-              (case (test-status egg log)
-                ((0 #t) "[OK]")
-                ((-1) "[ -- ]")
-                (else "[FAIL]"))
-              "\n")
-       (print (test-message egg log)))
+       (let ((status (test-status egg log)))
+         (when status
+           (print (h2 egg " test: ")
+                  (case status
+                    ((0 #t) "[OK]")
+                    ((-1) "[ -- ]")
+                    (else "[FAIL]"))
+                  "\n")
+           (print (test-message egg log)))))
      eggs)
 
     ;; env info
