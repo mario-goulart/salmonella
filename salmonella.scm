@@ -270,7 +270,7 @@
 					       "dll"
 					       "so"))))))))))
     (for-each (lambda (file)
-                (unless (file-execute-access? file)
+                (unless (file-executable? file)
                   (error 'make-salmonella
                          (conc file " cannot be found or have no execute access."))))
               (list chicken-install csi))
@@ -285,13 +285,13 @@
 
       ;; Copy CHICKEN core units
       (for-each (lambda (unit)
-                  (file-copy (make-pathname host-repository-path unit "import.so")
+                  (copy-file (make-pathname host-repository-path unit "import.so")
                              (make-pathname tmp-repo-lib-dir unit "import.so")
                              'clobber))
                 chicken-import-libraries)
 
       ;; Copy types.db
-      (file-copy (make-pathname host-repository-path "types.db")
+      (copy-file (make-pathname host-repository-path "types.db")
                  (make-pathname tmp-repo-lib-dir "types.db")
                  'clobber)
 
@@ -398,7 +398,7 @@
                                            "tests"))
                   (test-script (make-pathname test-dir "run.scm")))
              (cond ((and (file-exists? test-script)
-                         (file-read-access? test-script))
+                         (file-readable? test-script))
                     (save-excursion test-dir
                       (lambda ()
                         (let ((report
@@ -420,7 +420,7 @@
     (define (find-egg-info-files egg)
       (let ((egg-info-file (make-pathname tmp-repo-lib-dir egg "egg-info")))
         (if (and (file-exists? egg-info-file)
-                 (file-read-access? egg-info-file))
+                 (file-readable? egg-info-file))
             (list egg-info-file)
             ;; extension installs more than one module. Find them based
             ;; on the egg-name key in egg-info files. This feature

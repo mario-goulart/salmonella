@@ -35,10 +35,11 @@
  log-get
  )
 
-(import scheme chicken)
+(import scheme)
 (import (chicken base)
         (chicken io)
         (chicken file)
+        (chicken fixnum)
         (chicken format)
         (chicken process-context)
         (chicken random)
