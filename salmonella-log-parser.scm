@@ -69,7 +69,9 @@
     (getter log-line)))
 
 (define (log-eggs log)
-  ;; Return a list of eggs from `log', except skipped eggs
+  ;; Return a list of eggs from `log' that actually had the
+  ;; installation tested (i.e., the ones given as inputs to
+  ;; salmonella).
   (let loop ((log log)
              (eggs '()))
     (if (null? log)
@@ -80,7 +82,7 @@
           (loop (cdr log)
                 (if (or (not (symbol? egg))
                         (memq egg eggs)
-                        (eq? action 'skip))
+                        (not (eq? action 'install)))
                     eggs
                     (cons egg eggs)))))))
 
