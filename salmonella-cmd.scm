@@ -3,7 +3,7 @@
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
-(define salmonella-log-version 2)
+(define salmonella-log-version 3)
 
 (define default-verbosity 2)
 
@@ -309,10 +309,12 @@ EOF
 
                      ;; Test egg
                      (progress-indicator 'test egg verbosity)
-                     (let ((test-log (salmonella 'test egg)))
-                       (log! test-log log-file)
-                       (status-reporter test-log verbosity)))))))))
-
+                     (let ((test-logs (salmonella 'test egg)))
+                       (for-each (lambda (test-log)
+                                   (log! test-log log-file)
+                                   (when (eq? (report-action test-log) 'test)
+                                     (status-reporter test-log verbosity)))
+                                 test-logs)))))))))
        ;; Check doc
        (progress-indicator 'check-doc egg verbosity)
        (let ((doc-log (salmonella 'check-doc egg)))
