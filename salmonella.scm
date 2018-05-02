@@ -358,38 +358,42 @@
                                         (chicken-unit? dep major-version))
                                       (or test-deps '()))))
                (unless (null? deps)
-                 (let ((dep (car deps)))
-                   (unless (egg-installed? dep tmp-repo-lib-dir)
-                     (let* ((dep (if (pair? dep)
-                                     (car dep)
-                                     dep))
-                            (fetch-log (fetch-egg dep action: `(fetch-test-dep ,egg)))
-                            (fetch-status (report-status fetch-log)))
-                       (add-to-reports! fetch-log)
-                       (cond ((and fetch-status (zero? fetch-status))
-                              (let* ((install-log (install-egg dep `(install-test-dep ,egg)))
-                                     (install-status (report-status install-log)))
-                                (add-to-reports! install-log)
-                                (cond ((and install-status (zero? install-status))
-                                       (loop (cdr deps)))
-                                      (else
-                                       (add-to-reports!
-                                        (make-report egg 'test install-status
-                                                     (string-append
-                                                      (sprintf "Error installing test dependency (~a):\n\n"
-                                                               dep)
-                                                      (report-message install-log))
-                                                     (- (current-seconds) start)))
-                                       (return (reverse all-reports))))))
-                             (else
-                              (add-to-reports!
-                               (make-report egg 'test fetch-status
-                                            (string-append
-                                             (sprintf "Error fetching test dependency (~a):\n\n"
-                                                      dep)
-                                             (report-message fetch-log))
-                                            (- (current-seconds) start)))
-                              (return (reverse all-reports))))))))))
+                 (let* ((dep-maybe-version (car deps))
+                        (dep (if (pair? dep-maybe-version)
+                                 (car dep-maybe-version)
+                                 dep-maybe-version)))
+                   (if (egg-installed? dep tmp-repo-lib-dir)
+                       (loop (cdr deps))
+                       (let* ((dep (if (pair? dep)
+                                       (car dep)
+                                       dep))
+                              (fetch-log (fetch-egg dep action: `(fetch-test-dep ,egg)))
+                              (fetch-status (report-status fetch-log)))
+                         (add-to-reports! fetch-log)
+                         (cond ((and fetch-status (zero? fetch-status))
+                                (let* ((install-log (install-egg dep `(install-test-dep ,egg)))
+                                       (install-status (report-status install-log)))
+                                  (add-to-reports! install-log)
+                                  (cond ((and install-status (zero? install-status))
+                                         (loop (cdr deps)))
+                                        (else
+                                         (add-to-reports!
+                                          (make-report egg 'test install-status
+                                                       (string-append
+                                                        (sprintf "Error installing test dependency (~a):\n\n"
+                                                                 dep)
+                                                        (report-message install-log))
+                                                       (- (current-seconds) start)))
+                                         (return (reverse all-reports))))))
+                               (else
+                                (add-to-reports!
+                                 (make-report egg 'test fetch-status
+                                              (string-append
+                                               (sprintf "Error fetching test dependency (~a):\n\n"
+                                                        dep)
+                                               (report-message fetch-log))
+                                              (- (current-seconds) start)))
+                                (return (reverse all-reports))))))))))
            ;; At this point, fetching and installing test dependencies
            ;; succeeded, so proceed to run tests.
            (let* ((test-dir (make-pathname (if this-egg?
