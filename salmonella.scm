@@ -327,11 +327,11 @@
                                        (loop (cdr deps)))
                                       (else
                                        (add-to-reports!
-                                        (make-report egg 'test fetch-status
+                                        (make-report egg 'test install-status
                                                      (string-append
                                                       (sprintf "Error installing test dependency (~a):\n\n"
                                                                dep)
-                                                      (report-message fetch-log))
+                                                      (report-message install-log))
                                                      (- (current-seconds) start)))
                                        (return (reverse all-reports))))))
                              (else
