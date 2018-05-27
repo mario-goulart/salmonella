@@ -7,15 +7,18 @@
  (test-dependencies test)
  (components (extension salmonella)
              (extension salmonella-log-parser
-                        (dependencies salmonella))
+                        (component-dependencies
+                         salmonella))
              (program salmonella-cmd
-                      (dependencies salmonella
-                                    salmonella-log-parser)
+                      (component-dependencies
+                       salmonella
+                       salmonella-log-parser)
                       (install-name salmonella))
              ;; FIXME:
              ;; (program salmonella-epidemy)
              ;; (program salmonella-log-enquirer)
              ;; (program salmonella-log-merger)
              (program salmonella-log-viewer
-                      (dependencies salmonella-log-parser))
+                      (component-dependencies
+                       salmonella-log-parser))
              ))

@@ -1,8 +1,8 @@
-(import (chicken foreign)
+(import (chicken file posix)
+        (chicken foreign)
         (chicken irregex)
         (chicken pathname)
-        (chicken port)
-        (chicken posix))
+        (chicken port))
 
 ;; Used to be chicken-prefix in C4
 (define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))
