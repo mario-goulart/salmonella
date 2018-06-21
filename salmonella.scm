@@ -598,7 +598,9 @@
 
       (when clear-chicken-home?
         (let ((chicken-home
-               (shell-command-output csi '(-np "\"(chicken-home)\""))))
+               (shell-command-output
+                csi
+                '(-np "\"(begin (import (chicken home)) (chicken-home))\""))))
           (for-each delete-path
                     (glob (make-pathname chicken-home "*.scm"))))))
 
