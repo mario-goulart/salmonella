@@ -260,6 +260,8 @@ EOF
 
        (salmonella 'init-repo!)
 
+       (unless clear-chicken-home? (salmonella 'clear-chicken-home!))
+
        ;; Fetch egg
        (progress-indicator 'fetch egg verbosity egg-count total-eggs)
        (let ((fetch-log (salmonella 'fetch egg)))
