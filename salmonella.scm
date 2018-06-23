@@ -593,15 +593,15 @@
       (when (file-exists? tmp-repo-dir)
         (for-each delete-path
                   (glob (make-pathname tmp-repo-dir "*"))))
-      (delete-path (make-pathname tmp-dir egg))
+      (delete-path (make-pathname tmp-dir egg)))
 
-      (when clear-chicken-home?
-        (let ((chicken-home
-               (shell-command-output
-                csi
-                '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))))
-          (for-each delete-path
-                    (glob (make-pathname chicken-home "*.scm"))))))
+    (define (clear-chicken-home!)
+      (let ((chicken-home
+             (shell-command-output
+              csi
+              '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))))
+        (for-each delete-path
+                  (glob (make-pathname chicken-home "*.scm")))))
 
     (define (env-info)
       (define (show-envvar var)
@@ -668,6 +668,8 @@ EOF
 
       (case action
         ((clear-repo!) (clear-repo! egg))
+
+        ((clear-chicken-home!) (clear-chicken-home!))
 
         ((init-repo!) (init-repo!))
 
