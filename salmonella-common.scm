@@ -119,7 +119,7 @@
 #this [ [ <options> ] eggs ]
 
 When called without eggs in the command line, salmonella will try to
-find a .setup file in the current directory and process it (just like
+find a .egg file in the current directory and process it (just like
 chicken-install).
 
 <options>:
