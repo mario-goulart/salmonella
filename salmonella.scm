@@ -600,7 +600,7 @@
         (let ((chicken-home
                (shell-command-output
                 csi
-                '(-np "\"(begin (import (chicken home)) (chicken-home))\""))))
+                '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))))
           (for-each delete-path
                     (glob (make-pathname chicken-home "*.scm"))))))
 
