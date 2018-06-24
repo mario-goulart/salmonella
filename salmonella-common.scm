@@ -65,10 +65,10 @@
              (if (pair? dep)
                  (car dep)
                  dep)))
-       (append (deps 'depends)
-               (deps 'needs)
+       (append (deps 'dependencies)
+               (deps 'build-dependencies)
                (if with-test-dependencies?
-                   (deps 'test-depends)
+                   (deps 'test-dependencies)
                    '()))))
 
 
