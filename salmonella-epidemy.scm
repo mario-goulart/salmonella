@@ -25,6 +25,7 @@
                         skip-eggs
                         eggs-doc-dir
                         keep-repo?
+                        clear-chicken-home?
                         repo-dir
                         log-dir)
   (let* ((instance-repo-dir (make-pathname repo-dir (number->string instance)))
@@ -48,6 +49,8 @@
              (and keep-repo?
                   "--keep-repo")
              (string-append "--repo-dir=" instance-repo-dir)
+             (and clear-chicken-home?
+                  "--clear-chicken-home")
              (string-append "--log-file="
                             (make-pathname log-dir (number->string instance) "log"))
              "--verbosity=1"
@@ -93,6 +96,7 @@
                           (map string->symbol (string-split skip ","))
                           '())))
          (keep-repo? (and (member "--keep-repo" args) #t))
+         (clear-chicken-home? (and (member "--clear-chicken-home" args) #t))
          (repo-dir (or (and-let* ((path (cmd-line-arg '--repo-dir args)))
                          (if (absolute-pathname? path)
                              path
@@ -155,6 +159,7 @@
                                        skip-eggs
                                        eggs-doc-dir
                                        keep-repo?
+                                       clear-chicken-home?
                                        repo-dir
                                        log-dir)
                        i)
