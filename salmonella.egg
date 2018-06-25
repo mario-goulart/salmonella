@@ -22,8 +22,7 @@
                       (component-dependencies
                        salmonella
                        salmonella-log-parser))
-             ;; FIXME:
-             ;; (program salmonella-log-enquirer)
+             (program salmonella-log-inquirer)
              (program salmonella-log-viewer
                       (component-dependencies
                        salmonella-log-parser))

@@ -1,8 +1,15 @@
 (module salmonella-log-inquirer ()
 
-(import chicken scheme)
-(use data-structures files extras)
-(use salmonella salmonella-log-parser)
+(import scheme)
+(import (chicken base)
+        (chicken file)
+        (chicken pathname)
+        (chicken pretty-print)
+        (chicken process-context)
+        (chicken random)
+        (chicken string))
+(import salmonella salmonella-log-parser)
+(include "libs/srfi-1.scm")
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
