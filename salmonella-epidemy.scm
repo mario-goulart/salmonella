@@ -1,4 +1,18 @@
-(use posix salmonella salmonella-log-parser)
+(module salmonella-epidemy ()
+
+(import scheme)
+(import (chicken base)
+        (chicken file)
+        (chicken format)
+        (chicken pathname)
+        (chicken process)
+        (chicken process-context)
+        (chicken process signal)
+        (chicken random)
+        (chicken string))
+(import salmonella salmonella-log-parser)
+(include "libs/srfi-1.scm")
+(include "libs/srfi-13.scm")
 (include "salmonella-common.scm")
 (include "salmonella-version.scm")
 
@@ -173,3 +187,5 @@
     (delete-path log-dir)
     (unless keep-repo?
       (delete-path repo-dir))))
+
+) ;; end module

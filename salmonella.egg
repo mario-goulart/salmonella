@@ -14,10 +14,16 @@
                        salmonella
                        salmonella-log-parser)
                       (install-name salmonella))
+             (program salmonella-epidemy
+                      (component-dependencies
+                       salmonella
+                       salmonella-log-parser))
+             (program salmonella-log-merger
+                      (component-dependencies
+                       salmonella
+                       salmonella-log-parser))
              ;; FIXME:
-             ;; (program salmonella-epidemy)
              ;; (program salmonella-log-enquirer)
-             ;; (program salmonella-log-merger)
              (program salmonella-log-viewer
                       (component-dependencies
                        salmonella-log-parser))

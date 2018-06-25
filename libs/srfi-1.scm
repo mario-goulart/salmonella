@@ -1,3 +1,15 @@
+(import (chicken fixnum))
+
+(define (make-list len . maybe-elt)
+  (##sys#check-exact len 'make-list)
+  (let ((elt (cond ((null? maybe-elt) #f) ; Default value
+                   ((null? (cdr maybe-elt)) (car maybe-elt))
+                   (else (##sys#error 'make-list "Too many arguments to MAKE-LIST"
+                                      (cons len maybe-elt))))))
+    (do ((i len (fx- i 1))
+         (ans '() (cons elt ans)))
+        ((fx<= i 0) ans))))
+
 (define (filter pred lst)
   (foldr (lambda (x r) (if (pred x) (cons x r) r)) '() lst))
 

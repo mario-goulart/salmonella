@@ -1,4 +1,16 @@
-(use salmonella salmonella-log-parser)
+(module salmonella-log-merger ()
+
+(import scheme)
+(import (chicken base)
+        (chicken file)
+        (chicken pathname)
+        (chicken pretty-print)
+        (chicken process-context)
+        (chicken random)
+        (chicken string))
+(import salmonella salmonella-log-parser)
+(include "libs/srfi-1.scm")
+(include "libs/srfi-13.scm")
 (include "salmonella-common.scm")
 (include "salmonella-version.scm")
 
@@ -64,3 +76,5 @@
     (with-output-to-file out-file
       (lambda ()
         (for-each pp (merge-logs log-files))))))
+
+) ;; end module
