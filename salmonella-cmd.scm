@@ -224,14 +224,18 @@ EOF
                            (delete-path tmp-dir)
                            (exit)))
 
-    (when (> verbosity 1)
-      (print (salmonella 'env-info)))
-
     ;; for salmonella-epidemy
     (set! *instance-id* (cmd-line-arg '--instance-id args))
 
     ;; Remove old log
     (delete-file* log-file)
+
+    ;; Initialize salmonella's repo here.  It must be done before we
+    ;; try to use the environment variables, as init-repo! sets them.
+    (salmonella 'init-repo!)
+
+    (when (> verbosity 1)
+      (print (salmonella 'env-info)))
 
     ;; Log start
     (log! (make-report #f 'start 0 (salmonella 'env-info) (current-seconds))
