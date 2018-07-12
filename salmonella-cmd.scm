@@ -5,6 +5,7 @@
         (chicken file)
         (chicken fixnum)
         (chicken format)
+        (chicken process signal)
         (chicken process-context)
         (chicken random)
         (chicken string)

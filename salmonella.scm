@@ -24,16 +24,15 @@
         (chicken irregex)
         (chicken pathname)
         (chicken platform)
-        (chicken posix)
         (chicken port)
-        (chicken posix)
         (chicken pretty-print)
         (chicken process)
         (chicken process-context)
         (chicken random)
         (chicken string)
         (chicken tcp)
-        (chicken time))
+        (chicken time)
+        (chicken time posix))
 
 (include "libs/srfi-1.scm")
 
