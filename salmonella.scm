@@ -562,7 +562,9 @@
         (make-report egg 'check-category valid-category?
                      (if valid-category?
                          ""
-                         (cond ((not (symbol? egg-category))
+                         (cond ((not egg-category)
+                                "The `category' field has not been specified")
+                               ((not (symbol? egg-category))
                                 "The specified category is not a symbol")
                                ((not (memq egg-category valid-categories))
                                 (conc "The specified category is invalid: "
