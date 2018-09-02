@@ -5,25 +5,53 @@
  (license "BSD")
  (category egg-tools)
  (test-dependencies test)
- (components (extension salmonella)
+ (components (extension salmonella
+                        (source-dependencies
+                         "libs/srfi-1.scm"
+                         "salmonella-common.scm"
+                         "salmonella-version.scm"))
              (extension salmonella-log-parser
                         (component-dependencies
-                         salmonella))
+                         salmonella)
+                        (source-dependencies
+                         "libs/srfi-1.scm"
+                         "salmonella-common.scm"))
              (program salmonella-cmd
                       (component-dependencies
                        salmonella
                        salmonella-log-parser)
+                      (source-dependencies
+                       "libs/srfi-1.scm"
+                       "libs/srfi-13.scm"
+                       "salmonella-version.scm"
+                       "salmonella-common.scm")
                       (install-name salmonella))
              (program salmonella-epidemy
                       (component-dependencies
                        salmonella
-                       salmonella-log-parser))
+                       salmonella-log-parser)
+                      (source-dependencies
+                       "libs/srfi-1.scm"
+                       "libs/srfi-13.scm"
+                       "salmonella-version.scm"
+                       "salmonella-common.scm"))
              (program salmonella-log-merger
                       (component-dependencies
                        salmonella
-                       salmonella-log-parser))
-             (program salmonella-log-inquirer)
+                       salmonella-log-parser)
+                      (source-dependencies
+                       "libs/srfi-1.scm"
+                       "libs/srfi-13.scm"
+                       "salmonella-version.scm"
+                       "salmonella-common.scm"))
+             (program salmonella-log-inquirer
+                      (source-dependencies
+                       "libs/srfi-1.scm"
+                       "salmonella-version.scm"
+                       "salmonella-common.scm"))
              (program salmonella-log-viewer
                       (component-dependencies
-                       salmonella-log-parser))
+                       salmonella-log-parser)
+                      (source-dependencies
+                       "salmonella-version.scm"))
              ))
