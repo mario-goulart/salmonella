@@ -1,6 +1,15 @@
-(import (chicken base)
-        (chicken string))
-(import test salmonella salmonella-log-parser)
+(import scheme)
+(cond-expand
+ (chicken-4
+  (use test)
+  (use salmonella salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken string))
+  (import test salmonella salmonella-log-parser))
+ (else
+  (error "Unsupported CHICKEN version.")))
+
 
 ;; FIXME: deduplicate
 (define (string-prefix? prefix str)

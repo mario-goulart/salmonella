@@ -1,8 +1,17 @@
-(import (chicken file posix)
-        (chicken foreign)
-        (chicken irregex)
-        (chicken pathname)
-        (chicken port))
+(import scheme)
+(cond-expand
+ (chicken-4
+  (import foreign irregex)
+  (use extras  files ports posix srfi-1)
+  (define pseudo-random-integer random))
+ (chicken-5
+  (import (chicken file posix)
+          (chicken foreign)
+          (chicken irregex)
+          (chicken pathname)
+          (chicken port)))
+ (else
+  (error "Unsupported CHICKEN version.")))
 
 ;; Used to be chicken-prefix in C4
 (define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))

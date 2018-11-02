@@ -1,15 +1,24 @@
 (module salmonella-log-inquirer ()
 
 (import scheme)
-(import (chicken base)
-        (chicken file)
-        (chicken pathname)
-        (chicken pretty-print)
-        (chicken process-context)
-        (chicken random)
-        (chicken string))
-(import salmonella salmonella-log-parser)
-(include "libs/srfi-1.scm")
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use data-structures files extras)
+  (use salmonella salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken file)
+          (chicken pathname)
+          (chicken pretty-print)
+          (chicken process-context)
+          (chicken random)
+          (chicken string))
+  (import salmonella salmonella-log-parser)
+  (include "libs/srfi-1.scm"))
+ (else
+  (error "Unsupported CHICKEN version.")))
+
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 

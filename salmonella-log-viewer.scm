@@ -1,11 +1,19 @@
 (module salmonella-log-viewer ()
 
 (import scheme)
-(import (chicken base)
-        (chicken pathname)
-        (chicken process-context)
-        (chicken string))
-(import salmonella-log-parser)
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use data-structures files)
+  (use salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken pathname)
+          (chicken process-context)
+          (chicken string))
+  (import salmonella-log-parser))
+ (else
+  (error "Unsupported CHICKEN version.")))
 
 (include "salmonella-version.scm")
 

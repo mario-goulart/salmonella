@@ -1,19 +1,28 @@
 (module salmonella-cmd ()
 
 (import scheme)
-(import (chicken base)
-        (chicken file)
-        (chicken fixnum)
-        (chicken format)
-        (chicken process signal)
-        (chicken process-context)
-        (chicken random)
-        (chicken string)
-        (chicken time))
-(import salmonella salmonella-log-parser)
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use setup-api) ;; for installation-prefix
+  (use data-structures srfi-13)
+  (use salmonella salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken file)
+          (chicken fixnum)
+          (chicken format)
+          (chicken process signal)
+          (chicken process-context)
+          (chicken random)
+          (chicken string)
+          (chicken time))
+  (import salmonella salmonella-log-parser)
+  (include "libs/srfi-1.scm")
+  (include "libs/srfi-13.scm"))
+ (else
+  (error "Unsupported CHICKEN version.")))
 
-(include "libs/srfi-1.scm")
-(include "libs/srfi-13.scm")
 (include "salmonella-version.scm")
 (include "salmonella-common.scm")
 

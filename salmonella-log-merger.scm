@@ -1,16 +1,25 @@
 (module salmonella-log-merger ()
 
 (import scheme)
-(import (chicken base)
-        (chicken file)
-        (chicken pathname)
-        (chicken pretty-print)
-        (chicken process-context)
-        (chicken random)
-        (chicken string))
-(import salmonella salmonella-log-parser)
-(include "libs/srfi-1.scm")
-(include "libs/srfi-13.scm")
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use data-structures files srfi-1 srfi-13)
+  (use salmonella salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken file)
+          (chicken pathname)
+          (chicken pretty-print)
+          (chicken process-context)
+          (chicken random)
+          (chicken string))
+  (import salmonella salmonella-log-parser)
+  (include "libs/srfi-1.scm")
+  (include "libs/srfi-13.scm"))
+ (else
+  (error "Unsupported CHICKEN version.")))
+
 (include "salmonella-common.scm")
 (include "salmonella-version.scm")
 

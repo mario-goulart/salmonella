@@ -36,18 +36,27 @@
  )
 
 (import scheme)
-(import (chicken base)
-        (chicken io)
-        (chicken file)
-        (chicken fixnum)
-        (chicken format)
-        (chicken process-context)
-        (chicken random)
-        (chicken sort)
-        (chicken string))
-(import salmonella)
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use srfi-1 data-structures extras)
+  (use salmonella)
+  (define read-list read-file))
+ (chicken-5
+  (import (chicken base)
+          (chicken io)
+          (chicken file)
+          (chicken fixnum)
+          (chicken format)
+          (chicken process-context)
+          (chicken random)
+          (chicken sort)
+          (chicken string))
+  (import salmonella)
+  (include "libs/srfi-1.scm"))
+ (else
+  (error "Unsupported CHICKEN version.")))
 
-(include "libs/srfi-1.scm")
 (include "salmonella-common.scm")
 
 (define (status-zero? status)

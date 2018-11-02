@@ -1,18 +1,27 @@
 (module salmonella-epidemy ()
 
 (import scheme)
-(import (chicken base)
-        (chicken file)
-        (chicken format)
-        (chicken pathname)
-        (chicken process)
-        (chicken process-context)
-        (chicken process signal)
-        (chicken random)
-        (chicken string))
-(import salmonella salmonella-log-parser)
-(include "libs/srfi-1.scm")
-(include "libs/srfi-13.scm")
+(cond-expand
+ (chicken-4
+  (import chicken)
+  (use data-structures srfi-13 utils)
+  (use posix salmonella salmonella-log-parser))
+ (chicken-5
+  (import (chicken base)
+          (chicken file)
+          (chicken format)
+          (chicken pathname)
+          (chicken process)
+          (chicken process-context)
+          (chicken process signal)
+          (chicken random)
+          (chicken string))
+  (import salmonella salmonella-log-parser)
+  (include "libs/srfi-1.scm")
+  (include "libs/srfi-13.scm"))
+ (else
+  (error "Unsupported CHICKEN version.")))
+
 (include "salmonella-common.scm")
 (include "salmonella-version.scm")
 
