@@ -6,7 +6,8 @@
   (import chicken)
   (use setup-api) ;; for installation-prefix
   (use data-structures srfi-13)
-  (use salmonella salmonella-log-parser))
+  (use salmonella salmonella-log-parser)
+  (define chicken-4? #t))
  (chicken-5
   (import (chicken base)
           (chicken file)
@@ -19,7 +20,8 @@
           (chicken time))
   (import salmonella salmonella-log-parser)
   (include "libs/srfi-1.scm")
-  (include "libs/srfi-13.scm"))
+  (include "libs/srfi-13.scm")
+  (define chicken-4? #f))
  (else
   (error "Unsupported CHICKEN version.")))
 
@@ -274,7 +276,8 @@ EOF
 
        (salmonella 'init-repo!)
 
-       (unless clear-chicken-home? (salmonella 'clear-chicken-home!))
+       (when (and (not chicken-4?) clear-chicken-home?)
+         (salmonella 'clear-chicken-home!))
 
        ;; Fetch egg
        (progress-indicator 'fetch egg verbosity egg-count total-eggs)
