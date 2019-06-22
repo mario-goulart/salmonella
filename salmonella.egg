@@ -7,6 +7,7 @@
  (test-dependencies test)
  (components (extension salmonella
                         (source-dependencies
+                         "salmonella-5.scm"
                          "libs/srfi-1.scm"
                          "salmonella-common.scm"
                          "salmonella-version.scm"))
