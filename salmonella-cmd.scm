@@ -176,8 +176,6 @@ EOF
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
-         (eggs-source-dir
-          (cmd-line-arg '--eggs-source-dir args))
          (eggs-doc-dir
           (cmd-line-arg '--eggs-doc-dir args))
          (skip-eggs (let ((skip (cmd-line-arg '--skip-eggs args)))
@@ -197,7 +195,6 @@ EOF
                         default-verbosity))
          (salmonella (make-salmonella
                       tmp-dir
-                      eggs-source-dir: eggs-source-dir
                       eggs-doc-dir: eggs-doc-dir
                       chicken-installation-prefix: chicken-installation-prefix
                       clear-chicken-home?: clear-chicken-home?

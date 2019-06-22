@@ -109,8 +109,6 @@
               (pathname-directory (program-name))))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
-         (eggs-source-dir
-          (cmd-line-arg '--eggs-source-dir args))
          (eggs-doc-dir
           (cmd-line-arg '--eggs-doc-dir args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella-epidemy.log"))
@@ -146,10 +144,6 @@
     (when (null? eggs)
       (print "Nothing to do.")
       (exit 0))
-
-    (when eggs-source-dir
-      (die (pathname-strip-directory (program-name))
-           " doesn't support --egg-sources-dir.  Aborting."))
 
     ;; Remove the temporary directory if interrupted
     (set-signal-handler! signal/int

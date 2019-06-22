@@ -173,7 +173,6 @@
 (define (make-salmonella tmp-dir
          #!key chicken-installation-prefix
                chicken-install-args
-               eggs-source-dir ;; FIXME: remove this.  We can use `location' in setup.defaults
                eggs-doc-dir
                clear-chicken-home?
                this-egg?)
@@ -181,18 +180,10 @@
   (let* ((mingw? (eq? (build-platform) 'mingw32))
          (chicken-installation-prefix
           (or chicken-installation-prefix default-installation-prefix))
-         (eggs-source-dir
-          (and eggs-source-dir
-               (if (absolute-pathname? eggs-source-dir)
-                   eggs-source-dir
-                   (normalize-pathname
-                    (make-pathname (current-directory) eggs-source-dir)))))
          (chicken-install-args
           (or chicken-install-args
-              (lambda (repo-dir) ;; FIXME: repo-dir is unused
-                (if eggs-source-dir
-                    `(-v -t local -l ,eggs-source-dir)
-                    '(-v -test)))))
+              (lambda (repo-dir)
+                '(-v -test))))
          (chicken-install
           (make-pathname (list chicken-installation-prefix "bin")
                          "chicken-install"
@@ -217,10 +208,6 @@
         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
         (tmp-repo-share-dir
          (make-pathname (list tmp-repo-dir "share") "chicken"))
-        (egg-information (if eggs-source-dir
-                             ;; FIXME: (gather-egg-information eggs-source-dir)
-                             '()
-                             '()))
         (chicken-import-libraries
          (let* ((import-libraries-file
                  (make-pathname
@@ -470,26 +457,11 @@
                          1
                          (sprintf "~a installs multiple modules with different versions" egg)
                          (string-intersperse (map ->string installed-version) " "))
-            (if eggs-source-dir
-                (let* ((setup-version
-                        (and-let* ((egg-info (alist-ref egg egg-information))
-                                   (ver (alist-ref 'version egg-info)))
-                          (->string (car ver))))
-                       (version-ok? (and (not (list? installed-version))
-                                         (equal? installed-version setup-version))))
-                  (make-report egg
-                               'check-version
-                               (if version-ok? 0 1)
-                               (if version-ok?
-                                   ""
-                                   (sprintf "Mismatch between installed egg version ~a and declared egg version ~a"
-                                            installed-version setup-version))
-                               installed-version))
-                (make-report egg
-                             'check-version
-                             -1
-                             "Version check requires a local repository of eggs sources."
-                             installed-version)))))
+            (make-report egg
+                         'check-version
+                         -1
+                         "Version check requires a local repository of eggs sources."
+                         installed-version))))
 
     (define (meta-data egg)
       (let ((data (read-egg-file egg (if this-egg? #f cache-dir))))
