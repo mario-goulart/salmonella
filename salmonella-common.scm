@@ -5,11 +5,15 @@
   (use extras  files ports posix srfi-1)
   (define pseudo-random-integer random))
  (chicken-5
-  (import (chicken file posix)
+  (import (chicken file)
+          (chicken file posix)
           (chicken foreign)
           (chicken irregex)
           (chicken pathname)
-          (chicken port)))
+          (chicken port)
+          (chicken process-context)
+          (chicken random)
+          (chicken string)))
  (else
   (error "Unsupported CHICKEN version.")))
 
