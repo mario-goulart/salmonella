@@ -10,17 +10,6 @@
 
 (include "libs/srfi-1.scm")
 
-(define (chicken-unit? lib major-version)
-  (and
-   (memq lib
-         (if (< major-version 5)
-             '(library eval expand data-structures ports files
-               extras irregex srfi-1 srfi-4 srfi-13 srfi-14
-               srfi-18 srfi-69 posix utils tcp lolevel foreign)
-             '(library eval expand data-structures ports files
-               extras irregex srfi-4 posix utils tcp lolevel foreign)))
-   #t))
-
 (define (egg-installed? egg repo-lib-dir)
   (let ((installed-eggs
         (map pathname-file
