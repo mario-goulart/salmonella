@@ -31,7 +31,8 @@
           (chicken process)
           (chicken tcp)
           (chicken time)
-          (chicken time posix)))
+          (chicken time posix))
+  (include "libs/srfi-1.scm"))
  (else
   (error "Unsupported CHICKEN version.")))
 

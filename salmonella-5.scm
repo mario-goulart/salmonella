@@ -1,13 +1,6 @@
 (import (chicken base)
         (chicken condition)
-        (chicken file)
-        (chicken format)
-        (chicken irregex)
-        (chicken pathname)
-        (chicken platform)
-        (chicken string))
-
-(include "libs/srfi-1.scm")
+        (chicken pathname))
 
 (define (make-salmonella tmp-dir
          #!key chicken-installation-prefix
