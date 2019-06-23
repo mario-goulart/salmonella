@@ -68,8 +68,8 @@
                  (make-pathname (env 'tmp-repo-lib-dir) "types.db")
                  'clobber)
 
-      ;; Set environment variables (CHICKEN_REPOSITORY_PATH will only
-      ;; be set after initializing the repository)
+      ;; Set environment variables (CHICKEN_REPOSITORY_PATH must be
+      ;; set after initializing the repository)
       (set-environment-variable! "SALMONELLA_RUNNING" "1")
       (set-environment-variable! "CHICKEN_INCLUDE_PATH" (env 'tmp-repo-share-dir))
       (set-environment-variable! "CHICKEN_C_INCLUDE_PATH"
