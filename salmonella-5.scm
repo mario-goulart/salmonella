@@ -154,10 +154,6 @@
                          "Version check requires a local repository of eggs sources."
                          installed-version))))
 
-    (define (meta-data egg)
-      (let ((data (read-meta-file egg env)))
-        (make-report egg 'meta-data (and data #t) data 0)))
-
     (define (clear-repo! egg)
       (when (file-exists? (env 'tmp-repo-dir))
         (for-each delete-path
@@ -252,7 +248,7 @@ EOF
 
         ((env-info) (env-info))
 
-        ((meta-data) (meta-data egg))
+        ((meta-data) (meta-data egg env))
 
         ((check-dependencies) (check-dependencies egg (car more-args) (env 'major-version)))
 

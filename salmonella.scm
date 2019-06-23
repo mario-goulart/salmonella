@@ -368,6 +368,10 @@
         (end (current-seconds)))
     (make-report egg 'check-doc (if doc-exists? 0 1) "" (- end start))))
 
+(define (meta-data egg env)
+  (let ((data (read-meta-file egg env)))
+    (make-report egg 'meta-data (and data #t) data 0)))
+
 (define (fetch-egg egg env #!key (action 'fetch) version)
   ;; Fetches egg and returns a report object
   (save-excursion (env 'tmp-dir)
