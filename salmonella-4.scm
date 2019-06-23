@@ -43,7 +43,8 @@
 
   (let* ((env (salmonella-env tmp-dir
                               chicken-installation-prefix
-                              chicken-install-args)))
+                              chicken-install-args
+                              this-egg?)))
 
     (check-chicken-executables env)
 
@@ -82,34 +83,6 @@
           (setenv "CHICKEN_PREFIX" (env 'chicken-installation-prefix))
           (setenv "CHICKEN_REPOSITORY" (env 'tmp-repo-lib-dir)))))
 
-    (define (fetch-egg egg #!key (action 'fetch) version)
-      ;; Fetches egg and returns a report object
-      (save-excursion tmp-dir
-        (lambda ()
-          (if (and this-egg? (eq? action 'fetch)) ;; don't fetch this egg
-              (make-report egg 'fetch 0 "" 0)
-              (log-shell-command egg
-                                 action
-                                 (env 'chicken-install)
-                                 `(-r ,@((env 'chicken-install-args) (env 'tmp-repo-dir))
-                                      ,(if version
-                                           (conc egg ":" version)
-                                           egg)))))))
-
-    (define (install-egg egg #!optional (action 'install))
-      ;; Installs egg and returns a report object
-      (let ((install
-             (lambda ()
-               (log-shell-command
-                egg
-                action
-                (env 'chicken-install)
-                `(,@(delete '-test ((env 'chicken-install-args) (env 'tmp-repo-dir))))))))
-        (if (and this-egg? (eq? action 'install)) ;; install this egg from this dir
-            (install)
-            (save-excursion (make-pathname tmp-dir (->string egg)) install))))
-
-
     (define (test-egg egg)
       ;; Run egg tests and return a list of report object.
       (let* ((start (current-seconds))
@@ -132,11 +105,11 @@
                                  dep-maybe-version)))
                    (if (egg-installed? dep (env 'tmp-repo-lib-dir))
                        (loop (cdr deps))
-                       (let* ((fetch-log (fetch-egg dep action: `(fetch-test-dep ,egg)))
+                       (let* ((fetch-log (fetch-egg dep env action: `(fetch-test-dep ,egg)))
                               (fetch-status (report-status fetch-log)))
                          (add-to-reports! fetch-log)
                          (cond ((and fetch-status (zero? fetch-status))
-                                (let* ((install-log (install-egg dep `(install-test-dep ,egg)))
+                                (let* ((install-log (install-egg dep env `(install-test-dep ,egg)))
                                        (install-status (report-status install-log)))
                                   (add-to-reports! install-log)
                                   (cond ((and install-status (zero? install-status))
@@ -348,9 +321,9 @@ EOF
 
         ((init-repo!) (init-repo!))
 
-        ((fetch) (fetch-egg egg))
+        ((fetch) (fetch-egg egg env))
 
-        ((install) (install-egg egg))
+        ((install) (install-egg egg env))
 
         ((test) (test-egg egg))
 

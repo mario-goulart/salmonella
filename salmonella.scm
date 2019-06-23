@@ -16,7 +16,7 @@
 (cond-expand
  (chicken-4
   (import chicken foreign)
-  (use data-structures irregex setup-api tcp utils)
+  (use data-structures irregex posix setup-api tcp utils)
   (define file-executable? file-execute-access?))
  (chicken-5
   (import (chicken base)
@@ -162,7 +162,8 @@
 
 (define (salmonella-env tmp-dir
                         chicken-installation-prefix
-                        chicken-install-args)
+                        chicken-install-args
+                        this-egg?)
   (let* ((mingw? (eq? (build-platform) 'mingw32))
          (chicken-installation-prefix
           (cond-expand
@@ -201,28 +202,30 @@
                 (cond-expand
                  (chicken-4 `(-prefix ,repo-dir -test))
                  (chicken-5 '(-v -test))))))
-         (cache-dir
-          (cond-expand
-           (chicken-4
-            (error 'salmonella-env "cache-dir is not available for CHICKEN 4."))
-           (chicken-5
-            (make-pathname tmp-repo-dir "cache")))))
+         (cache-dir (make-pathname tmp-repo-dir "cache")))
     (lambda (var)
       (case var
         ((chicken-installation-prefix) chicken-installation-prefix)
         ((chicken-install) chicken-install)
         ((chicken-install-args) chicken-install-args)
         ((host-repository-path) host-repository-path)
-        ((cache-dir) cache-dir)
+        ((cache-dir)
+         (cond-expand
+          (chicken-4
+           (error 'salmonella-env "cache-dir is not available for CHICKEN 4."))
+          (chicken-5
+           cache-dir)))
         ((csi) csi)
         ((csc) csc)
         ((tmp-repo-dir) tmp-repo-dir)
         ((binary-version) binary-version)
         ((lib-dir) lib-dir)
+        ((tmp-dir) tmp-dir)
         ((tmp-repo-lib-dir) tmp-repo-lib-dir)
         ((tmp-repo-share-dir) tmp-repo-share-dir)
         ((major-version) major-version)
-        (else (error salmonella-env "Unsupported attribute:" var))))))
+        ((this-egg?) this-egg?)
+        (else (error 'salmonella-env "Unsupported attribute:" var))))))
 
 (define (check-chicken-executables env)
   (for-each (lambda (file)
@@ -322,6 +325,37 @@
         (end (current-seconds)))
     (make-report egg 'check-doc (if doc-exists? 0 1) "" (- end start))))
 
+(define (fetch-egg egg env #!key (action 'fetch) version)
+  ;; Fetches egg and returns a report object
+  (save-excursion (env 'tmp-dir)
+    (lambda ()
+      (if (and (env 'this-egg?) (eq? action 'fetch)) ;; don't fetch this egg
+          (make-report egg 'fetch 0 "" 0)
+          (log-shell-command egg
+                             action
+                             (env 'chicken-install)
+                             `(-r ,@((env 'chicken-install-args) (env 'tmp-repo-dir))
+                                  ,(if version
+                                       (conc egg ":" version)
+                                       egg)))))))
+
+(define (install-egg egg env #!optional (action 'install))
+  ;; Installs egg and returns a report object
+  (let ((install
+         (lambda ()
+           (log-shell-command
+            egg
+            action
+            (env 'chicken-install)
+            `(,@(delete '-test ((env 'chicken-install-args) (env 'tmp-repo-dir))))))))
+    (if (and (env 'this-egg?) (eq? action 'install)) ;; install this egg from this dir
+        (install)
+        (save-excursion (make-pathname
+                         (cond-expand
+                          (chicken-4 (env 'tmp-dir))
+                          (chicken-5 (env 'cache-dir)))
+                         (->string egg))
+             install))))
 
 (import scheme)
 (cond-expand
