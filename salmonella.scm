@@ -368,6 +368,85 @@
         (end (current-seconds)))
     (make-report egg 'check-doc (if doc-exists? 0 1) "" (- end start))))
 
+(define (find-egg-info-files egg env)
+  ;; In CHICKEN 4; find .setup-info files; in CHICKEN 5, find
+  ;; .egg-info files
+  (let* ((suffix (cond-expand
+                  (chicken-4 "setup-info")
+                  (chicken-5 "egg-info")))
+         (egg-info-file (make-pathname (env 'tmp-repo-lib-dir) egg suffix)))
+    (if (and (file-exists? egg-info-file)
+             (file-readable? egg-info-file))
+        (list egg-info-file)
+        ;; extension installs more than one module. Find them based
+        ;; on the egg-name key in egg-info files. This feature
+        ;; requires chicken > 4.6.0
+        (let loop ((egg-info-files
+                    (glob (make-pathname (env 'tmp-repo-lib-dir)
+                                         (string-append "*." suffix)))))
+          (if (null? egg-info-files)
+              '()
+              (or (and-let* ((current-egg-info-file (car egg-info-files))
+                             (egg-info
+                              (handle-exceptions exn
+                                '()
+                                (with-input-from-file current-egg-info-file read)))
+                             (egg-name (alist-ref 'egg-name egg-info)))
+                    (if (equal? (car egg-name) egg)
+                        (cons current-egg-info-file
+                              (loop (cdr egg-info-files)))
+                        (loop (cdr egg-info-files))))
+                  (loop (cdr egg-info-files))))))))
+
+;; FIXME: do still need this for CHICKEN 5?  Look for egg-info and
+;; check if we can use egg-info instead.
+(define (egg-info-version egg env)
+
+  (define (read-version egg-info-file)
+    (let ((data (with-input-from-file egg-info-file read)))
+      (and-let* ((version (alist-ref 'version data)))
+        (car version))))
+
+  (let ((egg-info-files (find-egg-info-files egg env)))
+    (cond ((null? egg-info-files) ;; no egg-info file
+           #f)
+          ((null? (cdr egg-info-files)) ;; a single egg-info file
+           (read-version (car egg-info-files)))
+          (else ;; multiple egg-info files
+           (let ((versions
+                  (delete-duplicates
+                   (let loop ((egg-info-files egg-info-files))
+                     (if (null? egg-info-files)
+                         '()
+                         (cons (read-version (car egg-info-files))
+                               (loop (cdr egg-info-files)))))
+                   equal?)))
+             (cond ((null? versions) ;; no version
+                    #f)
+                   ((null? (cdr versions)) ;; a single version among all installed modules
+                    (car versions))
+                   (else ;; multiple versions among all installed modules (should not happen)
+                    versions)))))))
+
+(define (check-version egg env)
+  ;; Check egg version and return a report object.
+  ;; Status:
+  ;;   0: success
+  ;;   1: failure
+  ;;  -1: ignore (cannot determine failure or success)
+  (let ((installed-version (egg-info-version (symbol->string egg) env)))
+    (if (list? installed-version)
+        (make-report egg
+                     'check-version
+                     1
+                     (sprintf "~a installs multiple modules with different versions" egg)
+                     (string-intersperse (map ->string installed-version) " "))
+        (make-report egg
+                     'check-version
+                     -1
+                     "Version check requires a local repository of eggs sources."
+                     installed-version))))
+
 (define (meta-data egg env)
   (let ((data (read-meta-file egg env)))
     (make-report egg 'meta-data (and data #t) data 0)))
