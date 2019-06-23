@@ -1,12 +1,6 @@
 (import chicken)
 (use data-structures extras files ports posix srfi-1 srfi-13)
 
-(define (egg-installed? egg repo-lib-dir)
-  (let ((installed-eggs
-        (map pathname-file
-             (glob (make-pathname repo-lib-dir "*" "setup-info")))))
-    (and (member (->string egg) installed-eggs) #t)))
-
 ;;; meta data
 (define (read-meta-file egg tmp-repo-dir)
   ;; If `tmp-repo-dir' is `#f', assume this-egg
@@ -92,7 +86,7 @@
                         (dep (if (pair? dep-maybe-version)
                                  (car dep-maybe-version)
                                  dep-maybe-version)))
-                   (if (egg-installed? dep (env 'tmp-repo-lib-dir))
+                   (if (egg-installed? dep env)
                        (loop (cdr deps))
                        (let* ((fetch-log (fetch-egg dep env action: `(fetch-test-dep ,egg)))
                               (fetch-status (report-status fetch-log)))

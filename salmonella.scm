@@ -238,6 +238,15 @@
                extras irregex srfi-4 posix utils tcp lolevel foreign)))
    #t))
 
+(define (egg-installed? egg env)
+  (let ((installed-eggs
+         (map pathname-file
+              (glob (make-pathname (env 'tmp-repo-lib-dir) "*"
+                                   (cond-expand
+                                    (chicken-4 "setup-info")
+                                    (chicken-5 "egg-info")))))))
+    (and (member (->string egg) installed-eggs) #t)))
+
 (define (check-chicken-executables env)
   (for-each (lambda (file)
               (unless (file-executable? (env file))

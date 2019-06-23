@@ -10,12 +10,6 @@
 
 (include "libs/srfi-1.scm")
 
-(define (egg-installed? egg repo-lib-dir)
-  (let ((installed-eggs
-        (map pathname-file
-             (glob (make-pathname repo-lib-dir "*" "egg-info")))))
-    (and (member (->string egg) installed-eggs) #t)))
-
 ;;; meta data
 (define (read-egg-file egg cache-dir)
   ;; If `tmp-repo-dir' is `#f', assume this-egg
@@ -121,7 +115,7 @@
                         (dep (if (pair? dep-maybe-version)
                                  (car dep-maybe-version)
                                  dep-maybe-version)))
-                   (if (egg-installed? dep (env 'tmp-repo-lib-dir))
+                   (if (egg-installed? dep env)
                        (loop (cdr deps))
                        (let* ((dep (if (pair? dep)
                                        (car dep)
