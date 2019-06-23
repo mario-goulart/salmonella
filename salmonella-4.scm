@@ -63,32 +63,18 @@
                     (glob (make-pathname chicken-home "*.scm"))))))
 
     (lambda (action #!optional egg #!rest more-args)
-
       (case action
         ((clear-repo!) (clear-repo! egg))
-
         ((init-repo!) (init-repo!))
-
         ((fetch) (fetch-egg egg env))
-
         ((install) (install-egg egg env))
-
         ((test) (test-egg egg env))
-
         ((check-version) (check-version egg env))
-
         ((env-info) (env-info env))
-
         ((meta-data) (meta-data egg env))
-
         ((check-dependencies) (check-dependencies egg (car more-args) (env 'major-version)))
-
         ((check-category) (check-category egg (car more-args)))
-
         ((check-doc) (check-egg-doc egg eggs-doc-dir (env 'major-version)))
-
         ((check-license) (check-license egg (car more-args)))
-
         ((check-author) (check-author egg (car more-args)))
-
         (else (error 'salmonella "Invalid action" action))))))
