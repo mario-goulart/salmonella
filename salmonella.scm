@@ -30,7 +30,8 @@
           (chicken pretty-print)
           (chicken process)
           (chicken tcp)
-          (chicken time)))
+          (chicken time)
+          (chicken time posix)))
  (else
   (error "Unsupported CHICKEN version.")))
 
@@ -571,6 +572,91 @@
                (else
                 (add-to-reports! (make-report egg 'test -1 "" 0))
                 (reverse all-reports))))))))
+
+(define (env-info env)
+  (define (show-envvar var #!optional value)
+    (string-append "  " var ": "
+                   (or value
+                       (cond ((get-environment-variable var)
+                              => (lambda (val)
+                                   val))
+                             (else "(not set)")))))
+
+  (define (program-version prog)
+    ;; Try to obtain the program version by calling it with --version.
+    ;; In case the program doesn't recognize that option, return #f.
+    (let-values (((status output dur)
+                  (run-shell-command prog '(--version) omit-command?: #t)))
+      (and (zero? status)
+           output)))
+
+  (let* ((c-compiler (strip-surrounding-quotes
+                      (shell-command-output (env 'csc) '(-cc-name))))
+         (c++-compiler (strip-surrounding-quotes
+                        (shell-command-output (env 'csc) '(-cxx-name))))
+         (c-compiler-version (program-version c-compiler))
+         (c++-compiler-version (program-version c++-compiler)))
+    #<#EOF
+salmonella #salmonella-version -- a tool for testing CHICKEN eggs (http://wiki.call-cc.org/egg/salmonella)
+
+Started on #(seconds->string (current-seconds))
+Command line: #(string-intersperse (argv))
+
+Options:
+  chicken-install: #(env 'chicken-install)
+  repo-dir: #(env 'tmp-repo-dir)
+  chicken-install-args: #((env 'chicken-install-args) (env 'tmp-repo-dir))
+
+C compiler: #c-compiler
+#c-compiler-version
+
+C++ compiler: #c++-compiler
+#c++-compiler-version
+
+C compiler flags: #(shell-command-output (env 'csc) '(-cflags))
+
+Linker: #(strip-surrounding-quotes (shell-command-output (env 'csc) '(-ld-name)))
+Linker flags: #(shell-command-output (env 'csc) '(-ldflags))
+
+Libraries: #(shell-command-output (env 'csc) '(-libs))
+
+CHICKEN banner:
+#(shell-command-output (env 'csi) '(-version))
+Environment variables:
+#(string-intersperse
+  (cond-expand
+   (chicken-4
+    (list
+     (show-envvar "SALMONELLA_RUNNING")
+     (show-envvar "CHICKEN_PREFIX" (env 'chicken-installation-prefix))
+     (show-envvar "CHICKEN_INSTALL_PREFIX")
+     (show-envvar "CHICKEN_INCLUDE_PATH")
+     (show-envvar "CHICKEN_C_INCLUDE_PATH")
+     (show-envvar "CHICKEN_REPOSITORY" (env 'tmp-repo-lib-dir))
+     (show-envvar "CHICKEN_HOME")
+     (show-envvar "CSC_OPTIONS")
+     (show-envvar "PATH")))
+  (chicken-5
+   (list
+    (show-envvar "SALMONELLA_RUNNING")
+    (show-envvar "CHICKEN_INSTALL_REPOSITORY")
+    (show-envvar "CHICKEN_REPOSITORY_PATH")
+    (show-envvar "CHICKEN_EGG_CACHE")
+    (show-envvar "CHICKEN_INCLUDE_PATH")
+    (show-envvar "CHICKEN_C_INCLUDE_PATH")
+    (show-envvar "CHICKEN_HOME")
+    (show-envvar "CSC_OPTIONS")
+    (show-envvar "PATH"))))
+  "\n")
+
+EOF
+)) ;; Beware of the hack above.  In CHICKEN 4, CHICKEN_REPOSITORY and
+   ;; CHICKEN_PREFIX are only set by salmonella after `init-repo!' is
+   ;; called.  Here we print their value but the environment variable
+   ;; may not be actually set, since `env-info' can be called before
+   ;; `init-repo!'.
+
+
 
 (import scheme)
 (cond-expand

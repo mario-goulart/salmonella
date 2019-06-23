@@ -5,8 +5,7 @@
         (chicken irregex)
         (chicken pathname)
         (chicken platform)
-        (chicken string)
-        (chicken time posix))
+        (chicken string))
 
 (include "libs/srfi-1.scm")
 
@@ -94,67 +93,6 @@
         (for-each delete-path
                   (glob (make-pathname chicken-home "*.scm")))))
 
-    (define (env-info)
-      (define (show-envvar var)
-        (string-append "  " var ": "
-                       (cond ((get-environment-variable var)
-                              => (lambda (val)
-                                   val))
-                             (else "(not set)"))))
-
-      (define (program-version prog)
-        ;; Try to obtain the program version by calling it with --version.
-        ;; In case the program doesn't recognize that option, return #f.
-        (let-values (((status output dur)
-                      (run-shell-command prog '(--version) omit-command?: #t)))
-          (and (zero? status)
-               output)))
-
-      (let* ((c-compiler (strip-surrounding-quotes
-                          (shell-command-output (env 'csc) '(-cc-name))))
-             (c++-compiler (strip-surrounding-quotes
-                            (shell-command-output (env 'csc) '(-cxx-name))))
-             (c-compiler-version (program-version c-compiler))
-             (c++-compiler-version (program-version c++-compiler)))
-        #<#EOF
-salmonella #salmonella-version -- a tool for testing CHICKEN eggs (http://wiki.call-cc.org/egg/salmonella)
-
-Started on #(seconds->string (current-seconds))
-Command line: #(string-intersperse (argv))
-
-Options:
-  chicken-install: #(env 'chicken-install)
-  repo-dir: #(env 'tmp-repo-dir)
-  chicken-install-args: #((env 'chicken-install-args) (env 'tmp-repo-dir))
-
-C compiler: #c-compiler
-#c-compiler-version
-
-C++ compiler: #c++-compiler
-#c++-compiler-version
-
-C compiler flags: #(shell-command-output (env 'csc) '(-cflags))
-
-Linker: #(strip-surrounding-quotes (shell-command-output (env 'csc) '(-ld-name)))
-Linker flags: #(shell-command-output (env 'csc) '(-ldflags))
-
-Libraries: #(shell-command-output (env 'csc) '(-libs))
-
-CHICKEN banner:
-#(shell-command-output (env 'csi) '(-version))
-Environment variables:
-#(show-envvar "SALMONELLA_RUNNING")
-#(show-envvar "CHICKEN_INSTALL_REPOSITORY")
-#(show-envvar "CHICKEN_REPOSITORY_PATH")
-#(show-envvar "CHICKEN_EGG_CACHE")
-#(show-envvar "CHICKEN_INCLUDE_PATH")
-#(show-envvar "CHICKEN_C_INCLUDE_PATH")
-#(show-envvar "CHICKEN_HOME")
-#(show-envvar "CSC_OPTIONS")
-#(show-envvar "PATH")
-
-EOF
-))
     (lambda (action #!optional egg #!rest more-args)
 
       (case action
@@ -172,7 +110,7 @@ EOF
 
         ((check-version) (check-version egg env))
 
-        ((env-info) (env-info))
+        ((env-info) (env-info env))
 
         ((meta-data) (meta-data egg env))
 
