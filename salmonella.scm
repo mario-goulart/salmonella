@@ -165,7 +165,8 @@
 (define (salmonella-env tmp-dir
                         chicken-installation-prefix
                         chicken-install-args
-                        this-egg?)
+                        this-egg?
+                        clear-chicken-home?)
   (let* ((mingw? (eq? (build-platform) 'mingw32))
          (chicken-installation-prefix
           (cond-expand
@@ -207,6 +208,7 @@
          (cache-dir (make-pathname tmp-repo-dir "cache")))
     (lambda (var)
       (case var
+        ((clear-chicken-home?) clear-chicken-home?)
         ((chicken-installation-prefix) chicken-installation-prefix)
         ((chicken-install) chicken-install)
         ((chicken-install-args) chicken-install-args)
@@ -248,6 +250,33 @@
                                     (chicken-4 "setup-info")
                                     (chicken-5 "egg-info")))))))
     (and (member (->string egg) installed-eggs) #t)))
+
+(define (get-chicken-home env)
+  (shell-command-output
+   (env 'csi)
+   (cond-expand
+    (chicken-4
+     '(-np "\"(chicken-home)\""))
+    (chicken-5
+     '(-np "\"(begin (import (chicken platform)) (chicken-home))\"")))))
+
+(define (clear-repo! egg env)
+  (when (file-exists? (env 'tmp-repo-dir))
+    (for-each delete-path
+              (glob (make-pathname (env 'tmp-repo-dir) "*"))))
+  (delete-path (make-pathname (env 'tmp-dir) egg))
+
+  ;; In CHICKEN 4, we clear chicken-home in clear-repo!.
+  (cond-expand
+   (chicken-4
+    (when (env 'clear-chicken-home?)
+      (clear-chicken-home! env)))
+   (else)))
+
+(define (clear-chicken-home! env)
+  (for-each delete-path
+            (glob (make-pathname (get-chicken-home env) "*.scm"))))
+
 
 (define (read-meta-file egg env)
   ;; in CHICKEN 4, read .meta file; in CHICKEN 5, read .egg file

@@ -19,7 +19,8 @@
   (let* ((env (salmonella-env tmp-dir
                               chicken-installation-prefix
                               chicken-install-args
-                              this-egg?))
+                              this-egg?
+                              clear-chicken-home?))
          (chicken-import-libraries
           (let* ((import-libraries-file
                   (make-pathname
@@ -79,24 +80,10 @@
       (set-environment-variable! "CHICKEN_INSTALL_PREFIX" (env 'tmp-repo-dir))
       (set-environment-variable! "CHICKEN_REPOSITORY_PATH" (env 'tmp-repo-lib-dir)))
 
-    (define (clear-repo! egg)
-      (when (file-exists? (env 'tmp-repo-dir))
-        (for-each delete-path
-                  (glob (make-pathname (env 'tmp-repo-dir) "*"))))
-      (delete-path (make-pathname tmp-dir egg)))
-
-    (define (clear-chicken-home!)
-      (let ((chicken-home
-             (shell-command-output
-              (env 'csi)
-              '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))))
-        (for-each delete-path
-                  (glob (make-pathname chicken-home "*.scm")))))
-
     (lambda (action #!optional egg #!rest more-args)
       (case action
-        ((clear-repo!) (clear-repo! egg))
-        ((clear-chicken-home!) (clear-chicken-home!))
+        ((clear-repo!) (clear-repo! egg env))
+        ((clear-chicken-home!) (clear-chicken-home! env))
         ((init-repo!) (init-repo!))
         ((fetch) (fetch-egg egg env))
         ((install) (install-egg egg env))
