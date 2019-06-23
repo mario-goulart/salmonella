@@ -16,7 +16,8 @@
 (cond-expand
  (chicken-4
   (import chicken foreign)
-  (use data-structures irregex tcp utils))
+  (use data-structures irregex setup-api tcp utils)
+  (define file-executable? file-execute-access?))
  (chicken-5
   (import (chicken base)
           (chicken bitwise)
@@ -24,6 +25,7 @@
           (chicken fixnum)
           (chicken format)
           (chicken io)
+          (chicken platform)
           (chicken pretty-print)
           (chicken process)
           (chicken tcp)
@@ -157,6 +159,86 @@
 
 
 ;; Salmonella actions & helpers
+
+(define (salmonella-env tmp-dir
+                        chicken-installation-prefix
+                        chicken-install-args)
+  (let* ((mingw? (eq? (build-platform) 'mingw32))
+         (chicken-installation-prefix
+          (cond-expand
+           (chicken-4
+            (or chicken-installation-prefix (installation-prefix)))
+           (chicken-5
+            (or chicken-installation-prefix default-installation-prefix))))
+         (tmp-repo-dir (make-pathname tmp-dir "repo"))
+         (csi (make-pathname (list chicken-installation-prefix "bin")
+                             "csi"
+                             (and mingw? "exe")))
+         (csc (make-pathname (list chicken-installation-prefix "bin")
+                             "csc"
+                             (and mingw? "exe")))
+         (chicken-install (make-pathname (list chicken-installation-prefix "bin")
+                                         "chicken-install"
+                                         (and mingw? "exe")))
+         (host-repository-path
+          (shell-command-output chicken-install '(-repository)))
+         (binary-version (pathname-file host-repository-path))
+         (major-version
+          (let ((v (shell-command-output
+                    csi
+                    (cond-expand
+                     (chicken-4
+                      '(-np "\"(chicken-version)\""))
+                     (chicken-5
+                      '(-np "\"(begin (import chicken.platform) (chicken-version))\""))))))
+            (string->number (car (string-split v ".")))))
+         (lib-dir (make-pathname '("lib" "chicken") binary-version))
+         (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
+         (tmp-repo-share-dir (make-pathname (list tmp-repo-dir "share") "chicken"))
+         (chicken-install-args
+          (or chicken-install-args
+              (lambda (repo-dir)
+                (cond-expand
+                 (chicken-4 `(-prefix ,repo-dir -test))
+                 (chicken-5 '(-v -test))))))
+         (cache-dir
+          (cond-expand
+           (chicken-4
+            (error 'salmonella-env "cache-dir is not available for CHICKEN 4."))
+           (chicken-5
+            (make-pathname tmp-repo-dir "cache")))))
+    (lambda (var)
+      (case var
+        ((chicken-installation-prefix) chicken-installation-prefix)
+        ((chicken-install) chicken-install)
+        ((chicken-install-args) chicken-install-args)
+        ((host-repository-path) host-repository-path)
+        ((cache-dir) cache-dir)
+        ((csi) csi)
+        ((csc) csc)
+        ((tmp-repo-dir) tmp-repo-dir)
+        ((binary-version) binary-version)
+        ((lib-dir) lib-dir)
+        ((tmp-repo-lib-dir) tmp-repo-lib-dir)
+        ((tmp-repo-share-dir) tmp-repo-share-dir)
+        ((major-version) major-version)
+        (else (error salmonella-env "Unsupported attribute:" var))))))
+
+(define (check-chicken-executables env)
+  (for-each (lambda (file)
+              (unless (file-executable? (env file))
+                (error 'check-chicken-executables
+                       (conc file " cannot be found or have no execute access."))))
+            '(chicken-install csc csi)))
+
+(define (salmonella-system-path env)
+  (string-intersperse
+   (list (make-pathname (env 'tmp-repo-dir) "bin")
+         (make-pathname (env 'chicken-installation-prefix) "bin")
+         (get-environment-variable "PATH"))
+   (if (eq? (software-type) 'windows)
+       ";"
+       ":")))
 
 (define (log-shell-command egg action command args)
   (let-values (((status output duration) (run-shell-command command args)))
