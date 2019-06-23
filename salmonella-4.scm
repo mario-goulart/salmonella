@@ -50,83 +50,6 @@
           (setenv "CHICKEN_PREFIX" (env 'chicken-installation-prefix))
           (setenv "CHICKEN_REPOSITORY" (env 'tmp-repo-lib-dir)))))
 
-    (define (test-egg egg)
-      ;; Run egg tests and return a list of report object.
-      (let* ((start (current-seconds))
-             (all-reports '())
-             (add-to-reports!
-              (lambda (report)
-                (set! all-reports (cons report all-reports)))))
-        (call/cc
-         (lambda (return)
-           ;; Installing test dependencies
-           (let* ((meta-data (read-meta-file egg env))
-                  (test-deps (alist-ref 'test-depends meta-data)))
-             (let loop ((deps (remove (lambda (dep)
-                                        (chicken-unit? dep (env 'major-version)))
-                                      (or test-deps '()))))
-               (unless (null? deps)
-                 (let* ((dep-maybe-version (car deps))
-                        (dep (if (pair? dep-maybe-version)
-                                 (car dep-maybe-version)
-                                 dep-maybe-version)))
-                   (if (egg-installed? dep env)
-                       (loop (cdr deps))
-                       (let* ((fetch-log (fetch-egg dep env action: `(fetch-test-dep ,egg)))
-                              (fetch-status (report-status fetch-log)))
-                         (add-to-reports! fetch-log)
-                         (cond ((and fetch-status (zero? fetch-status))
-                                (let* ((install-log (install-egg dep env `(install-test-dep ,egg)))
-                                       (install-status (report-status install-log)))
-                                  (add-to-reports! install-log)
-                                  (cond ((and install-status (zero? install-status))
-                                         (loop (cdr deps)))
-                                        (else
-                                         (add-to-reports!
-                                          (make-report egg 'test install-status
-                                                       (string-append
-                                                        (sprintf "Error installing test dependency (~a):\n\n"
-                                                                 dep)
-                                                        (report-message install-log))
-                                                       (- (current-seconds) start)))
-                                         (return (reverse all-reports))))))
-                               (else
-                                (add-to-reports!
-                                 (make-report egg 'test fetch-status
-                                              (string-append
-                                               (sprintf "Error fetching test dependency (~a):\n\n"
-                                                        dep)
-                                               (report-message fetch-log))
-                                              (- (current-seconds) start)))
-                                (return (reverse all-reports))))))))))
-           ;; At this point, fetching and installing test dependencies
-           ;; succeeded, so proceed to run tests.
-           (let* ((test-dir (make-pathname (if this-egg?
-                                               #f
-                                               (list tmp-dir (->string egg)))
-                                           "tests"))
-                  (test-script (make-pathname test-dir "run.scm")))
-             (cond ((and (file-exists? test-script)
-                         (file-read-access? test-script))
-                    (save-excursion test-dir
-                      (lambda ()
-                        (let ((report
-                               (log-shell-command
-                                egg
-                                'test
-                                (env 'csi)
-                                `(-script run.scm
-                                          ,(if (eq? (software-type) 'windows)
-                                               ""
-                                               "< /dev/null")))))
-                          (report-duration-set! report (- (current-seconds) start))
-                          (add-to-reports! report)
-                          (reverse all-reports)))))
-                   (else
-                    (add-to-reports! (make-report egg 'test -1 "" 0))
-                    (reverse all-reports))))))))
-
-
     (define (find-setup-info-files egg)
       (let ((setup-info-file (make-pathname (env 'tmp-repo-lib-dir) egg "setup-info")))
         (if (file-read-access? setup-info-file)
@@ -292,7 +215,7 @@ EOF
 
         ((install) (install-egg egg env))
 
-        ((test) (test-egg egg))
+        ((test) (test-egg egg env))
 
         ((check-version) (check-version egg))
 
