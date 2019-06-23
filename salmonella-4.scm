@@ -87,10 +87,6 @@
                         ";"
                         ":")))
 
-    (define (log-shell-command egg action command args)
-      (let-values (((status output duration) (run-shell-command command args)))
-        (make-report egg action status output duration)))
-
     (define (init-repo!)
       ;; for create-directory/parents
       (parameterize ((setup-verbose-mode #f)
@@ -298,84 +294,6 @@
       (let ((data (read-meta-file egg (if this-egg? #f tmp-dir))))
         (make-report egg 'meta-data (and data #t) data 0)))
 
-    (define (check-egg-doc egg)
-      (let ((start (current-seconds))
-            (doc-exists?
-             (egg-doc-exists? egg
-                              eggs-doc-dir: eggs-doc-dir
-                              major-version: (if eggs-doc-dir #f major-version)))
-            (end (current-seconds)))
-        (make-report egg 'check-doc (if doc-exists? 0 1) "" (- end start))))
-
-    (define (check-dependencies egg meta-data)
-      (let* ((egg-deps (get-egg-dependencies meta-data 'with-test-deps))
-             (invalid-deps
-              (filter (lambda (dep)
-                        (chicken-unit? dep major-version))
-                      egg-deps))
-             (invalid-deps? (not (null? invalid-deps)))
-             (non-symbol-deps (remove (lambda (egg) (symbol? egg)) egg-deps)))
-        (make-report egg 'check-dependencies (not (or invalid-deps? (not (null? non-symbol-deps))))
-                     (cond (invalid-deps?
-                            (string-append
-                             "The following chicken units are in one of the "
-                             "dependencies list of this egg: "
-                             (string-intersperse
-                              (map ->string invalid-deps)
-                              ", ")))
-                           ((not (null? non-symbol-deps))
-                            (string-append
-                             "The following dependencies are not symbols: "
-                             (string-intersperse
-                              (map (lambda (dep)
-                                     (with-output-to-string (cut pp dep)))
-                                   non-symbol-deps)
-                              ", ")))
-                           (else ""))
-                     0)))
-
-    (define (check-category egg meta-data)
-      (let* ((valid-categories
-              '(lang-exts graphics debugging logic net io db os ffi web xml
-                doc-tools egg-tools math oop data parsing tools sound testing
-                crypt ui code-generation macros misc hell uncategorized obsolete))
-             (egg-category (and-let* ((categ (alist-ref 'category meta-data)))
-                             (car categ)))
-             (valid-category? (and (symbol? egg-category)
-                                   (memq egg-category valid-categories)
-                                   #t)))
-        (make-report egg 'check-category valid-category?
-                     (if valid-category?
-                         ""
-                         (cond ((not egg-category)
-                                "The `category' field has not been specified")
-                               ((not (symbol? egg-category))
-                                "The specified category is not a symbol")
-                               ((not (memq egg-category valid-categories))
-                                (conc "The specified category is invalid: "
-                                      egg-category))))
-                     0)))
-
-    (define (check-license egg meta-data)
-      (let ((license (alist-ref 'license meta-data)))
-        (make-report egg
-                     'check-license
-                     (and license #t)
-                     (if license
-                         ""
-                         "Missing license information")
-                     0)))
-
-    (define (check-author egg meta-data)
-      (let ((author (alist-ref 'author meta-data)))
-        (make-report egg
-                     'check-author
-                     (and author #t)
-                     (if author
-                         ""
-                         "Missing author information")
-                     0)))
-
     (define (clear-repo! egg)
       (when (file-exists? tmp-repo-dir)
         (for-each delete-path
@@ -474,11 +392,11 @@ EOF
 
         ((meta-data) (meta-data egg))
 
-        ((check-dependencies) (check-dependencies egg (car more-args)))
+        ((check-dependencies) (check-dependencies egg (car more-args) major-version))
 
         ((check-category) (check-category egg (car more-args)))
 
-        ((check-doc) (check-egg-doc egg))
+        ((check-doc) (check-egg-doc egg eggs-doc-dir major-version))
 
         ((check-license) (check-license egg (car more-args)))
 
