@@ -21,7 +21,8 @@
     (setenv "SALMONELLA_RUNNING" "1")
     (setenv "CHICKEN_INSTALL_PREFIX" (env 'tmp-repo-dir))
     (setenv "CHICKEN_INCLUDE_PATH" (env 'tmp-repo-share-dir))
-    (setenv "CHICKEN_C_INCLUDE_PATH" (make-pathname (env 'tmp-repo-dir) "include/chicken"))
+    (setenv "CHICKEN_C_INCLUDE_PATH"
+            (make-pathname (list (env 'tmp-repo-dir) "include") "chicken"))
     (setenv "PATH" (salmonella-system-path env))
 
     (define (init-repo!)
