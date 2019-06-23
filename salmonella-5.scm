@@ -10,21 +10,6 @@
 
 (include "libs/srfi-1.scm")
 
-;;; meta data
-(define (read-egg-file egg cache-dir)
-  ;; If `tmp-repo-dir' is `#f', assume this-egg
-  (let* ((egg (symbol->string egg))
-         (egg-file (make-pathname (and cache-dir (list cache-dir egg))
-                                  egg
-                                  "egg")))
-    (handle-exceptions exn
-      #f
-      (with-input-from-file egg-file read))))
-
-
-
-;;; Salmonella
-
 (define (make-salmonella tmp-dir
          #!key chicken-installation-prefix
                chicken-install-args
@@ -105,7 +90,7 @@
         (call/cc
          (lambda (return)
            ;; Installing test dependencies
-           (let* ((meta-data (read-egg-file egg (if this-egg? #f (env 'cache-dir))))
+           (let* ((meta-data (read-meta-file egg env))
                   (test-deps (alist-ref 'test-dependencies meta-data)))
              (let loop ((deps (remove (lambda (dep)
                                         (chicken-unit? dep (env 'major-version)))
@@ -249,7 +234,7 @@
                          installed-version))))
 
     (define (meta-data egg)
-      (let ((data (read-egg-file egg (if this-egg? #f (env 'cache-dir)))))
+      (let ((data (read-meta-file egg env)))
         (make-report egg 'meta-data (and data #t) data 0)))
 
     (define (clear-repo! egg)

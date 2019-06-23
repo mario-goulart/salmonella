@@ -17,7 +17,8 @@
  (chicken-4
   (import chicken foreign)
   (use data-structures irregex posix setup-api tcp utils)
-  (define file-executable? file-execute-access?))
+  (define file-executable? file-execute-access?)
+  (define file-readable? file-read-access?))
  (chicken-5
   (import (chicken base)
           (chicken bitwise)
@@ -246,6 +247,28 @@
                                     (chicken-4 "setup-info")
                                     (chicken-5 "egg-info")))))))
     (and (member (->string egg) installed-eggs) #t)))
+
+(define (read-meta-file egg env)
+  ;; in CHICKEN 4, read .meta file; in CHICKEN 5, read .egg file
+  (let* ((egg (symbol->string egg))
+         (meta-file
+          (cond-expand
+           (chicken-4
+            (make-pathname (if (env 'this-egg?)
+                               #f
+                               (list (env 'tmp-dir) egg))
+                           egg
+                           "meta"))
+           (chicken-5
+            (make-pathname (if (env 'this-egg?)
+                               #f
+                               (list (env 'cache-dir) egg))
+                           egg
+                           "egg")))))
+    (and (file-readable? meta-file)
+         (handle-exceptions exn
+           #f
+           (with-input-from-file meta-file read)))))
 
 (define (check-chicken-executables env)
   (for-each (lambda (file)
