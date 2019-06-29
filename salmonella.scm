@@ -605,6 +605,7 @@
                             'test
                             (env 'csi)
                             `(-script run.scm
+                                      ,(->string egg)
                                       ,(if (eq? (software-type) 'windows)
                                            ""
                                            "< /dev/null")))))
