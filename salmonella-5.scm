@@ -49,6 +49,9 @@
       ;; Create repository-path into the test directory
       (create-directory (env 'tmp-repo-lib-dir) 'recursively)
 
+      ;; Copy CHICKEN executables
+      (init-tmp-repo-bin-dir! env)
+
       ;; Copy CHICKEN core units
       (for-each (lambda (unit)
                   (copy-file (make-pathname (env 'host-repository-path) unit "import.so")

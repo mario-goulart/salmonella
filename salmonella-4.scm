@@ -37,6 +37,10 @@
                                          `(-init ,(env 'tmp-repo-lib-dir)))))
           (unless (zero? status)
             (error 'init-repo! output))
+
+          ;; Copy CHICKEN executables
+          (init-tmp-repo-bin-dir! env)
+
           ;; Copy setup.defaults, so we can set CHICKEN_PREFIX
           (let ((setup.defaults
                  (make-pathname (list (env 'chicken-installation-prefix)

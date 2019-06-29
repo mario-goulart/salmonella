@@ -16,9 +16,11 @@
 (cond-expand
  (chicken-4
   (import chicken foreign)
-  (use data-structures irregex posix setup-api tcp utils)
+  (use data-structures files irregex posix setup-api tcp utils)
   (define file-executable? file-execute-access?)
-  (define file-readable? file-read-access?))
+  (define file-readable? file-read-access?)
+  (define copy-file file-copy)
+  (define set-file-permissions! change-file-mode))
  (chicken-5
   (import (chicken base)
           (chicken bitwise)
@@ -198,6 +200,7 @@
                       '(-np "\"(begin (import chicken.platform) (chicken-version))\""))))))
             (string->number (car (string-split v ".")))))
          (lib-dir (make-pathname '("lib" "chicken") binary-version))
+         (tmp-repo-bin-dir (make-pathname tmp-repo-dir "bin"))
          (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
          (tmp-repo-share-dir (make-pathname (list tmp-repo-dir "share") "chicken"))
          (chicken-install-args
@@ -226,6 +229,7 @@
         ((binary-version) binary-version)
         ((lib-dir) lib-dir)
         ((tmp-dir) tmp-dir)
+        ((tmp-repo-bin-dir) tmp-repo-bin-dir)
         ((tmp-repo-lib-dir) tmp-repo-lib-dir)
         ((tmp-repo-share-dir) tmp-repo-share-dir)
         ((major-version) major-version)
@@ -278,6 +282,15 @@
   (for-each delete-path
             (glob (make-pathname (get-chicken-home env) "*.scm"))))
 
+(define (init-tmp-repo-bin-dir! env)
+  (create-directory (env 'tmp-repo-bin-dir) 'recursively)
+  (for-each
+   (lambda (file)
+     (let ((dest-file (make-pathname (env 'tmp-repo-bin-dir)
+                                     (symbol->string file))))
+       (copy-file (env file) dest-file 'clobber)
+       (set-file-permissions! dest-file (file-permissions (env file)))))
+   '(csc csi)))
 
 (define (read-meta-file egg env)
   ;; in CHICKEN 4, read .meta file; in CHICKEN 5, read .egg file
