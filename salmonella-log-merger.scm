@@ -22,7 +22,6 @@
   (error "Unsupported CHICKEN version.")))
 
 (include "salmonella-common.scm")
-(include "salmonella-version.scm")
 
 (define (merge-logs log-files)
   (let* ((logs (map read-log-file log-files))
@@ -80,9 +79,7 @@
   (when (and (null? args) (null? log-files))
     (usage 1))
 
-  (when (cmd-line-arg '--version args)
-    (print salmonella-version)
-    (exit 0))
+  (handle-version args)
 
   (let ((out-file (cmd-line-arg '--log-file args)))
     (when (file-exists? out-file)

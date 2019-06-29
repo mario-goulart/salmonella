@@ -25,7 +25,6 @@
  (else
   (error "Unsupported CHICKEN version.")))
 
-(include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
 (define salmonella-log-version 3)
@@ -179,9 +178,7 @@ EOF
                (lambda ()
                  (usage exit-code: 0)))
 
-  (when (cmd-line-arg '--version args)
-    (print salmonella-version)
-    (exit 0))
+  (handle-version args)
 
   (let* ((this-egg? (null? eggs))
          (chicken-installation-prefix

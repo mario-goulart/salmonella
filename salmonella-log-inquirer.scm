@@ -19,7 +19,6 @@
  (else
   (error "Unsupported CHICKEN version.")))
 
-(include "salmonella-version.scm")
 (include "salmonella-common.scm")
 
 (define valid-actions '(fetch install check-version test meta-data))
@@ -99,9 +98,7 @@ EOF
                (lambda ()
                  (usage 0)))
 
-  (when (cmd-line-arg '--version args)
-    (print salmonella-version)
-    (exit 0))
+  (handle-version args)
 
   (when (null? log-files)
     (usage 1))

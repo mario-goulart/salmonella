@@ -17,7 +17,6 @@
   (error "Unsupported CHICKEN version.")))
 
 (include "salmonella-common.scm")
-(include "salmonella-version.scm")
 
 (define (concat l)
   (string-intersperse (map ->string l) ""))
@@ -81,9 +80,7 @@
                (lambda ()
                  (usage 0)))
 
-  (when (cmd-line-arg '--version args)
-    (print salmonella-version)
-    (exit 0))
+  (handle-version args)
 
   (when (null? log-files)
     (usage 1))

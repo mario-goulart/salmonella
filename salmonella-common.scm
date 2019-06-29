@@ -19,6 +19,8 @@
  (else
   (error "Unsupported CHICKEN version.")))
 
+(include "salmonella-version.scm")
+
 ;; Used to be chicken-prefix in C4
 (define default-installation-prefix (foreign-value "C_INSTALL_PREFIX" c-string))
 
@@ -146,6 +148,11 @@
             (cmd-line-arg '-help args)
             (cmd-line-arg '--help args))
     (usage)))
+
+(define (handle-version args)
+  (when (cmd-line-arg '--version args)
+    (print salmonella-version)
+    (exit 0)))
 
 (define (die . msg)
   (with-output-to-port (current-error-port)

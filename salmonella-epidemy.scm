@@ -23,7 +23,6 @@
   (error "Unsupported CHICKEN version.")))
 
 (include "salmonella-common.scm")
-(include "salmonella-version.scm")
 
 (define default-verbosity 0)
 
@@ -116,9 +115,7 @@
                (lambda ()
                  (usage exit-code: 0 epidemy?: #t)))
 
-  (when (cmd-line-arg '--version args)
-    (print salmonella-version)
-    (exit 0))
+  (handle-version args)
 
   (let* ((chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
