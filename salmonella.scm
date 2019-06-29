@@ -324,7 +324,6 @@
 (define (salmonella-system-path env)
   (string-intersperse
    (list (make-pathname (env 'tmp-repo-dir) "bin")
-         (make-pathname (env 'chicken-installation-prefix) "bin")
          (get-environment-variable "PATH"))
    (if (eq? (software-type) 'windows)
        ";"
