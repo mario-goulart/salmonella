@@ -9,6 +9,7 @@
  (chicken-5
   (import (chicken base)
           (chicken file)
+          (chicken format)
           (chicken pathname)
           (chicken pretty-print)
           (chicken process-context)
@@ -58,12 +59,10 @@
                    (loop (cdr logs)))))
      (list (report->list last-finished)))))
 
-
-(define (usage #!optional exit-code)
-  (let ((this (pathname-strip-directory (program-name))))
-    (print this " --log-file=<log file> log1 log2 ... logn")
-    (when exit-code (exit exit-code))))
-
+(define usage
+  (make-usage
+   (lambda (this port)
+    (fprintf port "~a --log-file=<log file> log1 log2 ... logn\n" this))))
 
 
 (let* ((parsed-args (parse-cmd-line (command-line-arguments)

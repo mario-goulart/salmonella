@@ -8,6 +8,7 @@
   (use salmonella-log-parser))
  (chicken-5
   (import (chicken base)
+          (chicken format)
           (chicken pathname)
           (chicken process-context)
           (chicken string))
@@ -64,10 +65,10 @@
     (print (salmonella-info log))
     ))
 
-(define (usage #!optional exit-code)
-  (let ((this (pathname-strip-directory (program-name))))
-    (print this " <salmonella log file>"))
-  (when exit-code (exit exit-code)))
+(define usage
+  (make-usage
+   (lambda (this port)
+     (fprintf port "~a <salmonella log file>\n" this))))
 
 (let* ((parsed-args (parse-cmd-line (command-line-arguments)
                                     '(-h

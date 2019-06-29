@@ -58,13 +58,15 @@ Undocumented: #(count-undocumented log-data)
 EOF
 )
 
-(define (usage #!optional exit-code)
-    (let ((this (pathname-strip-directory (program-name)))
-          (port (if (and exit-code (not (zero? exit-code)))
-                    (current-error-port)
-                    (current-output-port))))
-    (display #<#EOF
-#this [ -h | --help ]
+(define usage
+  (let ((all-actions
+         (string-intersperse (map symbol->string valid-actions) "\n"))
+        (all-parts
+         (string-intersperse (map symbol->string valid-parts) "\n")))
+    (make-usage
+     (lambda (this port)
+       (display #<#EOF
+#this [ -h | -help | --help ]
 #this --version
 #this --log-info <log-file>
 #this --statistics <log-file>
@@ -72,14 +74,12 @@ EOF
 #this --action=<action> --egg=<egg> [ --part=<part> ] <log file>
 
 <action>s:
-#(string-intersperse (map symbol->string valid-actions) "\n")
+#all-actions
 
 <part>s (the default part is "message"):
-#(string-intersperse (map symbol->string valid-parts) "\n")
+#all-parts
 EOF
-    port)
-    (newline)
-    (when exit-code (exit exit-code))))
+    port)))))
 
 
 (let* ((parsed-args (parse-cmd-line (command-line-arguments)

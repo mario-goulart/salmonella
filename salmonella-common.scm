@@ -171,11 +171,21 @@
               (create-directory dir)
               dir)))))
 
+(define (port-for-exit-code exit-code)
+  (if (and exit-code (not (zero? exit-code)))
+      (current-error-port)
+      (current-output-port)))
+
+(define (make-usage show)
+  (lambda (exit-code)
+    (let ((this (pathname-strip-directory (program-name)))
+          (port (port-for-exit-code exit-code)))
+      (show this port)
+      (when exit-code (exit exit-code)))))
+
 (define (usage #!key exit-code epidemy?)
   (let ((this (pathname-strip-directory (program-name)))
-        (port (if (and exit-code (not (zero? exit-code)))
-                  (current-error-port)
-                  (current-output-port))))
+        (port (port-for-exit-code exit-code)))
     (display #<#EOF
 #this [ -h | --help ]
 #this --version
