@@ -66,17 +66,26 @@
 
 
 
-(let ((args (command-line-arguments)))
-  (when (null? args)
+(let* ((parsed-args (parse-cmd-line (command-line-arguments)
+                                    '(-h
+                                      --help
+                                      --version
+                                      (--log-file))))
+       (log-files (car parsed-args))
+       (args (cdr parsed-args)))
+
+  (when (or (cmd-line-arg '-h args)
+            (cmd-line-arg '--help args))
+    (usage 0))
+
+  (when (and (null? args) (null? log-files))
     (usage 1))
-  (when (member "--version" args)
+
+  (when (cmd-line-arg '--version args)
     (print salmonella-version)
     (exit 0))
-  (let ((log-files
-         (remove (lambda (arg)
-                   (string-prefix? "--" arg))
-                 args))
-        (out-file (cmd-line-arg '--log-file args)))
+
+  (let ((out-file (cmd-line-arg '--log-file args)))
     (when (file-exists? out-file)
       (die out-file " already exists. Aborting."))
     (unless out-file

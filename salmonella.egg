@@ -9,6 +9,7 @@
                         (source-dependencies
                          "salmonella-5.scm"
                          "libs/srfi-1.scm"
+                         "libs/srfi-13.scm"
                          "salmonella-common.scm"
                          "salmonella-version.scm"))
              (extension salmonella-log-parser
@@ -16,6 +17,8 @@
                          salmonella)
                         (source-dependencies
                          "libs/srfi-1.scm"
+                         "libs/srfi-13.scm"
+                         "salmonella-version.scm"
                          "salmonella-common.scm"))
              (program salmonella-cmd
                       (component-dependencies
@@ -48,11 +51,15 @@
              (program salmonella-log-inquirer
                       (source-dependencies
                        "libs/srfi-1.scm"
+                       "libs/srfi-13.scm"
                        "salmonella-version.scm"
                        "salmonella-common.scm"))
              (program salmonella-log-viewer
                       (component-dependencies
                        salmonella-log-parser)
                       (source-dependencies
-                       "salmonella-version.scm"))
+                       "libs/srfi-1.scm"
+                       "libs/srfi-13.scm"
+                       "salmonella-version.scm"
+                       "salmonella-common.scm"))
              ))

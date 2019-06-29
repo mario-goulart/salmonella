@@ -15,6 +15,7 @@
  (else
   (error "Unsupported CHICKEN version.")))
 
+(include "salmonella-common.scm")
 (include "salmonella-version.scm")
 
 (define (concat l)
@@ -68,14 +69,24 @@
     (print this " <salmonella log file>"))
   (when exit-code (exit exit-code)))
 
-(let ((args (command-line-arguments)))
-  (when (null? args) (usage 1))
-  (when (or (member "-h" args)
-            (member "--help" args))
+(let* ((parsed-args (parse-cmd-line (command-line-arguments)
+                                    '(-h
+                                      --help
+                                      --version)))
+       (log-files (car parsed-args))
+       (args (cdr parsed-args)))
+
+  (when (null? log-files)
+    (usage 1))
+
+  (when (or (cmd-line-arg '-h args)
+            (cmd-line-arg '--help args))
     (usage 0))
-  (when (member "--version" args)
+
+  (when (cmd-line-arg '--version args)
     (print salmonella-version)
     (exit 0))
-  (view-log (car args)))
+
+  (view-log (car log-files)))
 
 ) ;; end module

@@ -1,8 +1,8 @@
 (import scheme)
 (cond-expand
  (chicken-4
-  (import foreign irregex)
-  (use extras  files ports posix srfi-1)
+  (import foreign)
+  (use extras files irregex ports posix srfi-1 srfi-13)
   (define pseudo-random-integer random))
  (chicken-5
   (import (chicken file)
@@ -13,7 +13,9 @@
           (chicken port)
           (chicken process-context)
           (chicken random)
-          (chicken string)))
+          (chicken string))
+  (include "libs/srfi-1.scm")
+  (include "libs/srfi-13.scm"))
  (else
   (error "Unsupported CHICKEN version.")))
 
@@ -84,18 +86,57 @@
                    (deps 'test-dependencies)
                    '()))))
 
+(define (parse-cmd-line cmd-line-args spec)
+  ;; spec: list of elements.  The format of elements is:
+  ;;  - symbols: options that do not require an argument
+  ;;  - lists: options that require an argument.
+  ;;  - what doesn't match these patterns is assumed to be a no named arg
+  ;; Return a pair (<eggs> . <alist opts>)
+  ;; Note: options are supposed to start with `--'.  -h is specially handled.
+  (let ((nonamed '())
+        (parsed-opts '()))
+    (let loop ((args cmd-line-args))
+      (unless (null? args)
+        (let ((arg (car args)))
+          (cond ((string-prefix? "--" arg)
+                 (if (substring-index "=" arg)
+                     (let* ((parts (string-split arg "="))
+                            (param (string->symbol (car parts)))
+                            (val (string-intersperse (cdr parts) "=")))
+                       (if (memq param spec)
+                           (die param " does not take any argument.")
+                           (if (alist-ref param (filter pair? spec))
+                               (set! parsed-opts (cons (cons param val) parsed-opts))
+                               (die "Invalid option: " param))))
+                     (let ((param (string->symbol arg)))
+                       (if (memq param spec)
+                           (set! parsed-opts (cons (cons param #t)  parsed-opts))
+                           (if (alist-ref param (filter pair? spec))
+                               (die param " requires an argument.")
+                               (die "Invalid option: " param))))))
+                ((string=? arg "-h")
+                 (set! parsed-opts (cons (cons '-h #t) parsed-opts)))
+                (else
+                 (set! nonamed (cons arg nonamed)))))
+        (loop (cdr args))))
+    (cons nonamed parsed-opts)))
 
-(define (cmd-line-arg option args)
+(define (cmd-line-arg option parsed-opts)
   ;; Returns the argument associated to the command line option OPTION
-  ;; in ARGS or #f if OPTION is not found in ARGS or doesn't have any
-  ;; argument.
-  (let ((val (any (lambda (arg)
-                    (irregex-match
-                     `(seq ,(->string option) "=" (submatch (* any)))
-                     arg))
-                  args)))
-    (and val (irregex-match-substring val 1))))
-
+  ;; in ARGS or #f if OPTION is not found in ARGS.  ARGS is the cdr of
+  ;; the pair returned by parse-cmd-line.
+  (let loop ((opts parsed-opts))
+    (if (null? opts)
+        #f
+        (let* ((opt (car opts))
+               (param (if (pair? opt)
+                          (car opt)
+                          opt)))
+          (cond ((and (pair? opt) (eq? (car opt) option))
+                 (cdr opt))
+                ((and (symbol? opt) (eq? opt option))
+                 #t)
+                (else (loop (cdr opts))))))))
 
 (define (die . msg)
   (with-output-to-port (current-error-port)
@@ -199,7 +240,6 @@ EOF
 
 --instances=<number>
     Number of salmonella instances to run in parallel.
-
 EOF
 ))
     (newline)

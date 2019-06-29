@@ -95,13 +95,31 @@
     (system cmd)))
 
 
-(let ((args (command-line-arguments)))
-  (when (or (member "-h" args)
-            (member "--help" args))
+(let* ((parsed-args (parse-cmd-line (command-line-arguments)
+                                    '(-h
+                                      --help
+                                      --version
+                                      (--chicken-installation-prefix)
+                                      (--log-file)
+                                      (--chicken-install-args)
+                                      (--eggs-doc-dir)
+                                      (--skip-eggs)
+                                      (--instance-id)
+                                      --keep-repo
+                                      --clear-chicken-home
+                                      (--repo-dir)
+                                      (--verbosity))))
+       (eggs (map string->symbol (car parsed-args)))
+       (args (cdr parsed-args)))
+
+  (when (or (cmd-line-arg '-h args)
+            (cmd-line-arg '--help args))
     (usage exit-code: 0 epidemy?: #t))
-  (when (member "--version" args)
+
+  (when (cmd-line-arg '--version args)
     (print salmonella-version)
     (exit 0))
+
   (let* ((chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (chicken-install-args
@@ -113,8 +131,8 @@
                       (if skip
                           (map string->symbol (string-split skip ","))
                           '())))
-         (keep-repo? (and (member "--keep-repo" args) #t))
-         (clear-chicken-home? (and (member "--clear-chicken-home" args) #t))
+         (keep-repo? (cmd-line-arg '--keep-repo args))
+         (clear-chicken-home? (cmd-line-arg '--clear-chicken-home args))
          (repo-dir (or (and-let* ((path (cmd-line-arg '--repo-dir args)))
                          (if (absolute-pathname? path)
                              path
@@ -127,12 +145,6 @@
                             (normalize-pathname
                              (make-pathname (current-directory) path))))
                       (mktempdir)))
-         (eggs (remove (lambda (egg)
-                         (memq egg skip-eggs))
-                       (map string->symbol
-                            (remove (lambda (arg)
-                                      (string-prefix? "--" arg))
-                                    args))))
          (total-eggs (length eggs))
          (instances (or (and-let* ((i (cmd-line-arg '--instances args)))
                           (or (string->number i) 1))

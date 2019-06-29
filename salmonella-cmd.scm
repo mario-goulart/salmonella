@@ -158,32 +158,42 @@ EOF
                )))))
 
 
-(let* ((args (command-line-arguments)))
-  (when (or (member "-h" args)
-            (member "--help" args))
+(let* ((parsed-args (parse-cmd-line (command-line-arguments)
+                                    '(-h
+                                      --help
+                                      --version
+                                      (--chicken-installation-prefix)
+                                      (--log-file)
+                                      (--chicken-install-args)
+                                      (--eggs-doc-dir)
+                                      (--skip-eggs)
+                                      (--instance-id)
+                                      --keep-repo
+                                      --clear-chicken-home
+                                      (--repo-dir)
+                                      (--verbosity))))
+       (eggs (map string->symbol (car parsed-args)))
+       (args (cdr parsed-args)))
+
+  (when (or (cmd-line-arg '-h args)
+            (cmd-line-arg '--help args))
     (usage exit-code: 0))
 
-  (when (member "--version" args)
+  (when (cmd-line-arg '--version args)
     (print salmonella-version)
     (exit 0))
 
-  (let* ((this-egg? (and (null? (remove (lambda (arg)
-                                          (string-prefix? "--" arg))
-                                        args))
-                         (not (null? (glob "*.egg")))))
+  (let* ((this-egg? (null? eggs))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
-         (eggs-doc-dir
-          (cmd-line-arg '--eggs-doc-dir args))
-         (skip-eggs (let ((skip (cmd-line-arg '--skip-eggs args)))
-                      (if skip
-                          (map string->symbol (string-split skip ","))
-                          '())))
-         (keep-repo? (and (member "--keep-repo" args) #t))
-         (clear-chicken-home? (and (member "--clear-chicken-home" args) #t))
+         (skip-eggs (or (and-let* ((skip (cmd-line-arg '--skip-eggs args)))
+                          (map string->symbol (string-split skip ",")))
+                        '()))
+         (keep-repo? (cmd-line-arg '--keep-repo args))
+         (clear-chicken-home? (cmd-line-arg '--clear-chicken-home args))
          (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
                      (if (absolute-pathname? path)
                          path
@@ -192,171 +202,170 @@ EOF
          (tmp-dir (or repo-dir (mktempdir)))
          (verbosity (or (and-let* ((verbosity (cmd-line-arg '--verbosity args)))
                           (or (string->number verbosity) default-verbosity))
-                        default-verbosity))
-         (salmonella (make-salmonella
-                      tmp-dir
-                      eggs-doc-dir: eggs-doc-dir
-                      chicken-installation-prefix: chicken-installation-prefix
-                      clear-chicken-home?: clear-chicken-home?
-                      chicken-install-args:
-                      (and chicken-install-args
-                           (lambda (repo)
-                             (list
-                              (or (irregex-replace "<repo>" chicken-install-args repo)
-                                  chicken-install-args))))
-                      this-egg?: this-egg?))
-         (eggs (if this-egg?
-                   (let ((egg-spec (glob "*.egg")))
-                     (cond ((null? egg-spec)
-                            (die "Could not find a .egg file. Aborting."))
-                           ((null? (cdr egg-spec))
-                            (map (compose string->symbol pathname-file) egg-spec))
-                           (else
-                            (die "Found more than one .egg file.  Aborting."))))
-                   (remove (lambda (egg)
-                             (memq egg skip-eggs))
-                           (map string->symbol
-                                (remove (lambda (arg)
-                                          (string-prefix? "--" arg))
-                                        args)))))
-         (total-eggs (length eggs)))
+                        default-verbosity)))
 
-    (when (null? eggs)
+    (when this-egg?
+      (let* ((suffix (cond-expand
+                      (chicken-4 ".setup")
+                      (chicken-5 ".egg")))
+             (egg-spec (glob (string-append "*" suffix))))
+        (cond ((null? egg-spec)
+               (die (sprintf "Could not find a ~a file. Aborting." suffix)))
+              ((null? (cdr egg-spec))
+               (set! eggs (map (compose string->symbol pathname-file) egg-spec)))
+              (else
+               (die (sprintf "Found more than one ~a file.  Aborting." suffix))))))
+
+    (when (and (null? eggs) (not this-egg?))
       (delete-path tmp-dir)
       (print "Nothing to do.")
       (exit))
 
+    (let ((salmonella
+           (make-salmonella
+            tmp-dir
+            eggs-doc-dir: (cmd-line-arg '--eggs-doc-dir args)
+            chicken-installation-prefix: chicken-installation-prefix
+            clear-chicken-home?: clear-chicken-home?
+            chicken-install-args:
+            (and chicken-install-args
+                 (lambda (repo)
+                   (list
+                    (or (irregex-replace "<repo>" chicken-install-args repo)
+                        chicken-install-args))))
+            this-egg?: this-egg?))
+          (total-eggs (length eggs)))
 
-    ;; Remove the temporary directory if interrupted
-    (set-signal-handler! signal/int
-                         (lambda (signal)
-                           (delete-path tmp-dir)
-                           (exit)))
+      ;; Remove the temporary directory if interrupted
+      (set-signal-handler! signal/int
+                           (lambda (signal)
+                             (delete-path tmp-dir)
+                             (exit)))
 
-    ;; for salmonella-epidemy
-    (set! *instance-id* (cmd-line-arg '--instance-id args))
+      ;; for salmonella-epidemy
+      (set! *instance-id* (cmd-line-arg '--instance-id args))
 
-    ;; Remove old log
-    (delete-file* log-file)
+      ;; Remove old log
+      (delete-file* log-file)
 
-    ;; Initialize salmonella's repo here.  It must be done before we
-    ;; try to use the environment variables, as init-repo! sets them.
-    (salmonella 'init-repo!)
+      ;; Initialize salmonella's repo here.  It must be done before we
+      ;; try to use the environment variables, as init-repo! sets them.
+      (salmonella 'init-repo!)
 
-    (when (> verbosity 1)
-      (print (salmonella 'env-info)))
+      (when (> verbosity 1)
+        (print (salmonella 'env-info)))
 
-    ;; Log start
-    (log! (make-report #f 'start 0 (salmonella 'env-info) (current-seconds))
-          log-file)
+      ;; Log start
+      (log! (make-report #f 'start 0 (salmonella 'env-info) (current-seconds))
+            log-file)
 
-    ;; Log version
-    (log! (make-report #f 'log-version 0 salmonella-log-version 0)
-          log-file)
+      ;; Log version
+      (log! (make-report #f 'log-version 0 salmonella-log-version 0)
+            log-file)
 
-    ;; Log skipped eggs
-    (for-each (lambda (egg)
-                (log! (make-report egg 'skip 0 "" 0) log-file))
-              skip-eggs)
+      ;; Log skipped eggs
+      (for-each (lambda (egg)
+                  (log! (make-report egg 'skip 0 "" 0) log-file))
+                skip-eggs)
 
-    ;; Maybe show warning about existing Scheme files in chicken-home
-    (let ((msg (check-chicken-home chicken-installation-prefix this-egg?)))
-      (when msg
-        (with-output-to-port (current-error-port)
-          (cut print msg))))
+      ;; Maybe show warning about existing Scheme files in chicken-home
+      (let ((msg (check-chicken-home chicken-installation-prefix this-egg?)))
+        (when msg
+          (with-output-to-port (current-error-port)
+            (cut print msg))))
 
-    ;; Handle all eggs
-    (for-each
-     (lambda (egg egg-count)
+      ;; Handle all eggs
+      (for-each
+       (lambda (egg egg-count)
 
-       (unless keep-repo? (salmonella 'clear-repo!))
+         (unless keep-repo? (salmonella 'clear-repo!))
 
-       (salmonella 'init-repo!)
+         (salmonella 'init-repo!)
 
-       (when (and (not chicken-4?) clear-chicken-home?)
-         (salmonella 'clear-chicken-home!))
+         (when (and (not chicken-4?) clear-chicken-home?)
+           (salmonella 'clear-chicken-home!))
 
-       ;; Fetch egg
-       (progress-indicator 'fetch egg verbosity egg-count total-eggs)
-       (let ((fetch-log (salmonella 'fetch egg)))
-         (log! fetch-log log-file)
-         (status-reporter fetch-log verbosity)
+         ;; Fetch egg
+         (progress-indicator 'fetch egg verbosity egg-count total-eggs)
+         (let ((fetch-log (salmonella 'fetch egg)))
+           (log! fetch-log log-file)
+           (status-reporter fetch-log verbosity)
 
-         (when (zero? (report-status fetch-log))
+           (when (zero? (report-status fetch-log))
 
-           ;; Meta data
-           (progress-indicator 'meta-data egg verbosity)
-           (let ((meta-log (salmonella 'meta-data egg)))
-             (log! meta-log log-file)
-             (status-reporter meta-log verbosity)
+             ;; Meta data
+             (progress-indicator 'meta-data egg verbosity)
+             (let ((meta-log (salmonella 'meta-data egg)))
+               (log! meta-log log-file)
+               (status-reporter meta-log verbosity)
 
-             (when (report-status meta-log)
-               (let ((meta-data (report-message meta-log)))
+               (when (report-status meta-log)
+                 (let ((meta-data (report-message meta-log)))
 
-                 ;; Warnings (only logged when indicate problems)
+                   ;; Warnings (only logged when indicate problems)
 
-                 ;; Check dependencies
-                 (progress-indicator 'check-dependencies egg verbosity)
-                 (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
-                   (unless (report-status deps-log)
-                     (log! deps-log log-file))
-                   (status-reporter deps-log verbosity))
+                   ;; Check dependencies
+                   (progress-indicator 'check-dependencies egg verbosity)
+                   (let ((deps-log (salmonella 'check-dependencies egg meta-data)))
+                     (unless (report-status deps-log)
+                       (log! deps-log log-file))
+                     (status-reporter deps-log verbosity))
 
-                 ;; Check category
-                 (progress-indicator 'check-category egg verbosity)
-                 (let ((categ-log (salmonella 'check-category egg meta-data)))
-                   (unless (report-status categ-log)
-                     (log! categ-log log-file))
-                   (status-reporter categ-log verbosity))
+                   ;; Check category
+                   (progress-indicator 'check-category egg verbosity)
+                   (let ((categ-log (salmonella 'check-category egg meta-data)))
+                     (unless (report-status categ-log)
+                       (log! categ-log log-file))
+                     (status-reporter categ-log verbosity))
 
-                 ;; Check license
-                 (progress-indicator 'check-license egg verbosity)
-                 (let ((license-log (salmonella 'check-license egg meta-data)))
-                   (unless (report-status license-log)
-                     (log! license-log log-file))
-                   (status-reporter license-log verbosity))
+                   ;; Check license
+                   (progress-indicator 'check-license egg verbosity)
+                   (let ((license-log (salmonella 'check-license egg meta-data)))
+                     (unless (report-status license-log)
+                       (log! license-log log-file))
+                     (status-reporter license-log verbosity))
 
-                 ;; Check author
-                 (progress-indicator 'check-author egg verbosity)
-                 (let ((author-log (salmonella 'check-author egg meta-data)))
-                   (unless (report-status author-log)
-                     (log! author-log log-file))
-                   (status-reporter author-log verbosity))
+                   ;; Check author
+                   (progress-indicator 'check-author egg verbosity)
+                   (let ((author-log (salmonella 'check-author egg meta-data)))
+                     (unless (report-status author-log)
+                       (log! author-log log-file))
+                     (status-reporter author-log verbosity))
 
-                 ;; Install egg
-                 (progress-indicator 'install egg verbosity)
-                 (let ((install-log (salmonella 'install egg)))
-                   (log! install-log log-file)
-                   (status-reporter install-log verbosity)
+                   ;; Install egg
+                   (progress-indicator 'install egg verbosity)
+                   (let ((install-log (salmonella 'install egg)))
+                     (log! install-log log-file)
+                     (status-reporter install-log verbosity)
 
-                   (when (zero? (report-status install-log))
-                     ;; Check version
-                     (let ((check-version-log (salmonella 'check-version egg)))
-                       (progress-indicator 'check-version egg verbosity)
-                       (log! check-version-log log-file)
-                       (status-reporter check-version-log verbosity))
+                     (when (zero? (report-status install-log))
+                       ;; Check version
+                       (let ((check-version-log (salmonella 'check-version egg)))
+                         (progress-indicator 'check-version egg verbosity)
+                         (log! check-version-log log-file)
+                         (status-reporter check-version-log verbosity))
 
-                     ;; Test egg
-                     (progress-indicator 'test egg verbosity)
-                     (let ((test-logs (salmonella 'test egg)))
-                       (for-each (lambda (test-log)
-                                   (log! test-log log-file)
-                                   (when (eq? (report-action test-log) 'test)
-                                     (status-reporter test-log verbosity)))
-                                 test-logs)))))))))
+                       ;; Test egg
+                       (progress-indicator 'test egg verbosity)
+                       (let ((test-logs (salmonella 'test egg)))
+                         (for-each (lambda (test-log)
+                                     (log! test-log log-file)
+                                     (when (eq? (report-action test-log) 'test)
+                                       (status-reporter test-log verbosity)))
+                                   test-logs)))))))))
 
-       ;; Check doc
-       (progress-indicator 'check-doc egg verbosity)
-       (let ((doc-log (salmonella 'check-doc egg)))
-         (log! doc-log log-file)
-         (status-reporter doc-log verbosity)))
+         ;; Check doc
+         (progress-indicator 'check-doc egg verbosity)
+         (let ((doc-log (salmonella 'check-doc egg)))
+           (log! doc-log log-file)
+           (status-reporter doc-log verbosity)))
 
-     eggs
-     (iota total-eggs 1))
+       eggs
+       (iota total-eggs 1))
 
-    (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
-    (unless this-egg?
-      (show-statistics log-file verbosity))
-    (unless keep-repo? (delete-path tmp-dir))))
+      (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
+      (unless this-egg?
+        (show-statistics log-file verbosity))
+      (unless keep-repo? (delete-path tmp-dir)))))
 
 )
