@@ -95,9 +95,9 @@ EOF
        (log-files (car parsed-args))
        (args (cdr parsed-args)))
 
-  (when (or (cmd-line-arg '-h args)
-            (cmd-line-arg '--help args))
-    (usage 0))
+  (handle-help args
+               (lambda ()
+                 (usage 0)))
 
   (when (cmd-line-arg '--version args)
     (print salmonella-version)

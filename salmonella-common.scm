@@ -92,7 +92,8 @@
   ;;  - lists: options that require an argument.
   ;;  - what doesn't match these patterns is assumed to be a no named arg
   ;; Return a pair (<eggs> . <alist opts>)
-  ;; Note: options are supposed to start with `--'.  -h is specially handled.
+  ;; Note: options are supposed to start with `--'.  -h and -help are
+  ;;       specially handled.
   (let ((nonamed '())
         (parsed-opts '()))
     (let loop ((args cmd-line-args))
@@ -116,6 +117,8 @@
                                (die "Invalid option: " param))))))
                 ((string=? arg "-h")
                  (set! parsed-opts (cons (cons '-h #t) parsed-opts)))
+                ((string=? arg "-help")
+                 (set! parsed-opts (cons (cons '-help #t) parsed-opts)))
                 (else
                  (set! nonamed (cons arg nonamed)))))
         (loop (cdr args))))
@@ -137,6 +140,12 @@
                 ((and (symbol? opt) (eq? opt option))
                  #t)
                 (else (loop (cdr opts))))))))
+
+(define (handle-help args usage)
+  (when (or (cmd-line-arg '-h args)
+            (cmd-line-arg '-help args)
+            (cmd-line-arg '--help args))
+    (usage)))
 
 (define (die . msg)
   (with-output-to-port (current-error-port)

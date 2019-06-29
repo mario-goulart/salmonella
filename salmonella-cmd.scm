@@ -175,9 +175,9 @@ EOF
        (eggs (map string->symbol (car parsed-args)))
        (args (cdr parsed-args)))
 
-  (when (or (cmd-line-arg '-h args)
-            (cmd-line-arg '--help args))
-    (usage exit-code: 0))
+  (handle-help args
+               (lambda ()
+                 (usage exit-code: 0)))
 
   (when (cmd-line-arg '--version args)
     (print salmonella-version)
