@@ -76,10 +76,10 @@
                (lambda ()
                  (usage 0)))
 
+  (handle-version args)
+
   (when (and (null? args) (null? log-files))
     (usage 1))
-
-  (handle-version args)
 
   (let ((out-file (cmd-line-arg '--log-file args)))
     (when (file-exists? out-file)
