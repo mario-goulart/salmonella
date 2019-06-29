@@ -43,7 +43,6 @@
 (define (run-salmonella instance
                         eggs
                         chicken-installation-prefix
-                        salmonella-prefix
                         chicken-install-args
                         skip-eggs
                         eggs-doc-dir
@@ -57,7 +56,7 @@
            (filter
             identity
             (list
-             (make-pathname salmonella-prefix "salmonella")
+             (make-pathname (pathname-directory (program-name)) "salmonella")
              (and chicken-installation-prefix
                   (string-append "--chicken-installation-prefix="
                                  chicken-installation-prefix))
@@ -83,9 +82,10 @@
     (process-run cmd)))
 
 
-(define (merge-logs salmonella-prefix log-dir log-file instances)
+(define (merge-logs log-dir log-file instances)
   (let ((cmd (string-intersperse
-              (list (make-pathname salmonella-prefix "salmonella-log-merger")
+              (list (make-pathname (pathname-directory (program-name))
+                                   "salmonella-log-merger")
                     (string-append "--log-file=" log-file)
                     (string-intersperse
                      (map (lambda (i)
@@ -104,9 +104,6 @@
     (exit 0))
   (let* ((chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
-         (salmonella-prefix
-          (or (cmd-line-arg '--salmonella-prefix args)
-              (pathname-directory (program-name))))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
          (eggs-doc-dir
@@ -171,7 +168,6 @@
                  (cons (run-salmonella i
                                        (list-ref egg-slices (- i 1))
                                        chicken-installation-prefix
-                                       salmonella-prefix
                                        chicken-install-args
                                        skip-eggs
                                        eggs-doc-dir
@@ -191,7 +187,7 @@
             (loop (- i 1))))))
 
     ;; Merge logs
-    (merge-logs salmonella-prefix log-dir log-file instances)
+    (merge-logs log-dir log-file instances)
     (delete-path log-dir)
     (unless keep-repo?
       (delete-path repo-dir))))

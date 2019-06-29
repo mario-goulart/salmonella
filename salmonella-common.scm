@@ -200,10 +200,6 @@ EOF
 --instances=<number>
     Number of salmonella instances to run in parallel.
 
---salmonella-prefix=<prefix dir>
-    Path to the directory where salmonella is installed.  The default
-    value is the same prefix directory as salmonella-epidemy.
-
 EOF
 ))
     (newline)
