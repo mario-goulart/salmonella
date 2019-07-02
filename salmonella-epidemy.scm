@@ -103,6 +103,7 @@
                                       (--chicken-install-args)
                                       (--eggs-doc-dir)
                                       (--skip-eggs)
+                                      (--instances)
                                       (--instance-id)
                                       --keep-repo
                                       --clear-chicken-home
