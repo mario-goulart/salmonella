@@ -54,7 +54,9 @@
                       ((install) "  Installing")
                       ((check-version) "  Checking version")
                       ((test) "  Testing")
-                      ((meta-data) "  Reading .meta")
+                      ((meta-data) (cond-expand
+                                    (chicken-4 "  Reading .meta")
+                                    (chicken-5 "  Reading .egg")))
                       ((check-dependencies) "  Checking dependencies")
                       ((check-category) "  Checking category")
                       ((check-license) "  Checking license")
