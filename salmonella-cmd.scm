@@ -173,7 +173,7 @@ EOF
                                       --clear-chicken-home
                                       (--repo-dir)
                                       (--verbosity))))
-       (eggs (map string->symbol (car parsed-args)))
+       (all-eggs (map string->symbol (car parsed-args)))
        (args (cdr parsed-args)))
 
   (handle-help args
@@ -182,7 +182,7 @@ EOF
 
   (handle-version args)
 
-  (let* ((this-egg? (null? eggs))
+  (let* ((this-egg? (null? all-eggs))
          (chicken-installation-prefix
           (cmd-line-arg '--chicken-installation-prefix args))
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
@@ -191,6 +191,9 @@ EOF
          (skip-eggs (or (and-let* ((skip (cmd-line-arg '--skip-eggs args)))
                           (map string->symbol (string-split skip ",")))
                         '()))
+         (eggs (remove (lambda (egg)
+                         (memq egg skip-eggs))
+                       all-eggs))
          (keep-repo? (cmd-line-arg '--keep-repo args))
          (clear-chicken-home? (cmd-line-arg '--clear-chicken-home args))
          (repo-dir (and-let* ((path (cmd-line-arg '--repo-dir args)))
