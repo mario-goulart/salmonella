@@ -147,9 +147,13 @@
                              (make-pathname (current-directory) path))))
                       (mktempdir)))
          (total-eggs (length eggs))
-         (instances (or (and-let* ((i (cmd-line-arg '--instances args)))
-                          (or (string->number i) 1))
-                        1))
+         (instances (let ((specified-instances
+                           (or (and-let* ((i (cmd-line-arg '--instances args)))
+                                 (or (string->number i) 1))
+                               1)))
+                      (if (> specified-instances total-eggs)
+                          total-eggs
+                          specified-instances)))
          (salmonella-tools-dir (or (cmd-line-arg 'salmonella-tools-dir args)
                                    (foreign-value "C_TARGET_BIN_HOME" c-string))))
 
