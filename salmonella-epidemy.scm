@@ -3,12 +3,13 @@
 (import scheme)
 (cond-expand
  (chicken-4
-  (import chicken)
+  (import chicken foreign)
   (use data-structures srfi-13 utils)
   (use posix salmonella salmonella-log-parser))
  (chicken-5
   (import (chicken base)
           (chicken file)
+          (chicken foreign)
           (chicken format)
           (chicken pathname)
           (chicken process)
@@ -42,6 +43,7 @@
 (define (run-salmonella instance
                         eggs
                         chicken-installation-prefix
+                        salmonella-tools-dir
                         chicken-install-args
                         skip-eggs
                         eggs-doc-dir
@@ -55,7 +57,7 @@
            (filter
             identity
             (list
-             (make-pathname (pathname-directory (program-name)) "salmonella")
+             (make-pathname salmonella-tools-dir "salmonella")
              (and chicken-installation-prefix
                   (string-append "--chicken-installation-prefix="
                                  chicken-installation-prefix))
@@ -81,9 +83,9 @@
     (process-run cmd)))
 
 
-(define (merge-logs log-dir log-file instances)
+(define (merge-logs log-dir log-file instances salmonella-tools-dir)
   (let ((cmd (string-intersperse
-              (list (make-pathname (pathname-directory (program-name))
+              (list (make-pathname salmonella-tools-dir
                                    "salmonella-log-merger")
                     (string-append "--log-file=" log-file)
                     (string-intersperse
@@ -99,6 +101,7 @@
                                       --help
                                       --version
                                       (--chicken-installation-prefix)
+                                      (--salmonella-tools-dir)
                                       (--log-file)
                                       (--chicken-install-args)
                                       (--eggs-doc-dir)
@@ -146,7 +149,9 @@
          (total-eggs (length eggs))
          (instances (or (and-let* ((i (cmd-line-arg '--instances args)))
                           (or (string->number i) 1))
-                        1)))
+                        1))
+         (salmonella-tools-dir (or (cmd-line-arg 'salmonella-tools-dir args)
+                                   (foreign-value "C_TARGET_BIN_HOME" c-string))))
 
     (when (null? eggs)
       (print "Nothing to do.")
@@ -178,6 +183,7 @@
                  (cons (run-salmonella i
                                        (list-ref egg-slices (- i 1))
                                        chicken-installation-prefix
+                                       salmonella-tools-dir
                                        chicken-install-args
                                        skip-eggs
                                        eggs-doc-dir
@@ -197,7 +203,7 @@
             (loop (- i 1))))))
 
     ;; Merge logs
-    (merge-logs log-dir log-file instances)
+    (merge-logs log-dir log-file instances salmonella-tools-dir)
     (delete-path log-dir)
     (unless keep-repo?
       (delete-path repo-dir))))

@@ -266,6 +266,12 @@ EOF
 
 --instances=<number>
     Number of salmonella instances to run in parallel.
+
+--salmonella-tools-dir
+    Directory where the tools required by salmonella-epidemy (salmonella,
+    salmonella-log-merger) can be found.  If omitted, the value of
+    C_TARGET_BIN_HOME of the CHICKEN runtime will be used.
+
 EOF
 ))
     (newline)
