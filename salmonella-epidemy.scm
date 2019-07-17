@@ -210,6 +210,8 @@
     (merge-logs log-dir log-file instances salmonella-tools-dir)
     (delete-path log-dir)
     (unless keep-repo?
-      (delete-path repo-dir))))
+      (delete-path repo-dir))
+
+    (exit (if (anything-failed? log-file) 1 0))))
 
 ) ;; end module

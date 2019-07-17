@@ -29,7 +29,7 @@
  count-no-test count-total-eggs count-documented count-undocumented
 
  ;; misc
- prettify-time sort-eggs log-version
+ prettify-time sort-eggs log-version anything-failed?
 
  ;; low level stuff
  log-get
@@ -298,5 +298,25 @@
   (sort eggs (lambda (e1 e2)
                (string<? (symbol->string e1)
                          (symbol->string e2)))))
+
+(define (anything-failed? log-file)
+  (let ((log-data (read-log-file log-file)))
+    (let loop ((log-entries log-data))
+      (if (null? log-entries)
+          #f
+          (let* ((log-entry (car log-entries))
+                 (action (report-action log-entry))
+                 (status (report-status log-entry)))
+            (if (memq action '(fetch install test check-doc))
+                (if (or (fx= status 0) (fx= status -1))
+                    (loop (cdr log-entries))
+                    #t)
+                (if (and (memq action '(check-author
+                                        check-license
+                                        check-dependencies
+                                        check-category))
+                         (not status))
+                    #t
+                    (loop (cdr log-entries)))))))))
 
 ) ;; end module

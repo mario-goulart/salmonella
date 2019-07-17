@@ -368,6 +368,8 @@ EOF
       (log! (make-report #f 'end 0 "" (current-seconds)) log-file)
       (unless this-egg?
         (show-statistics log-file verbosity))
-      (unless keep-repo? (delete-path tmp-dir)))))
+      (unless keep-repo? (delete-path tmp-dir))
 
-)
+      (exit (if (anything-failed? log-file) 1 0)))))
+
+) ;; end module
