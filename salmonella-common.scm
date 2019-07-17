@@ -82,10 +82,16 @@
              (if (pair? dep)
                  (car dep)
                  dep)))
-       (append (deps 'dependencies)
-               (deps 'build-dependencies)
+       (append (deps (cond-expand
+                      (chicken-4 'depends)
+                      (chicken-5 'dependencies)))
+               (deps (cond-expand
+                      (chicken-4 'needs)
+                      (chicken-5 'build-dependencies)))
                (if with-test-dependencies?
-                   (deps 'test-dependencies)
+                   (deps (cond-expand
+                          (chicken-4 'test-depends)
+                          (chicken-5 'test-dependencies)))
                    '()))))
 
 (define (parse-cmd-line cmd-line-args spec)
