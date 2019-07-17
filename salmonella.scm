@@ -16,7 +16,8 @@
 (cond-expand
  (chicken-4
   (import chicken foreign)
-  (use data-structures files irregex posix setup-api tcp utils)
+  (use data-structures files irregex posix tcp utils)
+  (import (except setup-api copy-file))
   (define file-executable? file-execute-access?)
   (define file-readable? file-read-access?)
   (define copy-file file-copy)
