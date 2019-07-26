@@ -1,1 +1,1 @@
-(define salmonella-version "2.8")
+(define salmonella-version "3.0.0")
