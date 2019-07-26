@@ -145,6 +145,11 @@ EOF
             (die "Invalid part: " part))
           (let ((printer (if (eq? action 'meta-data)
                              pp
-                             print)))
-            (printer (query-action (read-log-file log-file) egg action part)))))))))
+                             print))
+                (result
+                 (query-action (read-log-file log-file) egg action part)))
+            (if result
+                (printer result)
+                (exit 2)))))))))
+
 ) ;; end module
