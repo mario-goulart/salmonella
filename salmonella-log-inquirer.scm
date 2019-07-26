@@ -66,17 +66,32 @@ EOF
      (lambda (this port)
        (display #<#EOF
 #this [ -h | -help | --help ]
+  Print this message.
+
 #this --version
-#this --log-info <log-file>
-#this --statistics <log-file>
+  Show version and exit.
+
+#this --log-info <log file>
+  Show information about the environment where salmonella was executed
+  to generate the given <log-file> (e.g., environment variables, C
+  compiler, CHICKEN version, salmonella command line etc.)
+
+#this --statistics <log file>
+  Show simple statistics on installation, tests and documentation from
+  the log file .
+
 #this --list-eggs <log file>
+  List eggs covered in <log file>.
+
 #this --action=<action> --egg=<egg> [ --part=<part> ] <log file>
+  Query <action> and, optionally, <part> for <egg> in <log file>.
 
 <action>s:
 #all-actions
 
 <part>s (the default part is "message"):
 #all-parts
+
 EOF
     port)))))
 
