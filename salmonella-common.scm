@@ -130,7 +130,7 @@
                 (else
                  (set! nonamed (cons arg nonamed)))))
         (loop (cdr args))))
-    (cons nonamed parsed-opts)))
+    (cons (reverse nonamed) parsed-opts)))
 
 (define (cmd-line-arg option parsed-opts)
   ;; Returns the argument associated to the command line option OPTION
