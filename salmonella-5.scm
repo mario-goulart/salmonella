@@ -15,33 +15,21 @@
                               this-egg?
                               clear-chicken-home?))
          (chicken-import-libraries
-          (let* ((import-libraries-file
-                  (make-pathname
-                   (list (env 'chicken-installation-prefix) (env 'lib-dir))
-                   "chicken-import-libraries.db"))
-                 (unit-filenames
-                  (handle-exceptions exn ;; FIXME: check cause of exception
-                    #f
-                    (with-input-from-file import-libraries-file read-list))))
-            (if unit-filenames
-                (map (lambda (unit)
-                       (string-chomp (symbol->string unit) ".import.so"))
-                     unit-filenames)
-                ;; List of units before chicken-import-libraries.db
-                ;; existed (this is a bit broken, as if an egg installs
-                ;; a library called chicken*.import, this code is going
-                ;; to copy the egg library as if it was a core library.
-                (cons
-                 "srfi-4"
-                 (map (lambda (unit)
-                        (string-chomp (pathname-strip-directory unit)
-                                      ".import.so"))
-                      (glob (make-pathname (env 'host-repository-path)
-                                           (string-append
-                                            "chicken*.import."
-                                            (if (eq? (software-type) 'windows)
-                                                "dll"
-                                                "so"))))))))))
+          ;; List of chicken import libraries.  This is a bit broken,
+          ;; as if an egg installs a library called chicken*.import,
+          ;; this code is going to copy the egg library as if it was a
+          ;; core library.
+          (cons
+           "srfi-4"
+           (map (lambda (unit)
+                  (string-chomp (pathname-strip-directory unit)
+                                ".import.so"))
+                (glob (make-pathname (env 'host-repository-path)
+                                     (string-append
+                                      "chicken*.import."
+                                      (if (eq? (software-type) 'windows)
+                                          "dll"
+                                          "so"))))))))
     (check-chicken-executables env)
 
     (define (init-repo!)
