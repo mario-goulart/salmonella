@@ -36,8 +36,7 @@
                  (map (lambda (unit)
                         (string-chomp (pathname-strip-directory unit)
                                       ".import.so"))
-                      (glob (make-pathname (list (env 'chicken-installation-prefix)
-                                                 (env 'lib-dir))
+                      (glob (make-pathname (env 'host-repository-path)
                                            (string-append
                                             "chicken*.import."
                                             (if (eq? (software-type) 'windows)
