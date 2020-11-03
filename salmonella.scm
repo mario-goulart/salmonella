@@ -633,11 +633,15 @@
 
   (define (program-version prog)
     ;; Try to obtain the program version by calling it with --version.
-    ;; In case the program doesn't recognize that option, return #f.
+    ;; In case the program doesn't recognize that option, try -version
+    ;; (e.g., TCC).  If both fail, return #f.
     (let-values (((status output dur)
                   (run-shell-command prog '(--version) omit-command?: #t)))
-      (and (zero? status)
-           output)))
+      (if (zero? status)
+          output
+          (let-values (((status output dur)
+                        (run-shell-command prog '(-version) omit-command?: #t)))
+            (and (zero? status) output)))))
 
   (let* ((c-compiler (strip-surrounding-quotes
                       (shell-command-output (env 'csc) '(-cc-name))))
