@@ -224,11 +224,6 @@ chicken-install).
     use <repo> to indicate where you want the actual repository directory
     to be replaced by salmonella.
 
---eggs-source-dir=<eggs dir>
-    By default, salmonella fetches eggs from the egg server.  If you have a
-    local copy of eggs code, you can use this option to point to the directory
-    where they are located.
-
 --eggs-doc-dir=<doc dir>
     By default, salmonella checks if documentation for eggs exist by accessing
     the CHICKEN wiki.  If you have a local copy of the wiki documentation for
