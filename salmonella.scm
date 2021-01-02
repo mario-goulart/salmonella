@@ -208,7 +208,7 @@
           (or chicken-install-args
               (lambda (repo-dir)
                 (cond-expand
-                 (chicken-4 `(-prefix ,repo-dir -test))
+                 (chicken-4 `(-debug -prefix ,repo-dir -test))
                  (chicken-5 '(-v -test))))))
          (cache-dir (make-pathname tmp-repo-dir "cache")))
     (lambda (var)
