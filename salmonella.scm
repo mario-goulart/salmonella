@@ -65,7 +65,7 @@
    " 2>&1"
    (if *windows-shell*
        "\""
-       "")))
+       " < /dev/null")))
 
 (define (run-shell-command command args #!key omit-command?)
   ;; Returns (values <status> <output> <duration>)
@@ -610,11 +610,7 @@
                           egg
                           'test
                           (env 'csi)
-                          `(-script run.scm
-                                    ,(->string egg)
-                                    ,(if (eq? (software-type) 'windows)
-                                         ""
-                                         "< /dev/null")))))
+                          `(-script run.scm ,(->string egg)))))
                     (report-duration-set! report (- (current-seconds) start))
                     (add-to-reports! report)
                     (reverse all-reports)))))
