@@ -217,12 +217,36 @@ chicken-install).
     If you want to test eggs using a chicken installed on a certain directory,
     you can use this option (it should point to the same directory as given to
     `PREFIX' when installing CHICKEN). If omitted, salmonella uses CHICKEN
-    tools from the current runtime's installation prefix.
+    tools from the current runtime's installation prefix.  Note that when this
+    option is used, salmonella will look for "csi", "csc" and "chicken-install"
+    under <prefix dir>/bin.  If the CHICKEN installed under <prefix dir>
+    has different names for the CHICKEN tools (i.e., they were tweaked via
+    CSI_PROGRAM, CSC_PROGRAM, CHICKEN_INSTALL_PROGRAM, PROGRAM_PREFIX or
+    PROGRAM_SUFFIX at build time), you will need to use the --csi, --csc
+    and/or --chicken-install parameters for salmonella.
 
 --chicken-install-args=<install args>
     This option can be used customize chicken-install's arguments.  You can
     use <repo> to indicate where you want the actual repository directory
     to be replaced by salmonella.
+
+--csi=<path to csi>
+   Path to csi.  If provided, salmonella will use the csi pointed by
+   this parameter instead of the one from the current runtime's
+   installation prefix (or the static "csi" from the prefix set by
+   --chicken-installation-prefix).
+
+--csc=<path to csc>
+   Path to csc.  If provided, salmonella will use the csc pointed by
+   this parameter instead of the one from the current runtime's
+   installation prefix (or the static "csc" from the prefix set by
+   --chicken-installation-prefix).
+
+--chicken-install=<path to chicken-install>
+   Path to chicken-install.  If provided, salmonella will use the csi
+   pointed by this parameter instead of the one from the current runtime's
+   installation prefix (or the static "chicken-install" from the prefix set
+   by --chicken-installation-prefix).
 
 --eggs-doc-dir=<doc dir>
     By default, salmonella checks if documentation for eggs exist by accessing

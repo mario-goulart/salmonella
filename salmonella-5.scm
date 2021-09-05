@@ -7,13 +7,19 @@
                chicken-install-args
                eggs-doc-dir
                clear-chicken-home?
-               this-egg?)
+               this-egg?
+               csi
+               csc
+               chicken-install)
 
   (let* ((env (salmonella-env tmp-dir
                               chicken-installation-prefix
                               chicken-install-args
                               this-egg?
-                              clear-chicken-home?))
+                              clear-chicken-home?
+                              csi
+                              csc
+                              chicken-install))
          (chicken-import-libraries
           ;; List of chicken import libraries.  This is a bit broken,
           ;; as if an egg installs a library called chicken*.import,

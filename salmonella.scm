@@ -51,6 +51,13 @@
         (report-message report)
         (report-duration report)))
 
+(define default-csi-program (foreign-value "C_CSI_PROGRAM" c-string))
+
+(define default-csc-program (foreign-value "C_CSC_PROGRAM" c-string))
+
+(define default-chicken-install-program
+  (foreign-value "C_CHICKEN_INSTALL_PROGRAM" c-string))
+
 ;; From setup-api
 (define *windows-shell* (foreign-value "C_WINDOWS_SHELL" bool))
 
@@ -170,24 +177,42 @@
                         chicken-installation-prefix
                         chicken-install-args
                         this-egg?
-                        clear-chicken-home?)
+                        clear-chicken-home?
+                        csi
+                        csc
+                        chicken-install)
   (let* ((mingw? (eq? (build-platform) 'mingw32))
+         (maybe-exe (lambda (name)
+                      (if mingw?
+                          (sprintf "~a.exe" name)
+                          name)))
+         (user-provided-installation-prefix chicken-installation-prefix)
          (chicken-installation-prefix
           (cond-expand
            (chicken-4
-            (or chicken-installation-prefix (installation-prefix)))
+            (or user-provided-installation-prefix (installation-prefix)))
            (chicken-5
-            (or chicken-installation-prefix default-installation-prefix))))
+            (or user-provided-installation-prefix
+                default-installation-prefix))))
          (tmp-repo-dir (make-pathname tmp-dir "repo"))
-         (csi (make-pathname (list chicken-installation-prefix "bin")
-                             "csi"
-                             (and mingw? "exe")))
-         (csc (make-pathname (list chicken-installation-prefix "bin")
-                             "csc"
-                             (and mingw? "exe")))
-         (chicken-install (make-pathname (list chicken-installation-prefix "bin")
-                                         "chicken-install"
-                                         (and mingw? "exe")))
+         (csi
+          (or csi
+              (make-pathname (list chicken-installation-prefix "bin")
+                             (if user-provided-installation-prefix
+                                 (maybe-exe "csi")
+                                 default-csi-program))))
+         (csc
+          (or csc
+              (make-pathname (list chicken-installation-prefix "bin")
+                             (if user-provided-installation-prefix
+                                 (maybe-exe "csc")
+                                 default-csc-program))))
+         (chicken-install
+          (or chicken-install
+              (make-pathname (list chicken-installation-prefix "bin")
+                             (if user-provided-installation-prefix
+                                 (maybe-exe "chicken-install")
+                                 default-chicken-install-program))))
          (host-repository-path
           (shell-command-output chicken-install '(-repository)))
          (binary-version (pathname-file host-repository-path))

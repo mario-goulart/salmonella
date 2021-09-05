@@ -166,6 +166,9 @@ EOF
                                       (--chicken-installation-prefix)
                                       (--log-file)
                                       (--chicken-install-args)
+                                      (--csi)
+                                      (--csc)
+                                      (--chicken-install)
                                       (--eggs-doc-dir)
                                       (--skip-eggs)
                                       (--instance-id)
@@ -188,6 +191,9 @@ EOF
          (log-file (or (cmd-line-arg '--log-file args) "salmonella.log"))
          (chicken-install-args
           (cmd-line-arg '--chicken-install-args args))
+         (csi (cmd-line-arg '--csi args))
+         (csc (cmd-line-arg '--csc args))
+         (chicken-install (cmd-line-arg '--chicken-instal args))
          (skip-eggs (or (and-let* ((skip (cmd-line-arg '--skip-eggs args)))
                           (map string->symbol (string-split skip ",")))
                         '()))
@@ -235,6 +241,9 @@ EOF
                    (list
                     (or (irregex-replace "<repo>" chicken-install-args repo)
                         chicken-install-args))))
+            csi: csi
+            csc: csc
+            chicken-install: chicken-install
             this-egg?: this-egg?))
           (total-eggs (length eggs)))
 
