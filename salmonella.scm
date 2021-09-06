@@ -570,12 +570,14 @@
     (call/cc
      (lambda (return)
        (let* ((meta-data (read-meta-file egg env))
-              (test-deps (alist-ref
-                          (cond-expand
-                           (chicken-4 'test-depends)
-                           (chicken-5 'test-dependencies))
-                          meta-data)))
-         (if (and test-deps (not (file-exists? test-script)))
+              (test-deps (or (alist-ref
+                              (cond-expand
+                                (chicken-4 'test-depends)
+                                (chicken-5 'test-dependencies))
+                              meta-data)
+                             '())))
+         (if (and (not (null? test-deps))
+                  (not (file-exists? test-script)))
              (add-to-reports!
               (make-report egg 'useless-test-dependencies #f
                            "Test dependencies have been specified, but the egg has no tests."
@@ -583,7 +585,7 @@
              ;; Install test dependencies
              (let loop ((deps (remove (lambda (dep)
                                         (chicken-unit? dep (env 'major-version)))
-                                      (or test-deps '()))))
+                                      test-deps)))
                (unless (null? deps)
                  (let* ((dep-maybe-version (car deps))
                         (dep (if (pair? dep-maybe-version)
