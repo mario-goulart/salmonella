@@ -218,10 +218,12 @@ EOF
                       (chicken-5 ".egg")))
              (egg-spec (glob (string-append "*" suffix))))
         (cond ((null? egg-spec)
+               (delete-path tmp-dir)
                (die (sprintf "Could not find a ~a file. Aborting." suffix)))
               ((null? (cdr egg-spec))
                (set! eggs (map (compose string->symbol pathname-file) egg-spec)))
               (else
+               (delete-path tmp-dir)
                (die (sprintf "Found more than one ~a file.  Aborting." suffix))))))
 
     (when (and (null? eggs) (not this-egg?))
