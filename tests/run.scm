@@ -71,6 +71,8 @@
 (test "BSD" (egg-license 'slice log))
 (test "BSD" (egg-license 'ansi-escape-sequences log))
 
+(test-error "Corrupted log, missing end time" (end-time (butlast log)))
+
 (test-end "Salmonella")
 
 (test-exit)

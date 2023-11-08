@@ -223,7 +223,11 @@
   (report-message (start-report log)))
 
 (define (end-time log)
-  (report-duration (last log)))
+  (let ((last-record (last log)))
+    (unless (eq? (report-action last-record) 'end)
+      (error 'end-time
+             "Corrupted log file: action of last record is not `end'"))
+    (report-duration last-record)))
 
 (define (total-time log)
   (- (end-time log) (start-time log)))
