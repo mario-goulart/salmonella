@@ -704,6 +704,7 @@ Environment variables:
    (chicken-4
     (list
      (show-envvar "SALMONELLA_RUNNING")
+     (show-envvar "CHICKEN_INSTALL_PREFIX" (env 'tmp-repo-dir))
      (show-envvar "CHICKEN_PREFIX" (env 'chicken-installation-prefix))
      (show-envvar "CHICKEN_INSTALL_PREFIX")
      (show-envvar "CHICKEN_INCLUDE_PATH")
@@ -715,7 +716,8 @@ Environment variables:
   (chicken-5
    (list
     (show-envvar "SALMONELLA_RUNNING")
-    (show-envvar "CHICKEN_PREFIX" (env 'chicken-installation-prefix))
+    (show-envvar "CHICKEN_INSTALL_PREFIX")
+    (show-envvar "CHICKEN_PREFIX")
     (show-envvar "CHICKEN_INSTALL_REPOSITORY")
     (show-envvar "CHICKEN_REPOSITORY_PATH")
     (show-envvar "CHICKEN_EGG_CACHE")
