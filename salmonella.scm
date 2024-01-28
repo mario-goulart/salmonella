@@ -228,7 +228,7 @@
          (lib-dir (make-pathname '("lib" "chicken") binary-version))
          (tmp-repo-bin-dir (make-pathname tmp-repo-dir "bin"))
          (tmp-repo-lib-dir (make-pathname tmp-repo-dir lib-dir))
-         (tmp-repo-share-dir (make-pathname (list tmp-repo-dir "share") "chicken"))
+         (tmp-repo-share-dir (make-pathname tmp-repo-dir "share"))
          (chicken-install-args
           (or chicken-install-args
               (lambda (repo-dir)
