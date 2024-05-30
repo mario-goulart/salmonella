@@ -6,7 +6,7 @@
   (import chicken)
   (use data-structures files srfi-1 srfi-13)
   (use salmonella salmonella-log-parser))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (import (chicken base)
           (chicken file)
           (chicken format)

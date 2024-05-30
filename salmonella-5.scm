@@ -1,3 +1,9 @@
+;; Although the name of this file contains 5, which would indicate it
+;; is the salmonella code for CHICKEN 5, it also provides support for
+;; CHICKEN 6, as when it comes to CHICKEN behavior required by
+;; salmonella, CHICKEN 5 and CHICKEN 6 at this point are pretty much
+;; the same.
+
 (import (chicken base)
         (chicken condition)
         (chicken pathname))
@@ -20,22 +26,29 @@
                               csi
                               csc
                               chicken-install))
+         (glob-units (lambda (pattern)
+                       (glob (make-pathname (env 'host-repository-path)
+                                            (string-append
+                                             pattern
+                                             (if (eq? (software-type) 'windows)
+                                                 "dll"
+                                                 "so"))))))
          (chicken-import-libraries
           ;; List of chicken import libraries.  This is a bit broken,
-          ;; as if an egg installs a library called chicken*.import,
-          ;; this code is going to copy the egg library as if it was a
-          ;; core library.
+          ;; as if an egg installs a library called chicken*.import or
+          ;; scheme.*.import this code is going to copy the egg
+          ;; library as if it was a core library.
           (cons
            "srfi-4"
            (map (lambda (unit)
                   (string-chomp (pathname-strip-directory unit)
                                 ".import.so"))
-                (glob (make-pathname (env 'host-repository-path)
-                                     (string-append
-                                      "chicken*.import."
-                                      (if (eq? (software-type) 'windows)
-                                          "dll"
-                                          "so"))))))))
+                (append
+                 (glob-units "chicken*.import.")
+                 (if (= (env 'major-version) 6)
+                     (glob-units "scheme.*.import.")
+                     '()))))))
+
     (check-chicken-executables env)
 
     (define (init-repo!)

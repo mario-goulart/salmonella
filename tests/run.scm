@@ -3,7 +3,7 @@
  (chicken-4
   (use test)
   (use salmonella salmonella-log-parser))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (import (chicken base)
           (chicken string))
   (import test salmonella salmonella-log-parser))

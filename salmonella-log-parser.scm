@@ -42,7 +42,7 @@
   (use srfi-1 data-structures extras)
   (use salmonella)
   (define read-list read-file))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (import (chicken base)
           (chicken io)
           (chicken file)
