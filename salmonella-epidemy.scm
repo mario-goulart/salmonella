@@ -6,7 +6,11 @@
   (import chicken foreign)
   (use data-structures srfi-13 utils)
   (use posix salmonella salmonella-log-parser))
- (chicken-5
+ ((or chicken-5 chicken-6)
+  (cond-expand
+   (chicken-6
+    (import (scheme base)))
+   (else))
   (import (chicken base)
           (chicken file)
           (chicken foreign)

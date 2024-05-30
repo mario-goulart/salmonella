@@ -22,7 +22,11 @@
   (define file-readable? file-read-access?)
   (define copy-file file-copy)
   (define set-file-permissions! change-file-mode))
- (chicken-5
+ ((or chicken-5 chicken-6)
+  (cond-expand
+   (chicken-6
+    (import (scheme base)))
+   (else))
   (import (chicken base)
           (chicken bitwise)
           (chicken condition)
@@ -86,7 +90,7 @@
          (output (cond-expand
                   (chicken-4
                    (read-all p))
-                  (chicken-5
+                  ((or chicken-5 chicken-6)
                    (with-input-from-port p read-string)))))
     (values (if *windows-shell*
                 (close-input-pipe p)
@@ -191,7 +195,7 @@
           (cond-expand
            (chicken-4
             (or user-provided-installation-prefix (installation-prefix)))
-           (chicken-5
+           ((or chicken-5 chicken-6)
             (or user-provided-installation-prefix
                 default-installation-prefix))))
          (tmp-repo-dir (make-pathname tmp-dir "repo"))
@@ -222,7 +226,7 @@
                     (cond-expand
                      (chicken-4
                       '(-np "\"(chicken-version)\""))
-                     (chicken-5
+                     ((or chicken-5 chicken-6)
                       '(-np "\"(begin (import chicken.platform) (chicken-version))\""))))))
             (string->number (car (string-split v ".")))))
          (lib-dir (make-pathname '("lib" "chicken") binary-version))
@@ -234,7 +238,7 @@
               (lambda (repo-dir)
                 (cond-expand
                  (chicken-4 `(-debug -prefix ,repo-dir -test))
-                 (chicken-5 '(-v -test))))))
+                 ((or chicken-5 chicken-6) '(-v -test))))))
          (cache-dir (make-pathname tmp-repo-dir "cache")))
     (lambda (var)
       (case var
@@ -247,7 +251,7 @@
          (cond-expand
           (chicken-4
            (error 'salmonella-env "cache-dir is not available for CHICKEN 4."))
-          (chicken-5
+          ((or chicken-5 chicken-6)
            cache-dir)))
         ((csi) csi)
         ((csc) csc)
@@ -279,7 +283,7 @@
               (glob (make-pathname (env 'tmp-repo-lib-dir) "*"
                                    (cond-expand
                                     (chicken-4 "setup-info")
-                                    (chicken-5 "egg-info")))))))
+                                    ((or chicken-5 chicken-6) "egg-info")))))))
     (and (member (->string egg) installed-eggs) #t)))
 
 (define (get-chicken-home env)
@@ -288,7 +292,7 @@
    (cond-expand
     (chicken-4
      '(-np "\"(chicken-home)\""))
-    (chicken-5
+    ((or chicken-5 chicken-6)
      '(-np "\"(begin (import (chicken platform)) (chicken-home))\"")))))
 
 (define (clear-repo! egg env)
@@ -329,7 +333,7 @@
                                (list (env 'tmp-dir) egg))
                            egg
                            "meta"))
-           (chicken-5
+           ((or chicken-5 chicken-6)
             (make-pathname (if (env 'this-egg?)
                                #f
                                (list (env 'cache-dir) egg))
@@ -442,7 +446,7 @@
   ;; .egg-info files
   (let* ((suffix (cond-expand
                   (chicken-4 "setup-info")
-                  (chicken-5 "egg-info")))
+                  ((or chicken-5 chicken-6) "egg-info")))
          (egg-info-file (make-pathname (env 'tmp-repo-lib-dir) egg suffix)))
     (if (and (file-exists? egg-info-file)
              (file-readable? egg-info-file))
@@ -548,7 +552,7 @@
         (save-excursion (make-pathname
                          (cond-expand
                           (chicken-4 (env 'tmp-dir))
-                          (chicken-5 (env 'cache-dir)))
+                          ((or chicken-5 chicken-6) (env 'cache-dir)))
                          (->string egg))
              install))))
 
@@ -556,13 +560,14 @@
   ;; Run egg tests and return a list of report objects.
   (let* ((start (current-seconds))
          (all-reports '())
-         (test-dir (make-pathname (if (env 'this-egg?)
-                                      #f
-                                      (list (cond-expand
-                                             (chicken-4 (env 'tmp-dir))
-                                             (chicken-5 (env 'cache-dir)))
-                                            (->string egg)))
-                                  "tests"))
+         (test-dir
+          (make-pathname (if (env 'this-egg?)
+                             #f
+                             (list (cond-expand
+                                    (chicken-4 (env 'tmp-dir))
+                                    ((or chicken-5 chicken-6) (env 'cache-dir)))
+                                   (->string egg)))
+                         "tests"))
          (test-script (make-pathname test-dir "run.scm"))
          (add-to-reports!
           (lambda (report)
@@ -573,7 +578,7 @@
               (test-deps (or (alist-ref
                               (cond-expand
                                 (chicken-4 'test-depends)
-                                (chicken-5 'test-dependencies))
+                                ((or chicken-5 chicken-6) 'test-dependencies))
                               meta-data)
                              '())))
          (if (and (not (null? test-deps))
@@ -713,7 +718,7 @@ Environment variables:
      (show-envvar "CHICKEN_HOME")
      (show-envvar "CSC_OPTIONS")
      (show-envvar "PATH")))
-  (chicken-5
+  ((or chicken-5 chicken-6)
    (list
     (show-envvar "SALMONELLA_RUNNING")
     (show-envvar "CHICKEN_INSTALL_PREFIX")
@@ -741,7 +746,7 @@ EOF
 (cond-expand
  (chicken-4
   (include "salmonella-4.scm"))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (include "salmonella-5.scm"))
  (else
   (error "Unsupported CHICKEN version.")))

@@ -8,7 +8,7 @@
   (use data-structures srfi-13)
   (use salmonella salmonella-log-parser)
   (define chicken-4? #t))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (import (chicken base)
           (chicken file)
           (chicken fixnum)
@@ -56,7 +56,7 @@
                       ((test) "  Testing")
                       ((meta-data) (cond-expand
                                     (chicken-4 "  Reading .meta")
-                                    (chicken-5 "  Reading .egg")))
+                                    ((or chicken-5 chicken-6) "  Reading .egg")))
                       ((check-dependencies) "  Checking dependencies")
                       ((check-category) "  Checking category")
                       ((check-license) "  Checking license")
@@ -215,7 +215,7 @@ EOF
     (when this-egg?
       (let* ((suffix (cond-expand
                       (chicken-4 ".setup")
-                      (chicken-5 ".egg")))
+                      ((or chicken-5 chicken-6) ".egg")))
              (egg-spec (glob (string-append "*" suffix))))
         (cond ((null? egg-spec)
                (delete-path tmp-dir)

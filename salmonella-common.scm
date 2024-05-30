@@ -4,7 +4,7 @@
   (import foreign)
   (use extras files irregex ports posix srfi-1 srfi-13)
   (define pseudo-random-integer random))
- (chicken-5
+ ((or chicken-5 chicken-6)
   (import (chicken file)
           (chicken file posix)
           (chicken foreign)
@@ -84,14 +84,14 @@
                  dep)))
        (append (deps (cond-expand
                       (chicken-4 'depends)
-                      (chicken-5 'dependencies)))
+                      ((or chicken-5 chicken-6) 'dependencies)))
                (deps (cond-expand
                       (chicken-4 'needs)
-                      (chicken-5 'build-dependencies)))
+                      ((or chicken-5 chicken-6) 'build-dependencies)))
                (if with-test-dependencies?
                    (deps (cond-expand
                           (chicken-4 'test-depends)
-                          (chicken-5 'test-dependencies)))
+                          ((or chicken-5 chicken-6) 'test-dependencies)))
                    '()))))
 
 (define (parse-cmd-line cmd-line-args spec)
