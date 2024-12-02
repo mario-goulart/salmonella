@@ -45,10 +45,10 @@
                                 ".import.so"))
                 (append
                  (glob-units "chicken*.import.")
-                 (cond-expand
-                  (chicken-6
-                   (glob-units "scheme.*.import."))
-                  (else '())))))))
+                 (if (= (env 'major-version) 6)
+                     (glob-units "scheme.*.import.")
+                     '()))))))
+
     (check-chicken-executables env)
 
     (define (init-repo!)
