@@ -218,7 +218,10 @@
                                  (maybe-exe "chicken-install")
                                  default-chicken-install-program))))
          (host-repository-path
-          (shell-command-output chicken-install '(-repository)))
+          (begin
+            ;; Get the repository path set at CHICKEN installation time
+            (unset-environment-variable! "CHICKEN_INSTALL_REPOSITORY")
+            (shell-command-output chicken-install '(-repository))))
          (binary-version (pathname-file host-repository-path))
          (major-version
           (let ((v (shell-command-output
