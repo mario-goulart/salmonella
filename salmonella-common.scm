@@ -283,11 +283,11 @@ chicken-install).
     A number to indicate salmonella's verbosity level.  0 means practically
     silent. 1 is mostly silent and 2 (default) prints some useful information
     while salmonella is running.
-
 EOF
     port)
     (when epidemy?
       (display #<#EOF
+
 
 --instances=<number>
     Number of salmonella instances to run in parallel.
@@ -296,7 +296,6 @@ EOF
     Directory where the tools required by salmonella-epidemy (salmonella,
     salmonella-log-merger) can be found.  If omitted, the value of
     C_TARGET_BIN_HOME of the CHICKEN runtime will be used.
-
 EOF
 ))
     (newline)
