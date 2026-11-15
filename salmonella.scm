@@ -292,14 +292,17 @@
 (define (get-chicken-home env)
   (shell-command-output
    (env 'csi)
-   (cond-expand
-    (chicken-4
-     '(-np "\"(chicken-home)\""))
-    (chicken-5
-     '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))
-    (chicken-6
-     '(-np "\"(begin (import (chicken pathname) (chicken platform)) (pathname-directory (car (repository-path))))\""))
-    )))
+   (case (env 'major-version)
+     ((4)
+      '(-np "\"(chicken-home)\""))
+     ((5)
+      '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))
+     ((6)
+      '(-np "\"(begin (import (chicken pathname) (chicken platform)) (pathname-directory (car (repository-path))))\""))
+     (else
+      (error "get-chicken-home: Unsupported CHICKEN version"
+             (env 'major-version)))
+     )))
 
 (define (clear-repo! egg env)
   (when (file-exists? (env 'tmp-repo-dir))
