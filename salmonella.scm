@@ -295,8 +295,11 @@
    (cond-expand
     (chicken-4
      '(-np "\"(chicken-home)\""))
-    ((or chicken-5 chicken-6)
-     '(-np "\"(begin (import (chicken platform)) (chicken-home))\"")))))
+    (chicken-5
+     '(-np "\"(begin (import (chicken platform)) (chicken-home))\""))
+    (chicken-6
+     '(-np "\"(begin (import (chicken pathname) (chicken platform)) (pathname-directory (car (repository-path))))\""))
+    )))
 
 (define (clear-repo! egg env)
   (when (file-exists? (env 'tmp-repo-dir))
